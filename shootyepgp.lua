@@ -17,7 +17,7 @@ sepgp.VARS = {
   timeout = 60,
   minlevel = 55,
   maxloglines = 500,
-  prefix = "SEPGP_PREFIX",
+  prefix = "SEPGP_ANDRGIT_MOD",
   reservechan = "Reserves",
   reserveanswer = "^(%+)(%a*)$",
   bop = C:Red("BoP"),
@@ -30,6 +30,9 @@ sepgp.VARS = {
 }
 sepgp.VARS.reservecall = string.format(L["{shootyepgp}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."],sepgp.VARS.timeout)
 sepgp._playerName = (UnitName("player"))
+sepgp.isAdmin = false;
+sepgp.isRoot = false;
+
 local out = "|cff9664c8shootyepgp:|r %s"
 local raidStatus,lastRaidStatus
 local lastUpdate = 0
@@ -56,6 +59,37 @@ do
     hexColorQuality[ITEM_QUALITY_COLORS[i].hex] = i
   end
 end
+
+function sepgp.isRootUnit()
+  if (sepgp.isRoot) then
+    return true;
+  end
+
+  if (not sepgp_config) then
+    return false;
+  end
+
+  local canChangeAll = sepgp_config.canChangeAll;
+  if (not canChangeAll) then
+    return false;
+  end
+
+  local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
+
+  for gName, gData in pairs(canChangeAll) do
+    if (gName == playerGuildName and type(gData) == "table") then
+      for i = 1, table.getn(gData) do
+        if (gData[i].rank == playerGuildName) then
+          sepgp.isRoot = true;
+          return true;
+        end
+      end
+    end
+  end
+
+  return false;
+end
+
 local admincmd, membercmd = {type = "group", handler = sepgp, args = {
     bids = {
       type = "execute",
@@ -263,11 +297,11 @@ function sepgp:buildMenu()
       desc = L["Allow Alts to use Main\'s EPGP."],
       order = 63,
       hidden = function() return not (admin()) end,
-      disabled = function() return not (IsGuildLeader()) end,
+      disabled = function() return not (sepgp.isRootUnit()) end,
       get = function() return not not sepgp_altspool end,
       set = function(v) 
         sepgp_altspool = not sepgp_altspool
-        if (IsGuildLeader()) then
+        if (sepgp.isRootUnit()) then
           sepgp:shareSettings(true)
         end
       end,
@@ -277,11 +311,11 @@ function sepgp:buildMenu()
       name = L["Alts EP %"],
       desc = L["Set the % EP Alts can earn."],
       order = 66,
-      hidden = function() return (not sepgp_altspool) or (not IsGuildLeader()) end,
+      hidden = function() return (not sepgp_altspool) or (not sepgp.isRootUnit()) end,
       get = function() return sepgp_altpercent end,
       set = function(v) 
         sepgp_altpercent = v
-        if (IsGuildLeader()) then
+        if (sepgp.isRootUnit()) then
           sepgp:shareSettings(true)
         end
       end,
@@ -326,7 +360,7 @@ function sepgp:buildMenu()
       set = function(v) 
         sepgp_progress = v 
         sepgp:refreshPRTablets()
-        if (IsGuildLeader()) then
+        if (sepgp.isRootUnit()) then
           sepgp:shareSettings(true)
         end
       end,
@@ -360,7 +394,7 @@ function sepgp:buildMenu()
       set = function(v) 
         sepgp_decay = (1 - v)
         options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"],(1-sepgp_decay)*100)
-        if (IsGuildLeader()) then
+        if (sepgp.isRootUnit()) then
           sepgp:shareSettings(true)
         end
       end,
@@ -386,7 +420,7 @@ function sepgp:buildMenu()
       get = function() return sepgp_discount end,
       set = function(v) 
         sepgp_discount = v
-        if (IsGuildLeader()) then
+        if (sepgp.isRootUnit()) then
           sepgp:shareSettings(true)
         end
       end,
@@ -411,7 +445,7 @@ function sepgp:buildMenu()
       set = function(v) 
         sepgp_minep = tonumber(v)
         sepgp:refreshPRTablets()
-        if (IsGuildLeader()) then
+        if (sepgp.isRootUnit()) then
           sepgp:shareSettings(true)
         end        
       end,
@@ -426,7 +460,7 @@ function sepgp:buildMenu()
      name = L["Reset EPGP"],
      desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Admin only)."],sepgp.VARS.basegp),
      order = 120,
-     hidden = function() return not (IsGuildLeader()) end,
+     hidden = function() return not (sepgp.isRootUnit()) end,
      func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_RESET") end
     }
   end
@@ -674,7 +708,7 @@ function sepgp:delayedInit()
   -- broadcast our version
   local addonMsg = string.format("VERSION;%s;%d",sepgp._versionString,major_ver)
   self:addonMessage(addonMsg,"GUILD")
-  if (IsGuildLeader()) then
+  if (sepgp.isRootUnit()) then
     self:shareSettings()
   end
   -- safe officer note setting when we are admin
@@ -1026,7 +1060,7 @@ function sepgp:addonComms(prefix,message,channel,sender)
         self:defaultPrint(string.format(L["New %s version available: |cff00ff00%s|r"],version_type,what))
         self:defaultPrint(string.format(L["Visit %s to update."],self._websiteString))
       end
-      if (IsGuildLeader()) then
+      if (sepgp.isRootUnit()) then
         self:shareSettings()
       end
     elseif who == "SETTINGS" then
@@ -1384,7 +1418,7 @@ function sepgp:decay_epgp_v3()
 end
 
 function sepgp:gp_reset_v2()
-  if (IsGuildLeader()) then
+  if (sepgp.isRootUnit()) then
     for i = 1, GetNumGuildMembers(1) do
       GuildRosterSetOfficerNote(i, sepgp.VARS.basegp,true)
     end
@@ -1395,7 +1429,7 @@ function sepgp:gp_reset_v2()
 end
 
 function sepgp:gp_reset_v3()
-  if (IsGuildLeader()) then
+  if (sepgp.isRootUnit()) then
     for i = 1, GetNumGuildMembers(1) do
       local name,_,_,_,class,_,note,officernote,_,_ = GetGuildRosterInfo(i)
       local ep,gp = self:get_ep_v3(name,officernote), self:get_gp_v3(name,officernote)
@@ -2233,8 +2267,38 @@ function sepgp:camelCase(word)
     end)
 end
 
-admin = function()
-  return (CanEditOfficerNote() --[[and CanEditPublicNote()]])
+admin = function ()
+  -- return (CanEditOfficerNote() --[[and CanEditPublicNote()]])
+  if (sepgp.isAdmin) then
+    return true;
+  end
+
+  if (not sepgp_config) then
+    return false;
+  end
+
+  local canEditDB = sepgp_config.canEditDB;
+  if (not canEditDB) then
+    return false;
+  end
+
+
+
+  -- local playerName = sepgp._playerName;
+  local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
+
+  for gName, gData in pairs(canEditDB) do
+    if (gName == playerGuildName and type(gData) == "table") then
+      for i = 1, table.getn(gData) do
+        if (gData[i].rank == playerGuildName) then
+          sepgp.isAdmin = true;
+          return true;
+        end
+      end
+    end
+  end
+
+  return false;
 end
 
 sanitizeNote = function(prefix,epgp,postfix)

@@ -131,7 +131,7 @@ function sepgp_standings:Export()
 end
 
 function sepgp_standings:Import()
-  if not IsGuildLeader() then return end
+  if not sepgp.isRootUnit() then return end
   shooty_export.action:Show()
   shooty_export.title:SetText(C:Red("Ctrl-V to paste data. Esc to close."))
   shooty_export.AddSelectText(L.IMPORT_WARNING)
@@ -139,7 +139,7 @@ function sepgp_standings:Import()
 end
 
 function sepgp_standings.import()
-  if not IsGuildLeader() then return end
+  if not sepgp.isRootUnit() then return end
   local text = shooty_export.edit:GetText()
   local t = {}
   local found
@@ -259,7 +259,7 @@ function sepgp_standings:OnEnable()
           "tooltipText", L["Export standings to csv."],
           "func", function() sepgp_standings:Export() end
         )
-        if IsGuildLeader() then
+        if sepgp.isRootUnit() then
           D:AddLine(
           "text", L["Import"],
           "tooltipText", L["Import standings from csv."],
