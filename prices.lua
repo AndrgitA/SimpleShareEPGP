@@ -786,7 +786,7 @@ end
 
 sepgp_prices = sepgp:NewModule("sepgp_prices", "AceDB-2.0")
 
-function sepgp_prices:GetPrice(item,progress)
+function sepgp_prices:GetPrice(item, progress)
   if not progress then progress = "T3" end
   local itemID,found,_,itemString,data,tier,is,il
   local price
@@ -804,15 +804,18 @@ function sepgp_prices:GetPrice(item,progress)
       end
     end
   end
+
   if (itemID) then
     data = prices[itemID]
     if (data) then
-      price, tier = data[1], data[2]
-      price = get_adjusted_price(price,tier,progress)
+      price = data[1];
+      -- price, tier = data[1], data[2]
+      -- price = get_adjusted_price(price, tier, progress)
     else
       return
     end
   end
+  
   return price
 end
 

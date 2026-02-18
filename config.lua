@@ -1,9 +1,18 @@
+CUSTOM_SEPGP_UKNOWN_GUILD_NAME = "CUSTOM_SEPGP_UKNOWN_GUILD_NAME";
+
 sepgp_config = {
   -- Who can edit table; Кто может редактировать таблицу.
   canEditDB = {
     ["CKAZKA"] = {
       -- if guild rank equal "Warlord"; Если звание в гильдии равно "Warlord"
       { rank = "Warlord" }, 
+    },
+    ["Going to Death"] = {
+      { name = "Andrgitdruid" },
+    },
+    [CUSTOM_SEPGP_UKNOWN_GUILD_NAME] = {
+      { name = "Andrgitlock" },
+      { name = "Invpartthree" },
     },
   },
 
@@ -12,6 +21,13 @@ sepgp_config = {
     ["CKAZKA"] = {
       -- if guild rank equal "Warlord"; Если звание в гильдии равно "Warlord"
       { rank = "Warlord" },
+    },
+    ["Going to Death"] = {
+      { name = "Andrgitdruid" },
+    },
+    [CUSTOM_SEPGP_UKNOWN_GUILD_NAME] = {
+      { name = "Andrgitlock" },
+      { name = "Invpartthree" },
     },
   },
 };

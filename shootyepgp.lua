@@ -28,6 +28,8 @@ sepgp.VARS = {
   reminder = C:Red("Unassigned"),
   undefinedClass = "UNDEFINED_CLASS",
   defaultSayChannel = "RAID",
+  unknownGuildName = CUSTOM_SEPGP_UKNOWN_GUILD_NAME or "CUSTOM_SEPGP_UKNOWN_GUILD_NAME",
+  minimalItemLootQualiti = 3,
 }
 
 sepgp._playerName = (UnitName("player"))
@@ -44,6 +46,11 @@ sepgp.classNames = {
   Shaman = L["Shaman"],
   Rogue = L["Rogue"],
 };
+sepgp.SUPER_WOW = true;
+
+if (not GetPlayerBuffID or not CombatLogAdd or not SpellInfo or not ExportFile) then
+  sepgp.SUPER_WOW = false;
+end
 
 sepgp_table_db = {};
 
@@ -90,6 +97,10 @@ function sepgp.isRootUnit()
 
   local playerName = sepgp._playerName;
   local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
+  
+  if (not playerGuildName) then
+    playerGuildName = sepgp.VARS.unknownGuildName;
+  end
 
   for gName, gData in pairs(canChangeAll) do
     if (gName == playerGuildName and type(gData) == "table") then
@@ -770,7 +781,8 @@ function sepgp:LootFrameItem_OnClick(button,data)
       this._hasExtraClicks = true
     end
   end
-  if LootSlotIsItem(slot) and quality >= 3 then 
+
+  if (LootSlotIsItem(slot) and quality >= sepgp.VARS.minimalItemLootQualiti) then 
     local itemLink = GetLootSlotLink(slot)
     if (itemLink) then
       if button == "LeftButton" then
@@ -863,7 +875,7 @@ function sepgp:defaultPrint(msg)
   DEFAULT_CHAT_FRAME:AddMessage(string.format(out,msg))
 end
 
-function sepgp:bidPrint(link,masterlooter,need,greed,bid)
+function sepgp:bidPrint(link, masterlooter, need, greed, bid)
   local mslink = string.gsub(bidlink["ms"],"$ML",masterlooter)
   local oslink = string.gsub(bidlink["os"],"$ML",masterlooter)
   local msg = string.format(L["Click $MS or $OS for %s"],link)
@@ -1532,49 +1544,66 @@ lootCall.bs = { -- blacklist
 }
 function sepgp:captureLootCall(text, sender)
   if not (string.find(text, "|Hitem:", 1, true)) then
-    return
+    return;
   end
 
-  local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r"," ; ")
-  if count > 1 then return end
-  local lowtext = string.lower(linkstriptext)
-  local whisperkw_found, mskw_found, oskw_found, link_found, blacklist_found
+  local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r"," ; ");
+  if count > 1 then
+    return;
+  end
+  
+  local lowtext = string.lower(linkstriptext);
+  local whisperkw_found, mskw_found, oskw_found, link_found, blacklist_found;
+
   for _,f in ipairs(lootCall.bs) do
-    blacklist_found = string.find(lowtext,f)
-    if (blacklist_found) then return end
+    blacklist_found = string.find(lowtext,f);
+    if (blacklist_found) then
+      return;
+    end
   end
-  local _, itemLink, itemColor, itemString, itemName
+
+  local _, itemLink, itemColor, itemString, itemName;
+
   for _,f in ipairs(lootCall.whisp) do
-    whisperkw_found = string.find(lowtext,f)
-    if (whisperkw_found) then break end
+    whisperkw_found = string.find(lowtext,f);
+    if (whisperkw_found) then
+      break;
+    end
   end
+
   for _,f in ipairs(lootCall.ms) do
-    mskw_found = string.find(lowtext,f)
-    if (mskw_found) then break end
+    mskw_found = string.find(lowtext,f);
+    if (mskw_found) then
+      break;
+    end
   end
+
   for _,f in ipairs(lootCall.os) do
-    oskw_found = string.find(lowtext,f)
-    if (oskw_found) then break end
+    oskw_found = string.find(lowtext,f);
+    if (oskw_found) then
+      break;
+    end
   end
+
   if (whisperkw_found) or (mskw_found) or (oskw_found) then
     _,_,itemLink = string.find(text,"(|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r)")
     if (itemLink) and (itemLink ~= "") then
       link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
     end
     if (link_found) then
-      local quality = hexColorQuality[itemColor] or -1
-      if (quality >= 3) then
+      local quality = hexColorQuality[itemColor] or -1;
+      if (quality >= sepgp.VARS.minimalItemLootQualiti) then
         if (IsRaidLeader() or self:lootMaster()) and (sender == self._playerName) then
           self:clearBids(true)
           sepgp.bid_item.link = itemString
           sepgp.bid_item.linkFull = itemLink
-          sepgp.bid_item.name = string.format("%s%s|r",itemColor,itemName)
-          self:ScheduleEvent("shootyepgpBidTimeout",self.clearBids,300,self)
+          sepgp.bid_item.name = string.format("%s%s|r", itemColor, itemName)
+          self:ScheduleEvent("shootyepgpBidTimeout", self.clearBids, 300, self)
           running_bid = true
           self:debugPrint("Capturing Bids for 5min.")
           sepgp_bids:Toggle(true)
         end
-        self:bidPrint(itemLink,sender,mskw_found,oskw_found,whisperkw_found)
+        self:bidPrint(itemLink, sender, mskw_found, oskw_found, whisperkw_found);
       end
     end
   end
@@ -1690,7 +1719,7 @@ function sepgp:captureLoot(message)
   if (amount) then -- skip multiples / stacks
   else
     if not (player and itemLink) then
-      player, itemLink = YOU, DF:Deformat(message,LOOT_ITEM_SELF)
+      player, itemLink = YOU, DF:Deformat(message, LOOT_ITEM_SELF)
     end
   end
   if not (player and itemLink) then return end
@@ -1700,11 +1729,11 @@ end
 function sepgp:GiveMasterLoot(slot, index)
   if LootSlotIsItem(slot) then
     local texture, itemname, quantity, quality = GetLootSlotInfo(slot)
-    if quantity == 1 and quality >= 3 then -- not a stack and rare or higher
-      local itemLink = GetLootSlotLink(slot)
-      local player = GetMasterLootCandidate(index)
+    if (quantity == 1 and quality >= sepgp.VARS.minimalItemLootQualiti) then -- not a stack and rare or higher
+      local itemLink = GetLootSlotLink(slot);
+      local player = GetMasterLootCandidate(index);
       if not (player and itemLink) then
-        return 
+        return ;
       end
 
       self:processLoot(player, itemLink, "masterloot");
@@ -1715,13 +1744,16 @@ end
 function sepgp:findLootReminder(itemLink)
   for i,data in ipairs(sepgp_looted) do
     if data[self.loot_index.item] == itemLink and data[self.loot_index.action] == self.VARS.reminder then
-      return data
+      return data;
     end
   end
 end
 
 function sepgp:tradeLoot(playerState,targetState)
-  if not (UnitInRaid("player") and self:lootMaster() and admin()) then return end
+  if not (UnitInRaid("player") and self:lootMaster() and admin()) then
+    return;
+  end
+
   if (playerState ~= nil and targetState ~= nil) and playerState == 1 and targetState == 1 then
     local itemLink
     for id=1,MAX_TRADABLE_ITEMS do
@@ -1741,9 +1773,12 @@ function sepgp:tradeLoot(playerState,targetState)
         if (not bind) or (bind ~= self.VARS.boe) then return end
         if UnitExists("target") and UnitIsPlayer("target") and UnitCanCooperate("player","target") and (not UnitIsUnit("player","target")) then
           local tradeTarget = UnitName("target")
-          local _, class = self:verifyGuildMember(tradeTarget,true)
-          if not (class) then return end
-          local target_color = C:Colorize(BC:GetHexColor(class),tradeTarget)
+          local verifyMember = self:verifyRaidMember(tradeTarget);
+          if (not verifyMember) then
+            return
+          end
+
+          local target_color = C:Colorize(BC:GetHexColor(verifyMember.class), tradeTarget)
           local timestamp = date("%b/%d %H:%M:%S")
           local data = self:findLootReminder(itemLink)
           if (data) then
@@ -1751,7 +1786,7 @@ function sepgp:tradeLoot(playerState,targetState)
             data[self.loot_index.player] = tradeTarget
             data[self.loot_index.player_c] = target_color
             data[self.loot_index.update] = 1
-            local dialog = StaticPopup_Show("SHOOTY_EPGP_AUTO_GEARPOINTS",data[self.loot_index.player_c],data[self.loot_index.item],data)
+            local dialog = StaticPopup_Show("SHOOTY_EPGP_AUTO_GEARPOINTS", data[self.loot_index.player_c], data[self.loot_index.item], data)
             if (dialog) then
               dialog.data = data
             end
@@ -1855,37 +1890,35 @@ function sepgp:processLootDupe(player,itemName,source)
 end
 
 function sepgp:processLoot(player, itemLink, source)
-  local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")  
-  if link_found then
-    local dupe, player_item, now = self:processLootDupe(player,itemName,source)
+  local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])");
+  if (link_found) then
+    local dupe, player_item, now = self:processLootDupe(player, itemName, source);
+    
     if dupe then
-      return
+      return;
     end
+
     local bind = self:itemBinding(itemString)
-    if not (bind) then return end
-    local price = sepgp_prices:GetPrice(itemString,sepgp_progress)
-    if (not (price)) or (price == 0) then
-      return
-    end
-    local class,_
-    if player == YOU then
-      player = self._playerName
-    end
-    if player == self._playerName then 
-      class = UnitClass("player") -- localized
-    else
-      _, class = self:verifyGuildMember(player,true) -- localized
-      -- local member = self:verifyMember(player, true);
-      -- if (member) then
-      --   class = member.class or sepgp.VARS.undefinedClass;
-      -- end
-    end
-    if not (class) then
+    
+    if not (bind) then
       return
     end
 
+    local price = sepgp_prices:GetPrice(itemString, sepgp_progress);
+    if (not (price)) or (price == 0) then
+      return
+    end
+    if player == YOU then
+      player = self._playerName
+    end
+
+    local verifyMember = self:verifyRaidMember(player);
+    if (not verifyMember) then
+      return;
+    end
+
     self._lastPlayerItem, self._lastPlayerItemTime, self._lastPlayerItemSource = player_item, now, source;
-    local player_color = C:Colorize(BC:GetHexColor(class), player);
+    local player_color = C:Colorize(BC:GetHexColor(verifyMember.class), player);
     local off_price = math.floor(price * sepgp_discount);
     local quality = hexColorQuality[itemColor] or -1;
     local timestamp = date("%b/%d %H:%M:%S");
@@ -2069,6 +2102,10 @@ admin = function ()
 
   local playerName = sepgp._playerName;
   local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
+
+  if (not playerGuildName) then
+    playerGuildName = sepgp.VARS.unknownGuildName;
+  end
 
   for gName, gData in pairs(canEditDB) do
     if (gName == playerGuildName and type(gData) == "table") then

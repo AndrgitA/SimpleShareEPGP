@@ -107,10 +107,7 @@ shooty_export.scroll:SetPoint('BOTTOMRIGHT', shooty_export, 'BOTTOMRIGHT', -30, 
 shooty_export.scroll:SetScrollChild(shooty_export.edit)
 sepgp:make_escable("shooty_exportframe","add")
 
-function sepgp_standings:Export()
-  shooty_export.action:Hide()
-  shooty_export.title:SetText(C:Gold(L["Ctrl-C to copy. Esc to close."]))
-  
+function sepgp_standings:GetExportData()
   local t = {};
   local table_db = sepgp:init_table_db();
   for i, v in pairs(table_db) do
@@ -128,12 +125,33 @@ function sepgp_standings:Export()
   table.sort(t, function(a,b)
     return tonumber(a[4]) > tonumber(b[4]);
   end);
-  shooty_export:Show()
+
   local txt = "Name;EP;GP;PR;Class\n"
   for _,val in ipairs(t) do
     txt = string.format("%s%s;%d;%d;%.4f;%s\n", txt, val[1], val[2], val[3], val[4], val[5])
   end
-  shooty_export.AddSelectText(txt)
+  return txt;
+end
+
+function sepgp_standings:Export()
+  shooty_export.action:Hide();
+  shooty_export.title:SetText(C:Gold(L["Ctrl-C to copy. Esc to close."]));
+  
+  shooty_export:Show();
+  
+  local txt = sepgp_standings:GetExportData();
+  shooty_export.AddSelectText(txt);
+end
+
+function sepgp_export_superwow()  
+  if (not sepgp.SUPER_WOW) then
+    return;
+  end
+
+  local timestamp = date("%d_%m_%yT%H_%M_%S");
+  local txt = sepgp_standings:GetExportData();
+
+  ExportFile(timestamp, txt);
 end
 
 function sepgp_standings:Import()
