@@ -8,6 +8,9 @@ local DF = AceLibrary("Deformat-2.0")
 local G = AceLibrary("Gratuity-2.0")
 local T = AceLibrary("Tablet-2.0")
 local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
+
+local UnitName, GetRaidRosterInfo = UnitName, GetRaidRosterInfo;
+
 sepgp.VARS = {
   basegp = 100,
   minep = 0,
@@ -24,6 +27,7 @@ sepgp.VARS = {
   bankde = "Bank-D/E",
   reminder = C:Red("Unassigned"),
   undefinedClass = "UNDEFINED_CLASS",
+  defaultSayChannel = "RAID",
 }
 
 sepgp._playerName = (UnitName("player"))
@@ -72,11 +76,6 @@ end
 
 function sepgp.isRootUnit()
   if (sepgp.isRoot) then
-    return true;
-  end
-
-  if (sepgp._playerName == "Invpartthree") then
-    sepgp.isRoot = true;
     return true;
   end
 
@@ -285,6 +284,13 @@ function sepgp:buildMenu()
       order = 41,
       hidden = function() return not (admin()) end,
     }
+    options.args["new_member"] = {
+      type = "group",
+      name = L["Add new member"],
+      desc = L["Add new member for DB"],
+      order = 42,
+      hidden = function() return not (admin()) end,
+    }
     options.args["raid_only"] = {
       type = "toggle",
       name = L["Raid Only"],
@@ -418,10 +424,11 @@ function sepgp:buildMenu()
   end
   if (needInit) or (needRefresh) then
     local members = sepgp:buildRosterTable()
-    self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(sepgp_raidonly and "Raid" or "Full")))
+    -- self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(sepgp_raidonly and "Raid" or "Full")))
     options.args["ep"].args = sepgp:buildClassMemberTable(members,"ep")
     options.args["gp"].args = sepgp:buildClassMemberTable(members,"gp")
     options.args["class"].args = sepgp:buildChooseClassMember(members);
+    options.args["new_member"].args = sepgp:buildClassNewMember();
     if (needInit) then needInit = false end
     if (needRefresh) then needRefresh = false end
   end
@@ -429,7 +436,7 @@ function sepgp:buildMenu()
 end
 
 function sepgp:OnInitialize() -- ADDON_LOADED (1) unless LoD
-  if sepgp_saychannel == nil then sepgp_saychannel = "GUILD" end
+  if sepgp_saychannel == nil then sepgp_saychannel = sepgp.VARS.defaultSayChannel end
   if sepgp_decay == nil then sepgp_decay = sepgp.VARS.decay end
   if sepgp_minep == nil then sepgp_minep = sepgp.VARS.minep end
   if sepgp_progress == nil then sepgp_progress = "T1" end
@@ -446,21 +453,24 @@ function sepgp:OnEnable() -- PLAYER_LOGIN (2)
   --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
   sepgp._playerLevel = UnitLevel("player")
   sepgp.extratip = (sepgp.extratip) or CreateFrame("GameTooltip","shootyepgp_tooltip",UIParent,"GameTooltipTemplate")
-  sepgp._versionString = GetAddOnMetadata("shootyepgp","Version")
-  sepgp._websiteString = GetAddOnMetadata("shootyepgp","X-Website")
+  sepgp._versionString = GetAddOnMetadata("shootyepgp", "Version")
+  sepgp._websiteString = GetAddOnMetadata("shootyepgp", "X-Website")
 
   self:RegisterEvent("RAID_ROSTER_UPDATE",function()
-      sepgp:SetRefresh(true)
-      sepgp:testLootPrompt()
-    end)
+    sepgp:updateRaidRosterInfo();
+    sepgp:SetRefresh(true)
+    sepgp:testLootPrompt()
+  end)
   self:RegisterEvent("PARTY_MEMBERS_CHANGED",function()
-      sepgp:SetRefresh(true)
-      sepgp:testLootPrompt()
-    end)
+    sepgp:updateRaidRosterInfo();
+    sepgp:SetRefresh(true)
+    sepgp:testLootPrompt()
+  end)
   self:RegisterEvent("PLAYER_ENTERING_WORLD",function()
-      sepgp:SetRefresh(true)
-      sepgp:testLootPrompt()
-    end)
+    sepgp:updateRaidRosterInfo();
+    sepgp:SetRefresh(true)
+    sepgp:testLootPrompt()
+  end)
   if sepgp._playerLevel and sepgp._playerLevel < MAX_PLAYER_LEVEL then
     self:RegisterEvent("PLAYER_LEVEL_UP", function()
         if (arg1) then
@@ -629,7 +639,7 @@ function sepgp:delayedInit()
   self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
   -- broadcast our version
   local addonMsg = string.format("VERSION;%s;%d",sepgp._versionString,major_ver)
-  self:addonMessage(addonMsg,"GUILD")
+  self:anounceAddonMessage(addonMsg)
   if (sepgp.isRootUnit()) then
     self:shareSettings()
   end
@@ -712,7 +722,7 @@ function sepgp:SetItemRef(link, name, button)
     else
       bid = nil
     end
-    if not self:inRaid(masterlooter) then
+    if not self:verifyRaidMember(masterlooter) then
       masterlooter = nil
     end
     if (bid and masterlooter) then
@@ -887,7 +897,9 @@ function sepgp:adminSay(msg)
   -- API is broken on Elysium
   -- local g_listen, g_speak, officer_listen, officer_speak, g_promote, g_demote, g_invite, g_remove, set_gmotd, set_publicnote, view_officernote, edit_officernote, set_guildinfo = GuildControlGetRankFlags() 
   -- if (officer_speak) then
-  SendChatMessage(string.format("shootyepgp: %s",msg),"OFFICER")
+  if (admin()) then
+    SendChatMessage(string.format("shootyepgp: %s",msg), sepgp_saychannel)
+  end
   -- end
 end
 
@@ -909,12 +921,24 @@ function sepgp:addonMessage(message,channel,sender)
   SendAddonMessage(self.VARS.prefix,message,channel,sender)
 end
 
-function sepgp:addonComms(prefix,message,channel,sender)
-  if not prefix == self.VARS.prefix then return end -- we don't care for messages from other addons
-  if sender == self._playerName then return end -- we don't care for messages from ourselves
-  local senderData = self:verifyMember(sender,true)
-  -- local name_g,class,rank = self:verifyGuildMember(sender,true)
-  -- if not (name_g) then return end -- only accept messages from guild members
+function sepgp:addonComms(prefix, message, channel, sender)
+  -- we don't care for messages from other addons
+  if (not prefix == self.VARS.prefix) then
+    return
+  end
+
+  -- we don't care for messages from ourselves
+  if (sender == self._playerName) then
+    return
+  end
+
+  local senderData = self:verifyMember(sender, true) or self:verifyRaidMember(sender);
+
+  -- only accept DB or raider members
+  if (not senderData) then
+    return;
+  end
+  
   local who,what,amount
   for name,epgp,change in string.gfind(message,"([^;]+);([^;]+);([^;]+)") do
     who=name
@@ -926,23 +950,23 @@ function sepgp:addonComms(prefix,message,channel,sender)
     if (who == self._playerName) then
       if what == "EP" then
         if amount < 0 then
-          msg = string.format(L["You have received a %d EP penalty."],amount)
+          msg = string.format(L["You have received a %d EP penalty."], amount)
         else
-          msg = string.format(L["You have been awarded %d EP."],amount)
+          msg = string.format(L["You have been awarded %d EP."], amount)
         end
       elseif what == "GP" then
-        msg = string.format(L["You have gained %d GP."],amount)
+        msg = string.format(L["You have gained %d GP."], amount)
       end
     elseif who == "ALL" and what == "DECAY" then
-      msg = string.format(L["%s%% decay to EP and GP."],amount)
+      msg = string.format(L["%s%% decay to EP and GP."], amount)
     elseif who == "RAID" and what == "AWARD" then
-      msg = string.format(L["%d EP awarded to Raid."],amount)
+      msg = string.format(L["%d EP awarded to Raid."], amount)
     elseif who == "VERSION" then
-      local out_of_date, version_type = self:parseVersion(self._versionString,what)
+      local out_of_date, version_type = self:parseVersion(self._versionString, what)
       if (out_of_date) and self._newVersionNotification == nil then
         self._newVersionNotification = true -- only inform once per session
-        self:defaultPrint(string.format(L["New %s version available: |cff00ff00%s|r"],version_type,what))
-        self:defaultPrint(string.format(L["Visit %s to update."],self._websiteString))
+        self:defaultPrint(string.format(L["New %s version available: |cff00ff00%s|r"], version_type, what));
+        self:defaultPrint(string.format(L["Visit %s to update."], self._websiteString));
       end
       if (sepgp.isRootUnit()) then
         self:shareSettings()
@@ -981,20 +1005,25 @@ function sepgp:addonComms(prefix,message,channel,sender)
           end
         end
         if (settings_notice) and settings_notice ~= "" then
-          local sender_rank = string.format("%s(%s)",C:Colorize(BC:GetHexColor(class),sender),rank)
-          settings_notice = settings_notice..string.format(L[" settings accepted from %s"],sender_rank)
-          self:defaultPrint(settings_notice)
-          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"],sepgp_progress)
-          self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"],sepgp_discount*100)
-          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"],sepgp_minep)
+          local sender_rank = string.format("%s(%s)",C:Colorize(BC:GetHexColor(class),sender),rank);
+          settings_notice = settings_notice..string.format(L[" settings accepted from %s"],sender_rank);
+          self:defaultPrint(settings_notice);
+          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], sepgp_progress);
+          self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], sepgp_discount * 100);
+          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], sepgp_minep);
         end
       end
     end
     if msg and msg~="" then
       self:defaultPrint(msg)
-      self:my_epgp()
+      -- self:my_epgp()
     end
   end
+end
+
+function sepgp:anounceAddonMessage(msg)
+  self:addonMessage(msg, "GUILD");
+  -- self:addonMessage(msg, "RAID");
 end
 
 function sepgp:shareSettings(force)
@@ -1002,7 +1031,7 @@ function sepgp:shareSettings(force)
   if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
     self._lastSettingsShare = now
     local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,sepgp_decay,sepgp_minep)
-    self:addonMessage(addonMsg,"GUILD")
+    self:anounceAddonMessage(addonMsg);
   end
 end
 
@@ -1065,15 +1094,6 @@ function sepgp:set_gp_value(name, gp)
   return data;
 end
 
-function sepgp:update_gp_v3(getname,gp)
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    if (name==getname) then 
-      self:update_epgp_v3(nil,gp,i,name,officernote) 
-    end
-  end  
-end
-
 function sepgp:get_ep_value(name)
   local table_db = sepgp:init_table_db();
   if (not table_db[name]) then
@@ -1105,7 +1125,7 @@ function sepgp:award_raid_ep(ep) -- awards ep to raid members in zone
     self:simpleSay(string.format(L["Giving %d ep to all raidmembers"],ep))
     self:addToLog(string.format(L["Giving %d ep to all raidmembers"],ep))    
     local addonMsg = string.format("RAID;AWARD;%s",ep)
-    self:addonMessage(addonMsg,"RAID")
+    self:addonMessage(addonMsg, "RAID");
     self:refreshPRTablets()
   else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"],1,0,0)end
 end
@@ -1123,7 +1143,7 @@ function sepgp:give_ep_value(name, ep)
     self:adminSay(msg);
     self:addToLog(msg);
     local addonMsg = string.format("%s;%s;%s",name,"EP",ep)
-    self:addonMessage(addonMsg,"GUILD");
+    self:anounceAddonMessage(addonMsg);
   end
 end
 
@@ -1140,7 +1160,7 @@ function sepgp:give_gp_value(name, gp)
   self:adminSay(msg);
   self:addToLog(msg);
   local addonMsg = string.format("%s;%s;%s", name, "GP", gp);
-  self:addonMessage(addonMsg,"GUILD");
+  self:anounceAddonMessage(addonMsg);
 end
 
 function sepgp:decay_epgp_value()
@@ -1162,9 +1182,9 @@ function sepgp:decay_epgp_value()
 
   local msg = string.format(L["All EP and GP decayed by %s%%"],(1-sepgp_decay)*100)
   self:simpleSay(msg)
-  if not (sepgp_saychannel=="OFFICER") then self:adminSay(msg) end
+  self:adminSay(msg)
   local addonMsg = string.format("ALL;DECAY;%s",(1-(sepgp_decay or sepgp.VARS.decay))*100)
-  self:addonMessage(addonMsg,"GUILD")
+  self:anounceAddonMessage(addonMsg)
   self:addToLog(msg)
   self:refreshPRTablets() 
 end
@@ -1219,7 +1239,6 @@ function sepgp:my_epgp_announce()
 end
 
 function sepgp:my_epgp()
-  -- GuildRoster()
   self:ScheduleEvent("shootyepgpRosterRefresh",self.my_epgp_announce,3,self)
 end
 
@@ -1227,7 +1246,7 @@ end
 -- Menu
 ---------
 sepgp.hasIcon = "Interface\\PetitionFrame\\GuildCharter-Icon"
-sepgp.title = "shootyepgp"
+sepgp.title = "custom shootyepgp"
 sepgp.defaultMinimapPosition = 180
 sepgp.defaultPosition = "RIGHT"
 sepgp.cannotDetachTooltip = true
@@ -1275,6 +1294,18 @@ function sepgp:init_table_db()
   end
 
   return sepgp_table_db;
+end
+
+function sepgp:updateRaidRosterInfo()
+  if (GetNumRaidMembers() < 1) then
+    return;
+  end
+
+  for i = 1, GetNumRaidMembers(true) do
+    local raiderName, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
+    local dbValue = sepgp:init_notes_value(raiderName);
+    dbValue.class = class;
+  end
 end
 
 function sepgp:buildRosterTable()
@@ -1338,6 +1369,34 @@ function sepgp:buildChooseClassMember(roster)
       c[name].get = function() return classToColorValue[class] end;
       c[name].set = function(v) sepgp:set_class_value(name, colorToClassValue[v]); sepgp:refreshPRTablets();  end --sepgp:buildMenu();
       c[name].validate = validateValues;
+    end
+  end
+
+  return c;
+end
+
+function sepgp:buildClassNewMember()
+  local c = {};
+
+  for class, className in pairs(sepgp.classNames) do
+    local _class = class;
+    if (class) and (c[class] == nil) then
+      c[class] = { };
+      c[class]._class = class;
+      c[class].type = "text";
+      c[class].name = C:Colorize(BC:GetHexColor(class), className);
+      c[class].desc = L["Name for new class member"];
+      c[class].hidden = function() return not (admin()) end
+      c[class].get = function() return "" end;
+      c[class].set = function(v)
+        local newValueDB = sepgp:init_notes_value(v);
+        newValueDB.class = _class;
+        sepgp:refreshPRTablets();
+        sepgp:defaultPrint(L["New member added in DB"]..": "..C:Colorize(BC:GetHexColor(_class), v));
+      end
+      c[class].validate = function(v) 
+        return (string.len(v) > 2) and (sepgp:verifyMember(v, true) == nil);
+      end;
     end
   end
 
@@ -1416,7 +1475,10 @@ lootCall.bs = { -- blacklist
   "^(roll)[%s%p%c]+.+",".+[%s%p%c]+(roll)$",".*[%s%p%c]+(roll)[%s%p%c]+.*"
 }
 function sepgp:captureLootCall(text, sender)
-  if not (string.find(text, "|Hitem:", 1, true)) then return end
+  if not (string.find(text, "|Hitem:", 1, true)) then
+    return
+  end
+
   local linkstriptext, count = string.gsub(text,"|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r"," ; ")
   if count > 1 then return end
   local lowtext = string.lower(linkstriptext)
@@ -1466,41 +1528,64 @@ local lootBid = {}
 lootBid.ms = {"(%+)",".+(%+).*",".*(%+).+",".*(%+).*","(ms)","(need)"}
 lootBid.os = {"(%-)",".+(%-).*",".*(%-).+",".*(%-).*","(os)","(greed)"}
 function sepgp:captureBid(text, sender)
-  if not (running_bid) then return end
-  if not (IsRaidLeader() or self:lootMaster()) then return end
-  if not sepgp.bid_item.link then return end
-  local mskw_found,oskw_found
-  local lowtext = string.lower(text)
+  if (not running_bid) then
+    return;
+  end
+
+  if not (IsRaidLeader() or self:lootMaster()) then
+    return;
+  end
+
+  if (not sepgp.bid_item.link) then
+    return
+  end
+
+  local mskw_found, oskw_found;
+
+  -- main spec parser
   for _,f in ipairs(lootBid.ms) do
-    mskw_found = string.find(text,f)
-    if (mskw_found) then break end
-  end
-  for _,f in ipairs(lootBid.os) do
-    oskw_found = string.find(text,f)
-    if (oskw_found) then break end
-  end
-  if (mskw_found) or (oskw_found) then
-    if self:inRaid(sender) then
-      if bids_blacklist[sender] == nil then
-        for i = 1, GetNumGuildMembers(1) do
-          local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-          if name == sender then
-            local ep = (self:get_ep_value(name) or 0) 
-            local gp = (self:get_gp_value(name) or sepgp.VARS.basegp)
-            if (mskw_found) then
-              bids_blacklist[sender] = true
-              table.insert(sepgp.bids_main,{name,class,ep,gp,ep/gp})
-            elseif (oskw_found) then
-              bids_blacklist[sender] = true
-              table.insert(sepgp.bids_off,{name,class,ep,gp,ep/gp})
-            end
-            sepgp_bids:Toggle(true)
-            return
-          end
-        end
-      end
+    mskw_found = string.find(text, f);
+    if (mskw_found) then
+      break;
     end
   end
+
+  -- off spec parser
+  for _,f in ipairs(lootBid.os) do
+    oskw_found = string.find(text, f);
+    if (oskw_found) then
+      break
+    end
+  end
+
+  -- not any found
+  if not (mskw_found or oskw_found) then
+    return;
+  end
+
+  -- already have
+  if (bids_blacklist[sender]) then
+    return;
+  end
+
+
+  local member = self:verifyRaidMember(sender);
+  if (not member) then
+    return;
+  end
+
+  local ep = member.ep or 0; 
+  local gp = member.gp or sepgp.VARS.basegp;
+  local class = member.class or sepgp.VARS.undefinedClass;
+
+  if (mskw_found) then
+    bids_blacklist[sender] = true;
+    table.insert(sepgp.bids_main, {sender, class, ep, gp, ep/gp});
+  elseif (oskw_found) then
+    bids_blacklist[sender] = true
+    table.insert(sepgp.bids_off, {sender, class, ep, gp, ep/gp});
+  end
+  sepgp_bids:Toggle(true);
 end
 
 function sepgp:clearBids(reset)
@@ -1776,27 +1861,32 @@ function sepgp:verifyMember(name, silent)
   return table_db[name];
 end
 
-function sepgp:verifyGuildMember(name,silent)
-  for i=1,GetNumGuildMembers(1) do
-    local g_name, g_rank, g_rankIndex, g_level, g_class, g_zone, g_note, g_officernote, g_online = GetGuildRosterInfo(i)
-    if (string.lower(name) == string.lower(g_name)) then 
-    -- == MAX_PLAYER_LEVEL]]
-      return g_name, g_class, g_rank, g_officernote
+function sepgp:verifyRaidMember(name)
+  if (not name) then
+    return;
+  end
+
+  if (GetNumRaidMembers() > 0) then
+    for i = 1, GetNumRaidMembers(true) do
+      local raiderName, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
+      if (name == raiderName) then
+        local dbValue = sepgp:init_notes_value(name);
+        dbValue.class = class;
+        return dbValue;
+      end
     end
   end
-  if (name) and name ~= "" and not (silent) then
-    self:defaultPrint(string.format(L["%s not found member!"],name))
-  end
-  return
+
+  return;
 end
 
 function sepgp:inRaid(name)
   for i=1,GetNumRaidMembers() do
     if name == (UnitName(raidUnit[i])) then
-      return true
+      return true;
     end
   end
-  return false
+  return false;
 end
 
 function sepgp:lootMaster()
@@ -1909,11 +1999,6 @@ end
 
 admin = function ()
   if (sepgp.isAdmin) then
-    return true;
-  end
-
-  if (sepgp._playerName == "Invpartthree") then
-    sepgp.isAdmin = true;
     return true;
   end
 

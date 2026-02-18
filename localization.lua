@@ -199,6 +199,10 @@ Results will print here when done.]],
   ["Paladin"] = true,
   ["Shaman"] = true,
   ["Rogue"] = true,
+  ["New member added in DB"] = true,
+  ["Add new member for DB"] = true,
+  ["Add new member"] = true,
+  ["Name for new class member"] = true,
 } end)
 
 L:RegisterTranslations("zhCN", function() return {
