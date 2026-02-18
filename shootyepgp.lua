@@ -18,7 +18,6 @@ sepgp.VARS = {
   maxloglines = 500,
   prefix = "SEPGP_ANDRGIT_MOD",
   reservechan = "Reserves",
-  reserveanswer = "^(%+)(%a*)$",
   bop = C:Red("BoP"),
   boe = C:Yellow("BoE"),
   nobind = C:White("NoBind"),
@@ -304,15 +303,6 @@ function sepgp:buildMenu()
       desc = L["Choose one of classes for Undefined Class member"],
       order = 41,
       hidden = function() return not (admin()) end,
-    }
-    options.args["reserves"] = {
-      type = "toggle",
-      name = L["Enable Reserves"],
-      desc = L["Participate in Standby Raiders List.\n|cffff0000Requires Main Character Name.|r"],
-      order = 50,
-      get = function() return (sepgp.reservesChannelID ~= nil) and (sepgp.reservesChannelID ~= 0) end,
-      set = function(v) sepgp:reservesToggle(v) end,
-      disabled = function() return true end
     }
     options.args["raid_only"] = {
       type = "toggle",
@@ -646,18 +636,6 @@ function sepgp:TipHook()
 end
 
 function sepgp:delayedInit()
-  --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="delayedInit"})
-  if (IsInGuild()) then
-    local guildName = (GetGuildInfo("player"))
-    if (guildName) and guildName ~= "" then
-      sepgp_reservechannel = string.format("%sReserves",(string.gsub(guildName," ",""))) -- TODO: Check if channel names can have chinese characters
-    end
-  end
-  if sepgp_reservechannel == nil then sepgp_reservechannel = sepgp.VARS.reservechan end  
-  local reservesChannelID = tonumber((GetChannelName(sepgp_reservechannel)))
-  if (reservesChannelID) and (reservesChannelID ~= 0) then
-    self:reservesToggle(true)
-  end
   -- migrate EPGP storage if needed
   self:parseVersion(sepgp._versionString)
   local major_ver = self._version.major
@@ -1452,107 +1430,6 @@ function sepgp:getCharacterData(name)
   return table_db[name];
 end
 
-
----------------
--- Reserves
----------------
-function sepgp:reservesToggle(flag)
-  local reservesChannelID = tonumber((GetChannelName(sepgp_reservechannel)))
-  if (flag) then -- we want in
-    if (reservesChannelID) and reservesChannelID ~= 0 then
-      sepgp.reservesChannelID = reservesChannelID
-      if not self:IsEventRegistered("CHAT_MSG_CHANNEL") then
-        self:RegisterEvent("CHAT_MSG_CHANNEL","captureReserveChatter")
-      end
-      return true
-    else
-      self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE","reservesChannelChange")
-      JoinChannelByName(sepgp_reservechannel)
-      return
-    end
-  else -- we want out
-    if (reservesChannelID) and reservesChannelID ~= 0 then
-      self:RegisterEvent("CHAT_MSG_CHANNEL_NOTICE","reservesChannelChange")
-      LeaveChannelByName(sepgp_reservechannel)
-      return
-    else
-      if self:IsEventRegistered("CHAT_MSG_CHANNEL") then
-        self:UnregisterEvent("CHAT_MSG_CHANNEL")
-      end      
-      return false
-    end
-  end
-end
-
-function sepgp:reservesChannelChange(msg,_,_,_,_,_,_,_,channel)
-  if (msg) and (channel) and (channel == sepgp_reservechannel) then
-    if msg == "YOU_JOINED" then
-      sepgp.reservesChannelID = tonumber((GetChannelName(sepgp_reservechannel)))
-      RemoveChatWindowChannel(DEFAULT_CHAT_FRAME:GetID(), sepgp_reservechannel)
-      self:RegisterEvent("CHAT_MSG_CHANNEL","captureReserveChatter")
-    elseif msg == "YOU_LEFT" then
-      sepgp.reservesChannelID = nil 
-      if self:IsEventRegistered("CHAT_MSG_CHANNEL") then
-        self:UnregisterEvent("CHAT_MSG_CHANNEL")
-      end
-    end
-    self:UnregisterEvent("CHAT_MSG_CHANNEL_NOTICE")
-    D:Close()
-  end
-end
-
-function sepgp:sendReserverResponce()
-  if sepgp.reservesChannelID ~= nil then
-    SendChatMessage("+","CHANNEL",nil,sepgp.reservesChannelID)
-  end
-end
-
-function sepgp:captureReserveChatter(text, sender, _, _, _, _, _, _, channel)
-  if not (channel) or not (channel == sepgp_reservechannel) then return end
-  local reserve, reserve_class, reserve_rank, reserve_alt = nil,nil,nil,nil
-  local r,_,rdy,name = string.find(text,sepgp.VARS.reserveanswer)
-  if (r) and (running_check) then
-    if (rdy) then
-      if (name) and (name ~= "") then
-        if (not self:inRaid(name)) then
-          reserve, reserve_class, reserve_rank = self:verifyGuildMember(name)
-          if reserve ~= sender then
-            reserve_alt = sender
-          end
-        end
-      else
-        if (not self:inRaid(sender)) then
-          reserve, reserve_class, reserve_rank = self:verifyGuildMember(sender)    
-        end
-      end
-      if reserve and reserve_class and reserve_rank then
-        if reserve_alt then
-          if not reserves_blacklist[reserve_alt] then
-            reserves_blacklist[reserve_alt] = true
-            table.insert(sepgp.reserves,{reserve,reserve_class,reserve_rank,reserve_alt})
-          else
-            self:defaultPrint(string.format(L["|cffff0000%s|r trying to add %s to Reserves, but has already added a member. Discarding!"],reserve_alt,reserve))
-          end
-        else
-          if not reserves_blacklist[reserve] then
-            reserves_blacklist[reserve] = true
-            table.insert(sepgp.reserves,{reserve,reserve_class,reserve_rank})
-          else
-            self:defaultPrint(string.format(L["|cffff0000%s|r has already been added to Reserves. Discarding!"],reserve))
-          end
-        end
-      end
-    end
-    return
-  end
-  local q = string.find(text,L["^{shootyepgp}Type"])
-  if (q) and not (running_check) then
-    if --[[(not UnitInRaid("player")) or]] (not self:inRaid(sender)) then
-      StaticPopup_Show("SHOOTY_EPGP_RESERVE_AFKCHECK_RESPONCE")
-    end
-  end
-end
-
 ---------
 -- Bids
 ---------
@@ -2136,31 +2013,6 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   exclusive = 0,
   hideOnEscape = 1
 }
-StaticPopupDialogs["SHOOTY_EPGP_RESERVE_AFKCHECK_RESPONCE"] = {
-  text = " ",
-  button1 = TEXT(YES),
-  button2 = TEXT(NO),
-  OnShow = function()
-    this._timeout = sepgp.VARS.timeout-1
-  end,
-  OnUpdate = function(elapsed,dialog)
-    this._timeout = this._timeout - elapsed
-    getglobal(dialog:GetName().."Text"):SetText(string.format(L["Reserves AFKCheck. Are you available? |cff00ff00%0d|rsec."],this._timeout))
-    if (this._timeout<=0) then
-      this._timeout = 0
-      dialog:Hide()
-    end
-  end,
-  OnAccept = function()
-    this._timeout = 0
-    sepgp:sendReserverResponce()
-  end,
-  timeout = 0,--sepgp.VARS.timeout,
-  exclusive = 1,
-  showAlert = 1,
-  whileDead = 1,
-  hideOnEscape = 1  
-}
 StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_RESET"] = {
   text = L["|cffff0000Are you sure you want to Reset ALL EPGP?|r"],
   button1 = TEXT(OKAY),
@@ -2264,5 +2116,5 @@ function sepgp:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode, level)
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted,sepgp_debug,sepgp_fubar
+-- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted,sepgp_debug,sepgp_fubar
 -- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
