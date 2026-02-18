@@ -14,10 +14,8 @@ sepgp.VARS = {
   baseaward_ep = 100,
   decay = 0.9,
   max = 1000,
-  timeout = 60,
   maxloglines = 500,
   prefix = "SEPGP_ANDRGIT_MOD",
-  reservechan = "Reserves",
   bop = C:Red("BoP"),
   boe = C:Yellow("BoE"),
   nobind = C:White("NoBind"),
@@ -28,8 +26,6 @@ sepgp.VARS = {
   undefinedClass = "UNDEFINED_CLASS",
 }
 
-
-sepgp.VARS.reservecall = string.format(L["{shootyepgp}Type \"+\" if on main, or \"+<YourMainName>\" (without quotes) if on alt within %dsec."],sepgp.VARS.timeout)
 sepgp._playerName = (UnitName("player"))
 sepgp.isAdmin = false;
 sepgp.isRoot = false;
@@ -51,12 +47,12 @@ local out = "|cff9664c8shootyepgp:|r %s"
 local raidStatus,lastRaidStatus
 local lastUpdate = 0
 local needInit,needRefresh = true
-local admin,sanitizeNote
+local admin
 local shooty_debugchat
 local running_check,running_bid
 local partyUnit,raidUnit = {},{}
 local hexColorQuality = {}
-local reserves_blacklist,bids_blacklist = {},{}
+local bids_blacklist = {},{}
 local bidlink = {
   ["ms"]=L["|cffFF3333|Hshootybid:1:$ML|h[Mainspec/NEED]|h|r"],
   ["os"]=L["|cff009900|Hshootybid:2:$ML|h[Offspec/GREED]|h|r"]
@@ -237,7 +233,6 @@ sepgp.cmdtable = function()
     return membercmd
   end
 end
-sepgp.reserves = {}
 sepgp.bids_main,sepgp.bids_off,sepgp.bid_item = {},{},{}
 sepgp.timer = CreateFrame("Frame")
 sepgp.timer.cd_text = ""
@@ -282,20 +277,6 @@ function sepgp:buildMenu()
       desc = L["Account GPs for member."],
       order = 30,
       hidden = function() return not (admin()) end,
-    }
-    options.args["ep_reserves"] = {
-      type = "text",
-      name = L["+EPs to Reserves"],
-      desc = L["Award EPs to all active Reserves."],
-      order = 40,
-      get = "suggestedAwardEP",
-      set = function(v) sepgp:award_reserve_ep(tonumber(v)) end,
-      usage = "<EP>",
-      hidden = function() return not (admin()) end,
-      validate = function(v)
-        local n = tonumber(v)
-        return n and n >= 0 and n < sepgp.VARS.max
-      end    
     }
     options.args["class"] = {
       type = "group",
@@ -956,8 +937,6 @@ function sepgp:addonComms(prefix,message,channel,sender)
       msg = string.format(L["%s%% decay to EP and GP."],amount)
     elseif who == "RAID" and what == "AWARD" then
       msg = string.format(L["%d EP awarded to Raid."],amount)
-    elseif who == "RESERVES" and what == "AWARD" then
-      msg = string.format(L["%d EP awarded to Reserves."],amount)
     elseif who == "VERSION" then
       local out_of_date, version_type = self:parseVersion(self._versionString,what)
       if (out_of_date) and self._newVersionNotification == nil then
@@ -1129,22 +1108,6 @@ function sepgp:award_raid_ep(ep) -- awards ep to raid members in zone
     self:addonMessage(addonMsg,"RAID")
     self:refreshPRTablets()
   else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"],1,0,0)end
-end
-
-function sepgp:award_reserve_ep(ep) -- awards ep to reserve list
-  if table.getn(sepgp.reserves) > 0 then
-    for i, reserve in ipairs(sepgp.reserves) do
-      local name, class, rank, alt = unpack(reserve)
-      self:give_ep_value(name,ep)
-    end
-    self:simpleSay(string.format(L["Giving %d ep to active reserves"],ep))
-    self:addToLog(string.format(L["Giving %d ep to active reserves"],ep))
-    local addonMsg = string.format("RESERVES;AWARD;%s",ep)
-    self:addonMessage(addonMsg,"GUILD")
-    sepgp.reserves = {}
-    reserves_blacklist = {}
-    self:refreshPRTablets()
-  end
 end
 
 function sepgp:give_ep_value(name, ep)
@@ -1981,14 +1944,6 @@ admin = function ()
   end
 
   return false;
-end
-
-sanitizeNote = function(prefix,epgp,postfix)
-  -- reserve 12 chars for the epgp pattern {xxxxx:yyyy} max public/officernote = 31
-  local remainder = string.format("%s%s",prefix,postfix)
-  local clip = math.min(31-12,string.len(remainder))
-  local prepend = string.sub(remainder,1,clip)
-  return string.format("%s%s",prepend,epgp)
 end
 
 -------------

@@ -30,7 +30,6 @@ The standings window can also be toggled with **/shooty show** chat command.
 - Configurable EPGP Decay (admin)
 - Configurable Offspec discount (admin)
 - Guild Progression multiplier (admin)
-- Reserves - *standby list EP* - with alts support (admin and all)
 
 Addon has been designed so that basic member functionality is usable even without the addon. 
 - `/w <masterlooter name> +` (for main spec) or `/w <masterlooter name> -` (for off spec) after the loot officer links a piece of loot and asks for bids in raid chat.  
