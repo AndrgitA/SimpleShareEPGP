@@ -365,8 +365,8 @@ function sepgp:buildMenu()
       name = L["Decay EPGP"],
       desc = string.format(L["Decays all EPGP by %s%%"],(1-(sepgp_decay or sepgp.VARS.decay))*100),
       order = 100,
-      hidden = function() return not (admin()) end,
-      func = function() sepgp:decay_epgp_value() end 
+      hidden = function() return not (admin()) end,      
+      func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_DECAY") end
     }    
     options.args["set_decay"] = {
       type = "range",
@@ -2166,12 +2166,28 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   exclusive = 0,
   hideOnEscape = 1
 }
+
 StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_RESET"] = {
   text = L["|cffff0000Are you sure you want to Reset ALL EPGP?|r"],
   button1 = TEXT(OKAY),
   button2 = TEXT(CANCEL),
   OnAccept = function()
     sepgp:reset_value();
+    sepgp:refreshPRTablets();
+  end,
+  timeout = 0,
+  whileDead = 1,
+  exclusive = 1,
+  showAlert = 1,
+  hideOnEscape = 1
+}
+
+StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_DECAY"] = {
+  text = L["|cffff0000Are you sure you want to Decay EPGP?|r"],
+  button1 = TEXT(OKAY),
+  button2 = TEXT(CANCEL),
+  OnAccept = function()
+    sepgp:decay_epgp_value();
     sepgp:refreshPRTablets();
   end,
   timeout = 0,
