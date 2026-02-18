@@ -424,11 +424,12 @@ end
 
 function sepgp_standings:OnTooltipUpdate()
   local cat = T:AddCategory(
-      "columns", 4,
-      "text",  C:Orange(L["Name"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
-      "text2", C:Orange(L["ep"]),     "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "child_justify2", "RIGHT",
-      "text3", C:Orange(L["gp"]),     "child_text3R",   1, "child_text3G",   1, "child_text3B",   1, "child_justify3", "RIGHT",
-      "text4", C:Orange(L["pr"]),     "child_text4R",   1, "child_text4G",   1, "child_text4B",   0, "child_justify4", "RIGHT"
+      "columns", 5,
+      "text",  C:Copper(L["№"]),      "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",  "justify",  "LEFT",
+      "text2", C:Copper(L["Name"]),   "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "child_justify2", "LEFT",  "justify2", "LEFT",
+      "text3", C:Copper(L["ep"]),     "child_text3R",   1, "child_text3G",   1, "child_text3B",   1, "child_justify3", "RIGHT", "justify3", "RIGHT",
+      "text4", C:Copper(L["gp"]),     "child_text4R",   1, "child_text4G",   1, "child_text4B",   1, "child_justify4", "RIGHT", "justify4", "RIGHT",
+      "text5", C:Copper(L["pr"]),     "child_text5R",   1, "child_text5G",   1, "child_text5B",   0, "child_justify5", "RIGHT", "justify5", "RIGHT"
     )
   local t = self:BuildStandingsTable()
   local separator
@@ -446,7 +447,8 @@ function sepgp_standings:OnTooltipUpdate()
             "text", C:Green(separator),
             "text2", "",
             "text3", "",
-            "text4", ""
+            "text4", "",
+            "text5", ""
           )
         end
       else
@@ -461,7 +463,8 @@ function sepgp_standings:OnTooltipUpdate()
             "text", C:Green(separator),
             "text2", "",
             "text3", "",
-            "text4", ""
+            "text4", "",
+            "text5", ""
           )          
         end
       end
@@ -484,10 +487,11 @@ function sepgp_standings:OnTooltipUpdate()
       end
     end
     cat:AddLine(
-      "text", text,
-      "text2", text2,
-      "text3", text3,
-      "text4", text4
+      "text", C:Silver(i),
+      "text2", text,
+      "text3", text2,
+      "text4", text3,
+      "text5", text4
     )
   end
 end

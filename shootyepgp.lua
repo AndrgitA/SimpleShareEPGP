@@ -291,6 +291,13 @@ function sepgp:buildMenu()
       order = 42,
       hidden = function() return not (admin()) end,
     }
+    options.args["remove_member"] = {
+      type = "group",
+      name = L["Remove member"],
+      desc = L["Remove member from DB"],
+      order = 43,
+      hidden = function() return not (admin()) end,
+    };
     options.args["raid_only"] = {
       type = "toggle",
       name = L["Raid Only"],
@@ -429,6 +436,7 @@ function sepgp:buildMenu()
     options.args["gp"].args = sepgp:buildClassMemberTable(members,"gp")
     options.args["class"].args = sepgp:buildChooseClassMember(members);
     options.args["new_member"].args = sepgp:buildClassNewMember();
+    options.args["remove_member"].args = sepgp:buildClassRemoveMember(members);
     if (needInit) then needInit = false end
     if (needRefresh) then needRefresh = false end
   end
@@ -1045,7 +1053,7 @@ function sepgp:refreshPRTablets()
 end
 
 ---------------------
--- EPGP Operations
+-- EPGP Helpers
 ---------------------
 function sepgp:init_notes_value(name)
   local table_db = sepgp:init_table_db();
@@ -1060,6 +1068,21 @@ function sepgp:init_notes_value(name)
   return table_db[name];
 end
 
+function sepgp:clean_note_value(name)
+  local table_db = sepgp:init_table_db();
+
+  if (not table_db[name]) then
+    return;
+  end
+
+  local newDB = sepgp:clean_table_db();
+  for i, v in pairs(table_db) do
+    if (i ~= name) then
+      newDB[i] = v;
+    end
+  end
+end
+  
 function sepgp:set_class_value(name, class)
   local data = sepgp:init_notes_value(name);
 
@@ -1076,6 +1099,9 @@ function sepgp:get_class_value(name)
   return table_db[name].class;
 end
 
+---------------------
+-- EPGP Operations
+---------------------
 function sepgp:set_ep_value(name, ep)
   local data = sepgp:init_notes_value(name);
 
@@ -1122,12 +1148,12 @@ function sepgp:award_raid_ep(ep) -- awards ep to raid members in zone
         self:give_ep_value(name, ep);
       end
     end
-    self:simpleSay(string.format(L["Giving %d ep to all raidmembers"],ep))
-    self:addToLog(string.format(L["Giving %d ep to all raidmembers"],ep))    
+    self:simpleSay(string.format(L["Giving %d ep to all raidmembers"], ep))
+    self:addToLog(string.format(L["Giving %d ep to all raidmembers"], ep))    
     local addonMsg = string.format("RAID;AWARD;%s",ep)
     self:addonMessage(addonMsg, "RAID");
     self:refreshPRTablets()
-  else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"],1,0,0)end
+  else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"], 1, 0, 0) end
 end
 
 function sepgp:give_ep_value(name, ep)
@@ -1375,29 +1401,59 @@ function sepgp:buildChooseClassMember(roster)
   return c;
 end
 
+function sepgp:buildClassRemoveMember(roster)
+  local c = { };
+
+  for i, member in ipairs(roster) do
+    local class, name = member.class, member.name
+    if (class) and (c[class] == nil) then
+      c[class] = { };
+      c[class].type = "group";
+      c[class].name = C:Colorize(BC:GetHexColor(class), class);
+      c[class].desc = L["Group remove member"];
+      c[class].hidden = function() return not (admin()) end;
+      c[class].args = { };
+    end
+    if (name) and (c[class].args[name] == nil) then
+      c[class].args[name] = { };
+      c[class].args[name].type = "execute";
+      c[class].args[name].name = name;
+      c[class].args[name].desc = L["Remove this member"];
+      c[class].args[name].func = function()
+        sepgp:clean_note_value(name);
+        sepgp:defaultPrint(C:Colorize(BC:GetHexColor(class), name).." "..L["Member removed from DB"]);
+        sepgp:refreshPRTablets();
+      end;
+    end
+  end
+
+  return c;
+end
+
 function sepgp:buildClassNewMember()
   local c = {};
 
   for class, className in pairs(sepgp.classNames) do
     local _class = class;
-    if (class) and (c[class] == nil) then
+    if (c[class] == nil) then
       c[class] = { };
-      c[class]._class = class;
-      c[class].type = "text";
-      c[class].name = C:Colorize(BC:GetHexColor(class), className);
-      c[class].desc = L["Name for new class member"];
-      c[class].hidden = function() return not (admin()) end
-      c[class].get = function() return "" end;
-      c[class].set = function(v)
-        local newValueDB = sepgp:init_notes_value(v);
-        newValueDB.class = _class;
-        sepgp:refreshPRTablets();
-        sepgp:defaultPrint(L["New member added in DB"]..": "..C:Colorize(BC:GetHexColor(_class), v));
-      end
-      c[class].validate = function(v) 
-        return (string.len(v) > 2) and (sepgp:verifyMember(v, true) == nil);
-      end;
     end
+    c[class]._class = class;
+    c[class].type = "text";
+    c[class].name = C:Colorize(BC:GetHexColor(class), className);
+    c[class].desc = L["Name for new class member"];
+    c[class].hidden = function() return not (admin()) end
+    c[class].get = function() return "" end;
+    c[class].usage = "<new_member>";
+    c[class].set = function(v)
+      local newValueDB = sepgp:init_notes_value(v);
+      newValueDB.class = _class;
+      sepgp:refreshPRTablets();
+      sepgp:defaultPrint(L["New member added in DB"]..": "..C:Colorize(BC:GetHexColor(_class), v));
+    end;
+    c[class].validate = function(v) 
+      return (string.len(v) > 2) and (sepgp:verifyMember(v, true) == nil);
+    end;
   end
 
   return c;

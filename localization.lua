@@ -203,6 +203,13 @@ Results will print here when done.]],
   ["Add new member for DB"] = true,
   ["Add new member"] = true,
   ["Name for new class member"] = true,
+  ["Name for remove member"] = true,
+  ["Remove member"] = true,
+  ["Remove this member"] = true,
+  ["Member removed from DB"] = true,
+  ["Remove member from DB"] = true,
+  ["Group remove member"] = true,
+  ["№"] = true,
 } end)
 
 L:RegisterTranslations("zhCN", function() return {
