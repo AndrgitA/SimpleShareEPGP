@@ -319,6 +319,9 @@ function sepgp:buildMenu()
         sepgp_raidonly = not sepgp_raidonly
         sepgp:SetRefresh(true)
       end,
+      hidden = function()
+        return not admin();
+      end
     }
     options.args["progress_tier_header"] = {
       type = "header",
@@ -331,7 +334,10 @@ function sepgp:buildMenu()
       name = L["Raid Progress"],
       desc = L["Highest Tier the Guild is raiding.\nUsed to adjust GP Prices.\nUsed for suggested EP awards."],
       order = 90,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return true;
+        -- return not (admin())
+      end,
       get = function() return sepgp_progress end,
       set = function(v) 
         sepgp_progress = v 
@@ -1292,17 +1298,23 @@ sepgp.tooltipHiddenWhenEmpty = false
 sepgp.independentProfile = true
 
 function sepgp:OnTooltipUpdate()
-  local hint = L["|cffffff00Click|r to toggle Standings.%s \n|cffffff00Right-Click|r for Options."]
+  local hint = L["|cffffff00Right-Click|r for Options."]
   if (admin()) then
-    hint = string.format(hint,L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."])
+    hint = string.format("%s \n%s%s", L["|cffffff00Click|r to toggle Standings."], hint, L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."]);
   else
-    hint = string.format(hint,"")
+    hint = string.format(hint,"");
   end
-  T:SetHint(hint)
+  T:SetHint(hint);
 end
 
 function sepgp:OnClick()
   local is_admin = admin()
+
+  -- now any leftclick for not admin ignored
+  if (not is_admin) then
+    return;
+  end
+
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
     sepgp_logs:Toggle()
   elseif (IsShiftKeyDown() and is_admin) then
