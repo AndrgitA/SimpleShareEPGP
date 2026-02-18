@@ -155,9 +155,7 @@ local admincmd, membercmd = {
       name = L["ClearLogs"],
       desc = L["Clear Logs Table."],
       func = function()
-        sepgp_log = {}
-        sepgp_logs:Refresh()
-        sepgp:defaultPrint(L["Logs cleared"])
+        sepgp:ClearLogs();
       end,
       order = 4,
     },
@@ -188,6 +186,15 @@ local admincmd, membercmd = {
         sepgp:defaultPrint(L["Restarted"])
       end,
       order = 7,
+    },
+    export_super_wow = {
+      type = "execute",
+      name = L["ExportFile (SuperWoW)"],
+      desc = L["Export standings with SuperWoW function to csv"],
+      func = function()
+        sepgp_export_superwow();  
+      end,
+      order = 8,
     },
   }
 },{
@@ -1337,6 +1344,12 @@ function sepgp:SetRefresh(flag)
   if (flag) then
     self:refreshPRTablets()
   end
+end
+
+function sepgp:ClearLogs()
+  sepgp_log = {};
+  sepgp_logs:Refresh();
+  sepgp:defaultPrint(L["Logs cleared"]);
 end
 
 function sepgp:clean_table_db()

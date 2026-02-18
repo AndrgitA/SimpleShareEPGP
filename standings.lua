@@ -152,6 +152,7 @@ function sepgp_export_superwow()
   local txt = sepgp_standings:GetExportData();
 
   ExportFile(timestamp, txt);
+  sepgp:defaultPrint(string.format("%s %s.txt", L["Export data with SuperWoW ExportFile"], timestamp));
 end
 
 function sepgp_standings:Import()
@@ -168,16 +169,12 @@ function sepgp_standings.import()
   local importFaildString = L["Failed to import:\n"];
   local errorFlag = false;
 
-  sepgp:clean_table_db();
+  local tmpTable = {};
   for line in string.gfind(text,"[^\r\n]+") do
     local name,ep,gp,pr,class = sepgp:strsplit(";",line);
     ep,gp,pr = tonumber(ep),tonumber(gp),tonumber(pr);
     if (name) and (ep) and (gp) and (pr) then
-      sepgp:set_ep_value(name, ep);
-      sepgp:set_gp_value(name, gp);
-      if (class and sepgp.classNames[class]) then
-        sepgp:set_class_value(name, class);
-      end
+      table.insert(tmpTable, {name, ep, gp, pr, class});
     else
       importFaildString = string.format("%s%s\n",importFaildString,line)
       errorFlag = true;
@@ -186,11 +183,25 @@ function sepgp_standings.import()
 
   if (errorFlag) then
     shooty_export.edit:SetText(importFaildString);
+    sepgp:defaultPrint(L["Import cancelled due to invalid data"]);
   else
+    sepgp:clean_table_db();
+    local name, ep, gp, pr, class;
+    
+    for i=1,table.getn(tmpTable) do
+      name, ep, gp, pr, class = tmpTable[i][1], tmpTable[i][2], tmpTable[i][3], tmpTable[i][4], tmpTable[i][5];
+      sepgp:set_ep_value(name, ep);
+      sepgp:set_gp_value(name, gp);
+      if (class and sepgp.classNames[class]) then
+        sepgp:set_class_value(name, class);
+      end
+    end
+    sepgp:ClearLogs();
+
     shooty_export.edit:SetText(L["Import finished"]);
+    sepgp:defaultPrint(string.format(L["Imported %d members."], table.getn(tmpTable)));
   end
   sepgp:refreshPRTablets();
-  -- sepgp:defaultPrint(string.format(L["Imported %d members."],count))
 end
 
 local class_cache = setmetatable({},{__index = function(t,k)
@@ -273,6 +284,15 @@ function sepgp_standings:OnEnable()
           "tooltipText", L["Refresh window"],
           "func", function() sepgp_standings:Refresh() end
         )
+
+        if (sepgp.SUPER_WOW) then
+          D:AddLine(
+            "text", L["ExportFile (SuperWoW)"],
+            "tooltipText", L["Export standings with SuperWoW function to csv"],
+            "func", function() sepgp_export_superwow() end
+          );
+        end
+
         D:AddLine(
           "text", L["Export"],
           "tooltipText", L["Export standings to csv."],
