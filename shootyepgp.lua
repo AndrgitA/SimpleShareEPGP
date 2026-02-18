@@ -119,7 +119,8 @@ function sepgp.isRootUnit()
   return false;
 end
 
-local admincmd, membercmd = {type = "group", handler = sepgp, args = {
+local admincmd, membercmd = {
+  type = "group", handler = sepgp, args = {
     bids = {
       type = "execute",
       name = L["Bids"],
@@ -188,35 +189,36 @@ local admincmd, membercmd = {type = "group", handler = sepgp, args = {
       end,
       order = 7,
     },
-  }},
-{type = "group", handler = sepgp, args = {
-    show = {
-      type = "execute",
-      name = L["Standings"],
-      desc = L["Show Standings Table."],
-      func = function()
-        sepgp_standings:Toggle()
-      end,
-      order = 1,
-    },
-    progress = {
-      type = "execute",
-      name = L["Progress"],
-      desc = L["Print Progress Multiplier."],
-      func = function()
-        sepgp:defaultPrint(sepgp_progress)
-      end,
-      order = 2,
-    },
-    offspec = {
-      type = "execute",
-      name = L["Offspec"],
-      desc = L["Print Offspec Price."],
-      func = function()
-        sepgp:defaultPrint(string.format("%s%%",sepgp_discount*100))
-      end,
-      order = 3,
-    },
+  }
+},{
+  type = "group", handler = sepgp, args = {
+    -- show = {
+    --   type = "execute",
+    --   name = L["Standings"],
+    --   desc = L["Show Standings Table."],
+    --   func = function()
+    --     sepgp_standings:Toggle()
+    --   end,
+    --   order = 1,
+    -- },
+    -- progress = {
+    --   type = "execute",
+    --   name = L["Progress"],
+    --   desc = L["Print Progress Multiplier."],
+    --   func = function()
+    --     sepgp:defaultPrint(sepgp_progress)
+    --   end,
+    --   order = 2,
+    -- },
+    -- offspec = {
+    --   type = "execute",
+    --   name = L["Offspec"],
+    --   desc = L["Print Offspec Price."],
+    --   func = function()
+    --     sepgp:defaultPrint(string.format("%s%%",sepgp_discount*100))
+    --   end,
+    --   order = 3,
+    -- },
     restart = {
       type = "execute",
       name = L["Restart"],
