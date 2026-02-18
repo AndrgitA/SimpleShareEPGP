@@ -110,22 +110,28 @@ sepgp:make_escable("shooty_exportframe","add")
 function sepgp_standings:Export()
   shooty_export.action:Hide()
   shooty_export.title:SetText(C:Gold(L["Ctrl-C to copy. Esc to close."]))
-  local t = {}
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    local ep = (sepgp:get_ep_v3(name,officernote) or 0) 
-    local gp = (sepgp:get_gp_v3(name,officernote) or sepgp.VARS.basegp) 
-    if ep > 0 then
-      table.insert(t,{name,ep,gp,ep/gp})
+  
+  local t = {};
+  local table_db = sepgp:init_table_db();
+  for i, v in pairs(table_db) do
+    local name = i;
+    local ep = v.ep or 0;
+    local gp = v.gp or sepgp.VARS.basegp;
+    local class = "";
+
+    if (v.class and sepgp.classNames[v.class]) then
+      class = v.class;
     end
-  end 
+    table.insert(t, {name, ep, gp, ep/gp, class});
+  end
+
   table.sort(t, function(a,b)
-      return tonumber(a[4]) > tonumber(b[4])
-    end)
+    return tonumber(a[4]) > tonumber(b[4]);
+  end);
   shooty_export:Show()
-  local txt = "Name;EP;GP;PR\n"
-  for i,val in ipairs(t) do
-    txt = string.format("%s%s;%d;%d;%.4f\n",txt,val[1],val[2],val[3],val[4])
+  local txt = "Name;EP;GP;PR;Class\n"
+  for _,val in ipairs(t) do
+    txt = string.format("%s%s;%d;%d;%.4f;%s\n", txt, val[1], val[2], val[3], val[4], val[5])
   end
   shooty_export.AddSelectText(txt)
 end
@@ -141,37 +147,32 @@ end
 function sepgp_standings.import()
   if not sepgp.isRootUnit() then return end
   local text = shooty_export.edit:GetText()
-  local t = {}
-  local found
+  local importFaildString = L["Failed to import:\n"];
+  local errorFlag = false;
+
+  sepgp:clean_table_db();
   for line in string.gfind(text,"[^\r\n]+") do
-    local name,ep,gp,pr = sepgp:strsplit(";",line)
-    ep,gp,pr = tonumber(ep),tonumber(gp),tonumber(pr)
+    local name,ep,gp,pr,class = sepgp:strsplit(";",line);
+    ep,gp,pr = tonumber(ep),tonumber(gp),tonumber(pr);
     if (name) and (ep) and (gp) and (pr) then
-      t[name]={ep,gp}
-      found = true
-    end
-  end
-  if (found) then
-    local count = 0
-    shooty_export.edit:SetText("")
-    for i=1,GetNumGuildMembers(1) do
-      local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-      local name_epgp = t[name]
-      if (name_epgp) then
-        count = count + 1
-        --sepgp:debugPrint(string.format("%s {%s:%s}",name,name_epgp[1],name_epgp[2])) -- Debug
-        sepgp:update_epgp_v3(name_epgp[1],name_epgp[2],i,name,officernote)
-        t[name]=nil
+      sepgp:set_ep_value(name, ep);
+      sepgp:set_gp_value(name, gp);
+      if (class and sepgp.classNames[class]) then
+        sepgp:set_class_value(name, class);
       end
+    else
+      importFaildString = string.format("%s%s\n",importFaildString,line)
+      errorFlag = true;
     end
-    sepgp:defaultPrint(string.format(L["Imported %d members."],count))
-    local report = string.format(L["Imported %d members.\n"],count)
-    report = string.format(L["%s\nFailed to import:"],report)
-    for name,epgp in pairs(t) do
-      report = string.format("%s%s {%s:%s}\n",report,name,t[1],t[2])
-    end
-    shooty_export.AddSelectText(report)
   end
+
+  if (errorFlag) then
+    shooty_export.edit:SetText(importFaildString);
+  else
+    shooty_export.edit:SetText(L["Import finished"]);
+  end
+  sepgp:refreshPRTablets();
+  -- sepgp:defaultPrint(string.format(L["Imported %d members."],count))
 end
 
 local class_cache = setmetatable({},{__index = function(t,k)
@@ -369,42 +370,36 @@ end
 -- name, class, armor_class, roles, EP, GP, PR
 -- and sorted by PR
 function sepgp_standings:BuildStandingsTable()
+  local table_db = sepgp:init_table_db();
   local t = { }
   local r = { }
   if (sepgp_raidonly) and GetNumRaidMembers() > 0 then
     for i = 1, GetNumRaidMembers(true) do
-      local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i) 
-      r[name] = true
-    end
-  end
-  sepgp.alts = {}
-  for i = 1, GetNumGuildMembers(1) do
-    local name, _, _, _, class, _, note, officernote, _, _ = GetGuildRosterInfo(i)
-    local ep = (sepgp:get_ep_v3(name,officernote) or 0) 
-    local gp = (sepgp:get_gp_v3(name,officernote) or sepgp.VARS.basegp)
-    local main, main_class, main_rank = sepgp:parseAlt(name,officernote)
-    if (main) then
-      if ((self._playerName) and (name == self._playerName)) then
-        if (not sepgp_main) or (sepgp_main and sepgp_main ~= main) then
-          sepgp_main = main
-          self:defaultPrint(L["Your main has been set to %s"],sepgp_main)
-        end
-      end
-      main = C:Colorize(BC:GetHexColor(main_class), main)
-      sepgp.alts[main] = sepgp.alts[main] or {}
-      sepgp.alts[main][name] = class
-    end
-    local armor_class = self:getArmorClass(class)
-    if ep > 0 then
-      if (sepgp_raidonly) and next(r) then
-        if r[name] then
-          table.insert(t,{name,class,armor_class,ep,gp,ep/gp})
-        end
-      else
-      	table.insert(t,{name,class,armor_class,ep,gp,ep/gp})
+      local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i);
+      if (name) then
+        local dbValue = sepgp:init_notes_value(name);
+        dbValue.class = class;
+        r[name] = class;
       end
     end
   end
+  
+  for i,v in pairs(table_db) do
+    local name = i;
+    local ep = (v.ep or 0);
+    local gp = (v.gp or sepgp.VARS.basegp);
+    local class = (v.class or sepgp.VARS.undefinedClass);
+
+    local armor_class = self:getArmorClass(class);
+    if (sepgp_raidonly and next(r)) then
+      if (r[name]) then
+        table.insert(t, {name, class, armor_class, ep, gp, ep/gp});
+      end
+    else
+      table.insert(t, {name, class, armor_class, ep, gp, ep/gp});
+    end
+  end
+
   if (sepgp_groupbyclass) then
     table.sort(t, function(a,b)
       if (a[2] ~= b[2]) then return a[2] > b[2]
@@ -481,7 +476,7 @@ function sepgp_standings:OnTooltipUpdate()
       text4 = string.format("%.4g", pr)
     end
     local text3 = string.format("%.4g", gp)    
-    if ((sepgp._playerName) and sepgp._playerName == name) or ((sepgp_main) and sepgp_main == name) then
+    if (sepgp._playerName and sepgp._playerName == name) then
       text = string.format("(*)%s",text)
       local pr_decay = sepgp:capcalc(ep,gp)
       if pr_decay < 0 then
@@ -497,5 +492,5 @@ function sepgp_standings:OnTooltipUpdate()
   end
 end
 
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_main,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_alts,sepgp_logs
+-- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
+-- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_logs
