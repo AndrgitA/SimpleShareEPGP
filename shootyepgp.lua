@@ -314,14 +314,6 @@ function sepgp:buildMenu()
       set = function(v) sepgp:reservesToggle(v) end,
       disabled = function() return true end
     }
-    options.args["afkcheck_reserves"] = {
-      type = "execute",
-      name = L["AFK Check Reserves"],
-      desc = L["AFK Check Reserves List"],
-      order = 60,
-      hidden = function() return not (admin()) end,
-      func = function() sepgp:afkcheck_reserves() end
-    }
     options.args["raid_only"] = {
       type = "toggle",
       name = L["Raid Only"],
@@ -743,13 +735,11 @@ function sepgp:OnUpdate(elapsed)
     running_check = nil
     sepgp.timer:Hide()
     sepgp.timer.cd_text = L["|cffff0000Finished|r"]
-    sepgp_reserves:Refresh()
   else
     sepgp.timer.cd_text = string.format(L["|cff00ff00%02d|r|cffffffffsec|r"],sepgp.timer.count_down)
   end
   if lastUpdate > 0.5 then
     lastUpdate = 0
-    sepgp_reserves:Refresh()
   end
 end
 
@@ -1306,7 +1296,7 @@ sepgp.independentProfile = true
 function sepgp:OnTooltipUpdate()
   local hint = L["|cffffff00Click|r to toggle Standings.%s \n|cffffff00Right-Click|r for Options."]
   if (admin()) then
-    hint = string.format(hint,L[" \n|cffffff00Ctrl+Click|r to toggle Reserves. \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Alt+Click|r to toggle Alts. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."])
+    hint = string.format(hint,L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."])
   else
     hint = string.format(hint,"")
   end
@@ -1317,8 +1307,6 @@ function sepgp:OnClick()
   local is_admin = admin()
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
     sepgp_logs:Toggle()
-  elseif (IsControlKeyDown() and is_admin) then
-    sepgp_reserves:Toggle()
   elseif (IsShiftKeyDown() and is_admin) then
     sepgp_loot:Toggle()      
   elseif (IsAltKeyDown() and is_admin) then
@@ -1510,19 +1498,6 @@ function sepgp:reservesChannelChange(msg,_,_,_,_,_,_,_,channel)
     end
     self:UnregisterEvent("CHAT_MSG_CHANNEL_NOTICE")
     D:Close()
-  end
-end
-
-function sepgp:afkcheck_reserves()
-  if (running_check) then return end
-  if sepgp.reservesChannelID ~= nil and ((GetChannelName(sepgp.reservesChannelID)) == sepgp.reservesChannelID) then
-    reserves_blacklist = {}
-    sepgp.reserves = {}
-    running_check = true
-    sepgp.timer.count_down = sepgp.VARS.timeout
-    sepgp.timer:Show()
-    SendChatMessage(sepgp.VARS.reservecall,"CHANNEL",nil,sepgp.reservesChannelID)
-    sepgp_reserves:Toggle(true)
   end
 end
 
@@ -2290,4 +2265,4 @@ function sepgp:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode, level)
 end
 
 -- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted,sepgp_debug,sepgp_fubar
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_logs
+-- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
