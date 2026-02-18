@@ -1076,6 +1076,10 @@ end
 -- EPGP Helpers
 ---------------------
 function sepgp:init_notes_value(name)
+  if (not name) then
+    return
+  end
+
   local table_db = sepgp:init_table_db();
 
   if (not table_db[name]) then
@@ -1355,8 +1359,10 @@ function sepgp:updateRaidRosterInfo()
 
   for i = 1, GetNumRaidMembers(true) do
     local raiderName, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
-    local dbValue = sepgp:init_notes_value(raiderName);
-    dbValue.class = class;
+    if (raiderName) then
+      local dbValue = sepgp:init_notes_value(raiderName);
+      dbValue.class = class;
+    end
   end
 end
 
