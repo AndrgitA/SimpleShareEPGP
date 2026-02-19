@@ -11,7 +11,7 @@ function SimpleSharedEPGPLogs:OnEnable()
   if not T:IsRegistered("SimpleSharedEPGPLogs") then
     T:Register("SimpleSharedEPGPLogs",
       "children", function()
-        T:SetTitle(L["shootyepgp logs"])
+        T:SetTitle(L["logs"])
         self:OnTooltipUpdate()
       end,
       "showTitleWhenDetached", true,

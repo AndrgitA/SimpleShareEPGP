@@ -72,7 +72,8 @@ SimpleSharedEPGPCharacterConfigDefault = {
 
 SimpleSharedEPGP_DB = {};
 
-local out = "|cff9664c8shootyepgp:|r %s"
+local out = "|cff9664c8" .. L["AddonName"] .. ":|r %s";
+local tooltipAddonString = "|cff9664c8" .. L["AddonName"] .. "|r";
 local raidStatus,lastRaidStatus
 local lastUpdate = 0
 local needInit,needRefresh = true
@@ -275,7 +276,7 @@ local admincmd, membercmd = {
     restart = {
       type = "execute",
       name = L["Restart"],
-      desc = L["Restart shootyepgp if having startup problems."],
+      desc = L["Restart addon if having startup problems."],
       func = function() 
         SimpleShareEPGP:OnEnable()
         SimpleShareEPGP:defaultPrint(L["Restarted"])
@@ -326,7 +327,7 @@ local admincmd, membercmd = {
     restart = {
       type = "execute",
       name = L["Restart"],
-      desc = L["Restart shootyepgp if having startup problems."],
+      desc = L["Restart addon if having startup problems."],
       func = function() 
         SimpleShareEPGP:OnEnable()
         SimpleShareEPGP:defaultPrint(L["Restarted"])
@@ -391,7 +392,7 @@ function SimpleShareEPGP:buildMenu()
   if not (options) then
     options = {
       type = "group",
-      desc = L["shootyepgp options"],
+      desc = L["options"],
       handler = self,
       args = { }
     };
@@ -636,7 +637,7 @@ end
 function SimpleShareEPGP:OnEnable() -- PLAYER_LOGIN (2)
   --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
   SimpleShareEPGP._playerLevel = UnitLevel("player")
-  SimpleShareEPGP.extratip = (SimpleShareEPGP.extratip) or CreateFrame("GameTooltip","shootyepgp_tooltip",UIParent,"GameTooltipTemplate")
+  SimpleShareEPGP.extratip = (SimpleShareEPGP.extratip) or CreateFrame("GameTooltip","SimpleShareEPGP_tooltip",UIParent,"GameTooltipTemplate")
   SimpleShareEPGP._versionString = GetAddOnMetadata("SimpleShareEPGP", "Version")
   SimpleShareEPGP._websiteString = GetAddOnMetadata("SimpleShareEPGP", "X-Website")
 
@@ -696,8 +697,8 @@ function SimpleShareEPGP:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later t
     self:UnregisterEvent("AceEvent_FullyInitialized")
     delay = 3
   end  
-  if not self:IsEventScheduled("shootyepgpChannelInit") then
-    self:ScheduleEvent("shootyepgpChannelInit",self.delayedInit,delay,self)
+  if not self:IsEventScheduled("SimpleShareEPGPChannelInit") then
+    self:ScheduleEvent("SimpleShareEPGPChannelInit",self.delayedInit,delay,self)
   end
 
   -- if pfUI loaded, skin the extra tooltip
@@ -850,7 +851,7 @@ function SimpleShareEPGP:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
   local textRight2 = string.format(L["pr:|cffff0000%.02f|r(%.02f) pr_os:|cffff0000%.02f|r(%.02f)"],pr_delta,new_pr,pr_delta_off,new_pr_off)
   if (tooltip:NumLines() < line_limit) then
     tooltip:AddLine(" ")
-    tooltip:AddDoubleLine("|cff9664c8shootyepgp|r",textRight)
+    tooltip:AddDoubleLine(tooltipAddonString,textRight)
     tooltip:AddDoubleLine(" ",textRight2)
     if (is_master) then
       tooltip:AddDoubleLine(left1,right1)
@@ -867,7 +868,7 @@ function SimpleShareEPGP:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
       SimpleShareEPGP.extratip:SetPoint("TOPLEFT", tooltip, "BOTTOMLEFT", 0, -5)
       SimpleShareEPGP.extratip:SetPoint("TOPRIGHT", tooltip, "BOTTOMRIGHT", 0, -5)
     end
-    SimpleShareEPGP.extratip:SetText("|cff9664c8shootyepgp|r")
+    SimpleShareEPGP.extratip:SetText(tooltipAddonString)
     SimpleShareEPGP.extratip:AddDoubleLine(" ",textRight)
     SimpleShareEPGP.extratip:AddDoubleLine(" ",textRight2)
     if (is_master) then
@@ -1071,12 +1072,12 @@ function SimpleShareEPGP:bidPrint(link, masterlooter, need, greed, bid)
 end
 
 function SimpleShareEPGP:simpleSay(msg)
-  SendChatMessage(string.format("shootyepgp: %s",msg), SimpleShareEPGPConfig.sayChannel)
+  SendChatMessage(string.format("%s: %s", L["AddonName"], msg), SimpleShareEPGPConfig.sayChannel)
 end
 
 function SimpleShareEPGP:adminSay(msg)
   if (SimpleShareEPGP.isAdminUnit()) then
-    SendChatMessage(string.format("shootyepgp: %s",msg), SimpleShareEPGPConfig.sayChannel)
+    SendChatMessage(string.format("%s: %s", L["AddonName"], msg), SimpleShareEPGPConfig.sayChannel)
   end
 end
 
@@ -1440,14 +1441,14 @@ function SimpleShareEPGP:my_epgp_announce()
 end
 
 function SimpleShareEPGP:my_epgp()
-  self:ScheduleEvent("shootyepgpRosterRefresh",self.my_epgp_announce,3,self)
+  self:ScheduleEvent("SimpleShareEPGPRosterRefresh",self.my_epgp_announce,3,self)
 end
 
 ---------
 -- Menu
 ---------
 SimpleShareEPGP.hasIcon = "Interface\\PetitionFrame\\GuildCharter-Icon"
-SimpleShareEPGP.title = "custom shootyepgp"
+SimpleShareEPGP.title = L["AddonName"]
 SimpleShareEPGP.defaultMinimapPosition = 180
 SimpleShareEPGP.defaultPosition = "RIGHT"
 SimpleShareEPGP.cannotDetachTooltip = true
@@ -1789,7 +1790,7 @@ function SimpleShareEPGP:captureLootCall(text, sender)
           SimpleShareEPGP.bid_item.link = itemString
           SimpleShareEPGP.bid_item.linkFull = itemLink
           SimpleShareEPGP.bid_item.name = string.format("%s%s|r", itemColor, itemName)
-          self:ScheduleEvent("shootyepgpBidTimeout", self.clearBids, 300, self)
+          self:ScheduleEvent("SimpleShareEPGPBidTimeout", self.clearBids, 300, self)
           running_bid = true
           self:debugPrint("Capturing Bids for 5min.")
           SimpleShareEPGPBids:Toggle(true);
@@ -1872,8 +1873,8 @@ function SimpleShareEPGP:clearBids(reset)
   SimpleShareEPGP.bids_main = {}
   SimpleShareEPGP.bids_off = {}
   bids_blacklist = {}
-  if self:IsEventScheduled("shootyepgpBidTimeout") then
-    self:CancelScheduledEvent("shootyepgpBidTimeout")
+  if self:IsEventScheduled("SimpleShareEPGPBidTimeout") then
+    self:CancelScheduledEvent("SimpleShareEPGPBidTimeout");
   end
   running_bid = false
   SimpleShareEPGPBids._counterText = "";

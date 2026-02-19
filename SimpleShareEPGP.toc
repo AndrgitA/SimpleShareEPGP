@@ -1,11 +1,9 @@
 ## Interface: 11200
-## Title: shootyepgp
-## Title-zhCN: shootyepgp EPGP插件
+## Title: Simple Share EPGP
 ## Notes: Effort Points/Gear Points Loot System
-## Notes-zhCN: 贡献点/装备点拾取制度系统
 ## Author: Andrgit
-## X-Website: https://github.com/AndrgitA/shootyepgp
-## X-Credits: shooty, Qcat(zhCN)
+## X-Website: https://github.com/AndrgitA/SimpleShareEPGP
+## X-Credits: shooty, Qcat(zhCN), Andrgit
 ## Version: 1.8
 ## X-Alpha: 
 ## OptionalDeps: Ace2

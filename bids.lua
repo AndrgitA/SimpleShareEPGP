@@ -11,7 +11,7 @@ function SimpleShareEPGPBids:OnEnable()
   if not T:IsRegistered("SimpleShareEPGPBids") then
     T:Register("SimpleShareEPGPBids",
       "children", function()
-        T:SetTitle(L["shootyepgp bids"])
+        T:SetTitle(L["bids"])
         self:OnTooltipUpdate()
       end,
       "showTitleWhenDetached", true,
@@ -101,8 +101,8 @@ function SimpleShareEPGPBids:countdownCounter()
 end
 
 function SimpleShareEPGPBids:countdownFinish(reset)
-  if self:IsEventScheduled("shootyepgpBidCountdown") then
-    self:CancelScheduledEvent("shootyepgpBidCountdown")
+  if self:IsEventScheduled("SimpleShareEPGPBidCountdown") then
+    self:CancelScheduledEvent("SimpleShareEPGPBidCountdown")
   end
   self._counter = 6
   if (reset) then
@@ -115,8 +115,8 @@ end
 
 function SimpleShareEPGPBids:bidCountdown()
   self:countdownFinish(true)
-  self:ScheduleRepeatingEvent("shootyepgpBidCountdown",self.countdownCounter,1,self)
-  self:ScheduleEvent("shootyepgpBidCountdownFinish",self.countdownFinish,6,self)
+  self:ScheduleRepeatingEvent("SimpleShareEPGPBidCountdown",self.countdownCounter,1,self)
+  self:ScheduleEvent("SimpleShareEPGPBidCountdownFinish",self.countdownFinish,6,self)
 end
 
 local pr_sorter_bids = function(a,b)

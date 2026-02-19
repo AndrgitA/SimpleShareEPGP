@@ -248,7 +248,7 @@ function SimpleShareEPGPStandings:OnEnable()
   if not T:IsRegistered("SimpleShareEPGPStandings") then
     T:Register("SimpleShareEPGPStandings",
       "children", function()
-        T:SetTitle(L["shootyepgp standings"])
+        T:SetTitle(L["standings"])
         self:OnTooltipUpdate()
       end,
   		"showTitleWhenDetached", true,

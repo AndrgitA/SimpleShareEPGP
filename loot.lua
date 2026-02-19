@@ -11,7 +11,7 @@ function SimpleSharedEPGPLoot:OnEnable()
   if not T:IsRegistered("SimpleSharedEPGPLoot") then
     T:Register("SimpleSharedEPGPLoot",
       "children", function()
-        T:SetTitle(L["shootyepgp loot info"])
+        T:SetTitle(L["loot info"])
         self:OnTooltipUpdate()
       end,
       "showTitleWhenDetached", true,
