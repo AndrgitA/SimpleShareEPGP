@@ -534,5 +534,3 @@ function SimpleShareEPGPStandings:OnTooltipUpdate()
     )
   end
 end
-
--- GLOBALS: sepgp_bids

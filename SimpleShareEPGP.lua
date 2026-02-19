@@ -223,7 +223,7 @@ local admincmd, membercmd = {
       name = L["Bids"],
       desc = L["Show Bids Table."],
       func = function()
-        sepgp_bids:Toggle()
+        SimpleShareEPGPBids:Toggle();
       end,
       order = 1,
     },
@@ -1218,7 +1218,7 @@ end
 
 function SimpleShareEPGP:refreshPRTablets()
   SimpleShareEPGPStandings:Refresh();
-  sepgp_bids:Refresh();
+  SimpleShareEPGPBids:Refresh();
 end
 
 ---------------------
@@ -1473,11 +1473,11 @@ function SimpleShareEPGP:OnClick()
   end
 
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
-    SimpleSharedEPGPLogs:Toggle()
+    SimpleSharedEPGPLogs:Toggle();
   elseif (IsShiftKeyDown() and is_admin) then
-    SimpleSharedEPGPLoot:Toggle()      
+    SimpleSharedEPGPLoot:Toggle();
   elseif (IsAltKeyDown() and is_admin) then
-    sepgp_bids:Toggle()
+    SimpleShareEPGPBids:Toggle();
   else
     SimpleShareEPGPStandings:Toggle();
   end
@@ -1792,7 +1792,7 @@ function SimpleShareEPGP:captureLootCall(text, sender)
           self:ScheduleEvent("shootyepgpBidTimeout", self.clearBids, 300, self)
           running_bid = true
           self:debugPrint("Capturing Bids for 5min.")
-          sepgp_bids:Toggle(true)
+          SimpleShareEPGPBids:Toggle(true);
         end
         self:bidPrint(itemLink, sender, mskw_found, oskw_found, whisperkw_found);
       end
@@ -1861,7 +1861,7 @@ function SimpleShareEPGP:captureBid(text, sender)
     bids_blacklist[sender] = true
     table.insert(SimpleShareEPGP.bids_off, {sender, class, ep, gp, ep/gp});
   end
-  sepgp_bids:Toggle(true);
+  SimpleShareEPGPBids:Toggle(true);
 end
 
 function SimpleShareEPGP:clearBids(reset)
@@ -1876,8 +1876,8 @@ function SimpleShareEPGP:clearBids(reset)
     self:CancelScheduledEvent("shootyepgpBidTimeout")
   end
   running_bid = false
-  sepgp_bids._counterText = ""
-  sepgp_bids:Refresh()
+  SimpleShareEPGPBids._counterText = "";
+  SimpleShareEPGPBids:Refresh();
 end
 
 ----------------
@@ -2418,5 +2418,3 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   UIDropDownMenu_Initialize(menuFrame, function() SimpleShareEPGP:EasyMenu_Initialize(level, menuList) end, displayMode, level)
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
-
--- GLOBALS: sepgp_bids

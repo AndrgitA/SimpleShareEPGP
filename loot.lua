@@ -121,5 +121,3 @@ function SimpleSharedEPGPLoot:OnTooltipUpdate()
     )
   end
 end
-
--- GLOBALS: sepgp_bids

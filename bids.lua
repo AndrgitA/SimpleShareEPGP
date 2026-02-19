@@ -5,11 +5,11 @@ local C = AceLibrary("Crayon-2.0")
 local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
 
-sepgp_bids = SimpleShareEPGP:NewModule("sepgp_bids", "AceDB-2.0", "AceEvent-2.0")
+SimpleShareEPGPBids = SimpleShareEPGP:NewModule("SimpleShareEPGPBids", "AceDB-2.0", "AceEvent-2.0")
 
-function sepgp_bids:OnEnable()
-  if not T:IsRegistered("sepgp_bids") then
-    T:Register("sepgp_bids",
+function SimpleShareEPGPBids:OnEnable()
+  if not T:IsRegistered("SimpleShareEPGPBids") then
+    T:Register("SimpleShareEPGPBids",
       "children", function()
         T:SetTitle(L["shootyepgp bids"])
         self:OnTooltipUpdate()
@@ -21,34 +21,34 @@ function sepgp_bids:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() sepgp_bids:Refresh() end
+          "func", function() SimpleShareEPGPBids:Refresh() end
         )
       end      
     )
   end
-  if not T:IsAttached("sepgp_bids") then
-    T:Open("sepgp_bids")
+  if not T:IsAttached("SimpleShareEPGPBids") then
+    T:Open("SimpleShareEPGPBids")
   end
 end
 
-function sepgp_bids:OnDisable()
-  T:Close("sepgp_bids")
+function SimpleShareEPGPBids:OnDisable()
+  T:Close("SimpleShareEPGPBids")
 end
 
-function sepgp_bids:Refresh()
-  T:Refresh("sepgp_bids")
+function SimpleShareEPGPBids:Refresh()
+  T:Refresh("SimpleShareEPGPBids")
 end
 
-function sepgp_bids:setHideScript()
+function SimpleShareEPGPBids:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "sepgp_bids" then
+    if tablet.owner ~= nil and tablet.owner == "SimpleShareEPGPBids" then
       SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("sepgp_bids") then
-            T:Attach("sepgp_bids")
+          if not T:IsAttached("SimpleShareEPGPBids") then
+            T:Attach("SimpleShareEPGPBids")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -59,38 +59,38 @@ function sepgp_bids:setHideScript()
   end  
 end
 
-function sepgp_bids:Top()
-  if T:IsRegistered("sepgp_bids") and (T.registry.sepgp_bids.tooltip) then
-    T.registry.sepgp_bids.tooltip.scroll=0
+function SimpleShareEPGPBids:Top()
+  if T:IsRegistered("SimpleShareEPGPBids") and (T.registry.SimpleShareEPGPBids.tooltip) then
+    T.registry.SimpleShareEPGPBids.tooltip.scroll=0
   end  
 end
 
-function sepgp_bids:Toggle(forceShow)
+function SimpleShareEPGPBids:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("sepgp_bids") then
-    T:Detach("sepgp_bids") -- show
-    if (T:IsLocked("sepgp_bids")) then
-      T:ToggleLocked("sepgp_bids")
+  if T:IsAttached("SimpleShareEPGPBids") then
+    T:Detach("SimpleShareEPGPBids") -- show
+    if (T:IsLocked("SimpleShareEPGPBids")) then
+      T:ToggleLocked("SimpleShareEPGPBids")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      sepgp_bids:Refresh()
+      SimpleShareEPGPBids:Refresh()
     else
-      T:Attach("sepgp_bids") -- hide
+      T:Attach("SimpleShareEPGPBids") -- hide
     end
   end  
 end
 
-function sepgp_bids:announceWinnerMS(name, pr)
+function SimpleShareEPGPBids:announceWinnerMS(name, pr)
   SimpleShareEPGP:widestAudience(string.format(L["Winning Mainspec Bid: %s (%.03f PR)"],name,pr))
 end
 
-function sepgp_bids:announceWinnerOS(name, pr)
+function SimpleShareEPGPBids:announceWinnerOS(name, pr)
   SimpleShareEPGP:widestAudience(string.format(L["Winning Offspec Bid: %s (%.03f PR)"],name,pr))
 end
 
-function sepgp_bids:countdownCounter()
+function SimpleShareEPGPBids:countdownCounter()
   self._counter = (self._counter or 6) - 1
   if GetNumRaidMembers()>0 and self._counter > 0 then
     self._counterText = C:Yellow(tostring(self._counter))
@@ -100,7 +100,7 @@ function sepgp_bids:countdownCounter()
   end
 end
 
-function sepgp_bids:countdownFinish(reset)
+function SimpleShareEPGPBids:countdownFinish(reset)
   if self:IsEventScheduled("shootyepgpBidCountdown") then
     self:CancelScheduledEvent("shootyepgpBidCountdown")
   end
@@ -113,7 +113,7 @@ function sepgp_bids:countdownFinish(reset)
   self:Refresh()
 end
 
-function sepgp_bids:bidCountdown()
+function SimpleShareEPGPBids:bidCountdown()
   self:countdownFinish(true)
   self:ScheduleRepeatingEvent("shootyepgpBidCountdown",self.countdownCounter,1,self)
   self:ScheduleEvent("shootyepgpBidCountdownFinish",self.countdownFinish,6,self)
@@ -143,14 +143,14 @@ local pr_sorter_bids = function(a,b)
   end
 end
 
-function sepgp_bids:BuildBidsTable()
+function SimpleShareEPGPBids:BuildBidsTable()
   -- {name,class,ep,gp,ep/gp[,main]}
   table.sort(SimpleShareEPGP.bids_main, pr_sorter_bids);
   table.sort(SimpleShareEPGP.bids_off, pr_sorter_bids);
   return SimpleShareEPGP.bids_main, SimpleShareEPGP.bids_off;
 end
 
-function sepgp_bids:OnTooltipUpdate()
+function SimpleShareEPGPBids:OnTooltipUpdate()
   if not (SimpleShareEPGP.bid_item and SimpleShareEPGP.bid_item.link) then return end
   local link = SimpleShareEPGP.bid_item.link;
   local itemName = SimpleShareEPGP.bid_item.name;
@@ -264,5 +264,3 @@ function sepgp_bids:OnTooltipUpdate()
     )
   end   
 end
-
--- GLOBALS: sepgp_bids

@@ -830,5 +830,3 @@ function SimpleShareEPGPPrices:UpdatePrices(modify)
 
   SimpleShareEPGP:debugPrint(L["Items price updated"]);
 end
-
--- GLOBALS: sepgp_bids
