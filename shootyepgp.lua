@@ -992,13 +992,9 @@ function sepgp:simpleSay(msg)
 end
 
 function sepgp:adminSay(msg)
-  -- API is broken on Elysium
-  -- local g_listen, g_speak, officer_listen, officer_speak, g_promote, g_demote, g_invite, g_remove, set_gmotd, set_publicnote, view_officernote, edit_officernote, set_guildinfo = GuildControlGetRankFlags() 
-  -- if (officer_speak) then
   if (sepgp.isAdminUnit()) then
     SendChatMessage(string.format("shootyepgp: %s",msg), sepgp_saychannel)
   end
-  -- end
 end
 
 function sepgp:widestAudience(msg)
@@ -1043,6 +1039,7 @@ function sepgp:addonComms(prefix, message, channel, sender)
     what=epgp
     amount=tonumber(change)
   end
+
   if (who) and (what) and (amount) then
     local msg
     if (who == self._playerName) then
@@ -1103,8 +1100,8 @@ function sepgp:addonComms(prefix, message, channel, sender)
           end
         end
         if (settings_notice) and settings_notice ~= "" then
-          local sender_rank = string.format("%s(%s)",C:Colorize(BC:GetHexColor(class),sender),rank);
-          settings_notice = settings_notice..string.format(L[" settings accepted from %s"],sender_rank);
+          local sender_rank = string.format("%s",C:Colorize(BC:GetHexColor(class), sender));
+          settings_notice = settings_notice..string.format(L[" settings accepted from %s"], sender_rank);
           self:defaultPrint(settings_notice);
           self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], sepgp_progress);
           self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], sepgp_discount * 100);
@@ -1120,8 +1117,8 @@ function sepgp:addonComms(prefix, message, channel, sender)
 end
 
 function sepgp:anounceAddonMessage(msg)
-  self:addonMessage(msg, "GUILD");
-  -- self:addonMessage(msg, "RAID");
+  -- self:addonMessage(msg, "GUILD");
+  self:addonMessage(msg, "RAID");
 end
 
 function sepgp:shareSettings(force)
