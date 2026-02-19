@@ -40,5 +40,4 @@ prices.lua
 standings.lua
 bids.lua
 loot.lua
-alts.lua
 logs.lua

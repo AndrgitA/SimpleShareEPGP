@@ -4,7 +4,7 @@ local C = AceLibrary("Crayon-2.0")
 local CP = AceLibrary("Compost-2.0")
 local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
 
-sepgp_logs = sepgp:NewModule("sepgp_logs", "AceDB-2.0")
+sepgp_logs = SimpleShareEPGP:NewModule("sepgp_logs", "AceDB-2.0")
 sepgp_logs.tmp = CP:Acquire()
 
 function sepgp_logs:OnEnable()
@@ -49,7 +49,7 @@ function sepgp_logs:setHideScript()
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
     if tablet.owner ~= nil and tablet.owner == "sepgp_logs" then
-      sepgp:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
+      SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
           if not T:IsAttached("sepgp_logs") then
@@ -123,4 +123,4 @@ function sepgp_logs:OnTooltipUpdate()
 end
 
 -- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
+-- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs

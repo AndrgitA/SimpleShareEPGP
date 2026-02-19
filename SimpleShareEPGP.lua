@@ -1,5 +1,5 @@
-sepgp = AceLibrary("AceAddon-2.0"):new("AceConsole-2.0", "AceHook-2.1", "AceDB-2.0", "AceDebug-2.0", "AceEvent-2.0", "AceModuleCore-2.0", "FuBarPlugin-2.0")
-sepgp:SetModuleMixins("AceDebug-2.0")
+SimpleShareEPGP = AceLibrary("AceAddon-2.0"):new("AceConsole-2.0", "AceHook-2.1", "AceDB-2.0", "AceDebug-2.0", "AceEvent-2.0", "AceModuleCore-2.0", "FuBarPlugin-2.0")
+SimpleShareEPGP:SetModuleMixins("AceDebug-2.0")
 local D = AceLibrary("Dewdrop-2.0")
 local BZ = AceLibrary("Babble-Zone-2.2")
 local C = AceLibrary("Crayon-2.0")
@@ -11,7 +11,7 @@ local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
 
 local UnitName, GetRaidRosterInfo = UnitName, GetRaidRosterInfo;
 
-sepgp.VARS = {
+SimpleShareEPGP.VARS = {
   basegp = 100,
   minep = 0,
   baseaward_ep = 100,
@@ -32,10 +32,10 @@ sepgp.VARS = {
   minimalItemLootQualiti = 3,
 }
 
-sepgp._playerName = (UnitName("player"))
-sepgp.isAdmin = false;
-sepgp.isRoot = false;
-sepgp.classNames = {
+SimpleShareEPGP._playerName = (UnitName("player"))
+SimpleShareEPGP.isAdmin = false;
+SimpleShareEPGP.isRoot = false;
+SimpleShareEPGP.classNames = {
   Warlock = L["Warlock"],
   Warrior = L["Warrior"],
   Hunter = L["Hunter"],
@@ -46,10 +46,10 @@ sepgp.classNames = {
   Shaman = L["Shaman"],
   Rogue = L["Rogue"],
 };
-sepgp.SUPER_WOW = true;
+SimpleShareEPGP.SUPER_WOW = true;
 
 if (not GetPlayerBuffID or not CombatLogAdd or not SpellInfo or not ExportFile) then
-  sepgp.SUPER_WOW = false;
+  SimpleShareEPGP.SUPER_WOW = false;
 end
 
 sepgp_table_db = {};
@@ -85,15 +85,15 @@ end
 
   Share Settings
 ]]
-function sepgp.isRootUnit()
+function SimpleShareEPGP.isRootUnit()
   --  temporary solution
-  if (sepgp:lootMaster()) then
+  if (SimpleShareEPGP:lootMaster()) then
     return true;
   else 
     return false;
   end
 
-  if (sepgp.isRoot) then
+  if (SimpleShareEPGP.isRoot) then
     return true;
   end
 
@@ -106,11 +106,11 @@ function sepgp.isRootUnit()
     return false;
   end
 
-  local playerName = sepgp._playerName;
+  local playerName = SimpleShareEPGP._playerName;
   local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
   
   if (not playerGuildName) then
-    playerGuildName = sepgp.VARS.unknownGuildName;
+    playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
   end
 
   for gName, gData in pairs(canChangeAll) do
@@ -120,7 +120,7 @@ function sepgp.isRootUnit()
           gData[i].rank == playerGuildName or
           gData[i].name == playerName
         ) then
-          sepgp.isRoot = true;
+          SimpleShareEPGP.isRoot = true;
           return true;
         end
       end
@@ -150,16 +150,16 @@ end
 
   Import
 ]]
-function sepgp.isAdminUnit()
+function SimpleShareEPGP.isAdminUnit()
   --  temporary solution
-  if (sepgp:lootMaster()) then
+  if (SimpleShareEPGP:lootMaster()) then
     return true;
   else 
     return false;
   end
 
 
-  if (sepgp.isAdmin) then
+  if (SimpleShareEPGP.isAdmin) then
     return true;
   end
 
@@ -172,11 +172,11 @@ function sepgp.isAdminUnit()
     return false;
   end
 
-  local playerName = sepgp._playerName;
+  local playerName = SimpleShareEPGP._playerName;
   local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
 
   if (not playerGuildName) then
-    playerGuildName = sepgp.VARS.unknownGuildName;
+    playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
   end
 
   for gName, gData in pairs(canEditDB) do
@@ -186,7 +186,7 @@ function sepgp.isAdminUnit()
           gData[i].rank == playerGuildName or
           gData[i].name == playerName
         ) then
-          sepgp.isAdmin = true;
+          SimpleShareEPGP.isAdmin = true;
           return true;
         end
       end
@@ -197,7 +197,9 @@ function sepgp.isAdminUnit()
 end
 
 local admincmd, membercmd = {
-  type = "group", handler = sepgp, args = {
+  type = "group",
+  handler = SimpleShareEPGP,
+  args = {
     bids = {
       type = "execute",
       name = L["Bids"],
@@ -223,7 +225,7 @@ local admincmd, membercmd = {
       func = function()
         sepgp_looted = {}
         sepgp_loot:Refresh()
-        sepgp:defaultPrint(L["Loot info cleared"])
+        SimpleShareEPGP:defaultPrint(L["Loot info cleared"])
       end,
       order = 3,
     },
@@ -232,7 +234,7 @@ local admincmd, membercmd = {
       name = L["ClearLogs"],
       desc = L["Clear Logs Table."],
       func = function()
-        sepgp:ClearLogs();
+        SimpleShareEPGP:ClearLogs();
       end,
       order = 4,
     },
@@ -241,7 +243,7 @@ local admincmd, membercmd = {
       name = L["Progress"],
       desc = L["Print Progress Multiplier."],
       func = function()
-        sepgp:defaultPrint(sepgp_progress)
+        SimpleShareEPGP:defaultPrint(sepgp_progress)
       end,
       order = 5,
     },
@@ -250,7 +252,7 @@ local admincmd, membercmd = {
       name = L["Offspec"],
       desc = L["Print Offspec Price."],
       func = function()
-        sepgp:defaultPrint(string.format("%s%%",sepgp_discount*100))
+        SimpleShareEPGP:defaultPrint(string.format("%s%%",sepgp_discount*100))
       end,
       order = 6,
     },    
@@ -259,8 +261,8 @@ local admincmd, membercmd = {
       name = L["Restart"],
       desc = L["Restart shootyepgp if having startup problems."],
       func = function() 
-        sepgp:OnEnable()
-        sepgp:defaultPrint(L["Restarted"])
+        SimpleShareEPGP:OnEnable()
+        SimpleShareEPGP:defaultPrint(L["Restarted"])
       end,
       order = 7,
     },
@@ -275,7 +277,9 @@ local admincmd, membercmd = {
     },
   }
 },{
-  type = "group", handler = sepgp, args = {
+  type = "group",
+  handler = SimpleShareEPGP,
+  args = {
     -- show = {
     --   type = "execute",
     --   name = L["Standings"],
@@ -290,7 +294,7 @@ local admincmd, membercmd = {
     --   name = L["Progress"],
     --   desc = L["Print Progress Multiplier."],
     --   func = function()
-    --     sepgp:defaultPrint(sepgp_progress)
+    --     SimpleShareEPGP:defaultPrint(sepgp_progress)
     --   end,
     --   order = 2,
     -- },
@@ -299,7 +303,7 @@ local admincmd, membercmd = {
     --   name = L["Offspec"],
     --   desc = L["Print Offspec Price."],
     --   func = function()
-    --     sepgp:defaultPrint(string.format("%s%%",sepgp_discount*100))
+    --     SimpleShareEPGP:defaultPrint(string.format("%s%%",sepgp_discount*100))
     --   end,
     --   order = 3,
     -- },
@@ -308,8 +312,8 @@ local admincmd, membercmd = {
       name = L["Restart"],
       desc = L["Restart shootyepgp if having startup problems."],
       func = function() 
-        sepgp:OnEnable()
-        sepgp:defaultPrint(L["Restarted"])
+        SimpleShareEPGP:OnEnable()
+        SimpleShareEPGP:defaultPrint(L["Restarted"])
       end,
       order = 4,
     },    
@@ -322,23 +326,22 @@ local admincmd, membercmd = {
       sepgp_standings:Toggle()
     end,
   }]]  
-sepgp.cmdtable = function() 
-  if (sepgp.isAdminUnit()) then
+  SimpleShareEPGP.cmdtable = function() 
+  if (SimpleShareEPGP.isAdminUnit()) then
     return admincmd
   else
     return membercmd
   end
 end
-sepgp.bids_main,sepgp.bids_off,sepgp.bid_item = {},{},{}
-sepgp.timer = CreateFrame("Frame")
-sepgp.timer.cd_text = ""
-sepgp.timer:Hide()
-sepgp.timer:SetScript("OnUpdate",function() sepgp.OnUpdate(this,arg1) end)
-sepgp.timer:SetScript("OnEvent",function() 
+SimpleShareEPGP.bids_main, SimpleShareEPGP.bids_off, SimpleShareEPGP.bid_item = {}, {}, {};
+SimpleShareEPGP.timer = CreateFrame("Frame")
+SimpleShareEPGP.timer.cd_text = ""
+SimpleShareEPGP.timer:Hide()
+SimpleShareEPGP.timer:SetScript("OnUpdate",function() SimpleShareEPGP.OnUpdate(this,arg1) end)
+SimpleShareEPGP.timer:SetScript("OnEvent",function() 
 end)
-sepgp.alts = {}
 
-function sepgp:buildMenu()
+function SimpleShareEPGP:buildMenu()
   if not (options) then
     options = {
       type = "group",
@@ -352,7 +355,7 @@ function sepgp:buildMenu()
       desc = L["Account EPs for member."],
       order = 10,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["ep_raid"] = {
@@ -361,14 +364,14 @@ function sepgp:buildMenu()
       desc = L["Award EPs to all raid members."],
       order = 20,
       get = "suggestedAwardEP",
-      set = function(v) sepgp:award_raid_ep(tonumber(v)) end,
+      set = function(v) SimpleShareEPGP:award_raid_ep(tonumber(v)) end,
       usage = "<EP>",
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
       validate = function(v)
         local n = tonumber(v)
-        return n and n >= 0 and n < sepgp.VARS.max
+        return n and n >= 0 and n < SimpleShareEPGP.VARS.max
       end
     }
     options.args["gp"] = {
@@ -377,7 +380,7 @@ function sepgp:buildMenu()
       desc = L["Account GPs for member."],
       order = 30,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["class"] = {
@@ -386,7 +389,7 @@ function sepgp:buildMenu()
       desc = L["Choose one of classes for Undefined Class member"],
       order = 41,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["new_member"] = {
@@ -395,7 +398,7 @@ function sepgp:buildMenu()
       desc = L["Add new member for DB"],
       order = 42,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["remove_member"] = {
@@ -404,7 +407,7 @@ function sepgp:buildMenu()
       desc = L["Remove member from DB"],
       order = 43,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
     };
     options.args["raid_only"] = {
@@ -415,10 +418,10 @@ function sepgp:buildMenu()
       get = function() return not not sepgp_raidonly end,
       set = function(v) 
         sepgp_raidonly = not sepgp_raidonly
-        sepgp:SetRefresh(true)
+        SimpleShareEPGP:SetRefresh(true)
       end,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end
     }
     options.args["progress_tier_header"] = {
@@ -426,7 +429,7 @@ function sepgp:buildMenu()
       name = string.format(L["Progress Setting: %s"],sepgp_progress),
       order = 85,
       hidden = function()
-        return sepgp.isAdminUnit();
+        return SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["progress_tier"] = {
@@ -436,14 +439,14 @@ function sepgp:buildMenu()
       order = 90,
       hidden = function()
         return true;
-        -- return not sepgp.isAdminUnit();
+        -- return not SimpleShareEPGP.isAdminUnit();
       end,
       get = function() return sepgp_progress end,
       set = function(v) 
         sepgp_progress = v 
-        sepgp:refreshPRTablets()
-        if (sepgp.isRootUnit()) then
-          sepgp:shareSettings(true)
+        SimpleShareEPGP:refreshPRTablets()
+        if (SimpleShareEPGP.isRootUnit()) then
+          SimpleShareEPGP:shareSettings(true)
         end
       end,
       validate = { ["T3"]=L["4.Naxxramas"], ["T2.5"]=L["3.Temple of Ahn\'Qiraj"], ["T2"]=L["2.Blackwing Lair"], ["T1"]=L["1.Molten Core"]},
@@ -454,7 +457,7 @@ function sepgp:buildMenu()
       desc = L["Channel used by reporting functions."],
       order = 95,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
       get = function() return sepgp_saychannel end,
       set = function(v) sepgp_saychannel = v end,
@@ -463,10 +466,10 @@ function sepgp:buildMenu()
     options.args["decay"] = {
       type = "execute",
       name = L["Decay EPGP"],
-      desc = string.format(L["Decays all EPGP by %s%%"],(1-(sepgp_decay or sepgp.VARS.decay))*100),
+      desc = string.format(L["Decays all EPGP by %s%%"],(1-(sepgp_decay or SimpleShareEPGP.VARS.decay))*100),
       order = 100,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,      
       func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_DECAY") end
     }    
@@ -480,8 +483,8 @@ function sepgp:buildMenu()
       set = function(v) 
         sepgp_decay = (1 - v)
         options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"],(1-sepgp_decay)*100)
-        if (sepgp.isRootUnit()) then
-          sepgp:shareSettings(true)
+        if (SimpleShareEPGP.isRootUnit()) then
+          SimpleShareEPGP:shareSettings(true)
         end
       end,
       min = 0.01,
@@ -490,7 +493,7 @@ function sepgp:buildMenu()
       bigStep = 0.05,
       isPercent = true,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,    
     }
     options.args["set_discount_header"] = {
@@ -498,7 +501,7 @@ function sepgp:buildMenu()
       name = string.format(L["Offspec Price: %s%%"],sepgp_discount*100),
       order = 111,
       hidden = function()
-        return sepgp.isAdminUnit();
+        return SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["set_discount"] = {
@@ -507,13 +510,13 @@ function sepgp:buildMenu()
       desc = L["Set Offspec Items GP Percent."],
       order = 115,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
       get = function() return sepgp_discount end,
       set = function(v) 
         sepgp_discount = v
-        if (sepgp.isRootUnit()) then
-          sepgp:shareSettings(true)
+        if (SimpleShareEPGP.isRootUnit()) then
+          SimpleShareEPGP:shareSettings(true)
         end
       end,
       min = 0,
@@ -526,7 +529,7 @@ function sepgp:buildMenu()
       name = string.format(L["Minimum EP: %s"],sepgp_minep),
       order = 117,
       hidden = function()
-        return sepgp.isAdminUnit();
+        return SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["set_min_ep"] = {
@@ -538,48 +541,48 @@ function sepgp:buildMenu()
       get = function() return sepgp_minep end,
       set = function(v) 
         sepgp_minep = tonumber(v)
-        sepgp:refreshPRTablets()
-        if (sepgp.isRootUnit()) then
-          sepgp:shareSettings(true)
+        SimpleShareEPGP:refreshPRTablets()
+        if (SimpleShareEPGP.isRootUnit()) then
+          SimpleShareEPGP:shareSettings(true)
         end        
       end,
       validate = function(v) 
         local n = tonumber(v)
-        return n and n >= 0 and n <= sepgp.VARS.max
+        return n and n >= 0 and n <= SimpleShareEPGP.VARS.max
       end,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
     }
     options.args["reset"] = {
       type = "execute",
       name = L["Reset EPGP"],
-      desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Admin only)."],sepgp.VARS.basegp),
+      desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Admin only)."], SimpleShareEPGP.VARS.basegp),
       order = 120,
       hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end,
       func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_RESET") end
     }
   end
   if (needInit) or (needRefresh) then
-    local members = sepgp:buildRosterTable()
+    local members = SimpleShareEPGP:buildRosterTable()
     -- self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(sepgp_raidonly and "Raid" or "Full")))
-    options.args["ep"].args = sepgp:buildClassMemberTable(members,"ep")
-    options.args["gp"].args = sepgp:buildClassMemberTable(members,"gp")
-    options.args["class"].args = sepgp:buildChooseClassMember(members);
-    options.args["new_member"].args = sepgp:buildClassNewMember();
-    options.args["remove_member"].args = sepgp:buildClassRemoveMember(members);
+    options.args["ep"].args = SimpleShareEPGP:buildClassMemberTable(members,"ep")
+    options.args["gp"].args = SimpleShareEPGP:buildClassMemberTable(members,"gp")
+    options.args["class"].args = SimpleShareEPGP:buildChooseClassMember(members);
+    options.args["new_member"].args = SimpleShareEPGP:buildClassNewMember();
+    options.args["remove_member"].args = SimpleShareEPGP:buildClassRemoveMember(members);
     if (needInit) then needInit = false end
     if (needRefresh) then needRefresh = false end
   end
   return options
 end
 
-function sepgp:OnInitialize() -- ADDON_LOADED (1) unless LoD
-  if sepgp_saychannel == nil then sepgp_saychannel = sepgp.VARS.defaultSayChannel end
-  if sepgp_decay == nil then sepgp_decay = sepgp.VARS.decay end
-  if sepgp_minep == nil then sepgp_minep = sepgp.VARS.minep end
+function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
+  if sepgp_saychannel == nil then sepgp_saychannel = SimpleShareEPGP.VARS.defaultSayChannel end
+  if sepgp_decay == nil then sepgp_decay = SimpleShareEPGP.VARS.decay end
+  if sepgp_minep == nil then sepgp_minep = SimpleShareEPGP.VARS.minep end
   if sepgp_progress == nil then sepgp_progress = "T1" end
   if sepgp_discount == nil then sepgp_discount = 0.25 end
   if sepgp_log == nil then sepgp_log = {} end
@@ -590,27 +593,27 @@ function sepgp:OnInitialize() -- ADDON_LOADED (1) unless LoD
   --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
 end
 
-function sepgp:OnEnable() -- PLAYER_LOGIN (2)
+function SimpleShareEPGP:OnEnable() -- PLAYER_LOGIN (2)
   --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
-  sepgp._playerLevel = UnitLevel("player")
-  sepgp.extratip = (sepgp.extratip) or CreateFrame("GameTooltip","shootyepgp_tooltip",UIParent,"GameTooltipTemplate")
-  sepgp._versionString = GetAddOnMetadata("shootyepgp", "Version")
-  sepgp._websiteString = GetAddOnMetadata("shootyepgp", "X-Website")
+  SimpleShareEPGP._playerLevel = UnitLevel("player")
+  SimpleShareEPGP.extratip = (SimpleShareEPGP.extratip) or CreateFrame("GameTooltip","shootyepgp_tooltip",UIParent,"GameTooltipTemplate")
+  SimpleShareEPGP._versionString = GetAddOnMetadata("shootyepgp", "Version")
+  SimpleShareEPGP._websiteString = GetAddOnMetadata("shootyepgp", "X-Website")
 
   self:RegisterEvent("RAID_ROSTER_UPDATE",function()
-    sepgp:updateRaidRosterInfo();
-    sepgp:SetRefresh(true)
-    sepgp:testLootPrompt()
+    SimpleShareEPGP:updateRaidRosterInfo();
+    SimpleShareEPGP:SetRefresh(true)
+    SimpleShareEPGP:testLootPrompt()
   end)
   self:RegisterEvent("PARTY_MEMBERS_CHANGED",function()
-    sepgp:updateRaidRosterInfo();
-    sepgp:SetRefresh(true)
-    sepgp:testLootPrompt()
+    SimpleShareEPGP:updateRaidRosterInfo();
+    SimpleShareEPGP:SetRefresh(true)
+    SimpleShareEPGP:testLootPrompt()
   end)
   self:RegisterEvent("PLAYER_ENTERING_WORLD",function()
-    sepgp:updateRaidRosterInfo();
-    sepgp:SetRefresh(true)
-    sepgp:testLootPrompt()
+    SimpleShareEPGP:updateRaidRosterInfo();
+    SimpleShareEPGP:SetRefresh(true)
+    SimpleShareEPGP:testLootPrompt()
   end)
   self:RegisterEvent("CHAT_MSG_RAID","captureLootCall")
   self:RegisterEvent("CHAT_MSG_RAID_LEADER","captureLootCall")
@@ -627,12 +630,12 @@ function sepgp:OnEnable() -- PLAYER_LOGIN (2)
   end
 end
 
-function sepgp:OnDisable()
+function SimpleShareEPGP:OnDisable()
   --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnDisable"})
   self:UnregisterAllEvents()
 end
 
-function sepgp:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER_LOGIN, PLAYER_ENTERING_WORLD (3)
+function SimpleShareEPGP:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER_LOGIN, PLAYER_ENTERING_WORLD (3)
   --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="AceEvent_FullyInitialized"})
   if self._hasInitFull then return end
   
@@ -660,7 +663,7 @@ function sepgp:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER
   -- if pfUI loaded, skin the extra tooltip
   if not IsAddOnLoaded("pfUI-addonskins") then
     if (pfUI) and pfUI.api and pfUI.api.CreateBackdrop and pfUI_config and pfUI_config.tooltip and pfUI_config.tooltip.alpha then
-      pfUI.api.CreateBackdrop(sepgp.extratip,nil,nil,tonumber(pfUI_config.tooltip.alpha))
+      pfUI.api.CreateBackdrop(SimpleShareEPGP.extratip, nil, nil, tonumber(pfUI_config.tooltip.alpha))
     end
   end
   -- hook GiveMasterLoot to catch loot assign to members too far for chat parsing
@@ -681,8 +684,8 @@ function sepgp:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER
   self._hasInitFull = true
 end
 
-sepgp._lastRosterRequest = false
-function sepgp:OnMenuRequest()
+SimpleShareEPGP._lastRosterRequest = false
+function SimpleShareEPGP:OnMenuRequest()
   local now = GetTime()
   if not self._lastRosterRequest or (now - self._lastRosterRequest > 2) then
     self._lastRosterRequest = now
@@ -692,19 +695,19 @@ function sepgp:OnMenuRequest()
   D:FeedAceOptionsTable(self._options)
 end
 
-function sepgp:TipHook()
+function SimpleShareEPGP:TipHook()
   self:SecureHook(GameTooltip, "SetHyperlink", function(this, itemstring)
-    sepgp:AddDataToTooltip(GameTooltip, nil, itemstring)
+    SimpleShareEPGP:AddDataToTooltip(GameTooltip, nil, itemstring)
   end)
   self:SecureHook(GameTooltip, "SetBagItem", function(this, bag, slot)
     local itemLink = GetContainerItemLink(bag, slot)
     local ml_tip
     if (itemLink) then
-      local is_master = (sepgp:lootMaster()) and true or nil
+      local is_master = (SimpleShareEPGP:lootMaster()) and true or nil
       local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
       if (link_found) then
         local bind = self:itemBinding(itemString) or ""
-        ml_tip = is_master and bind == sepgp.VARS.boe
+        ml_tip = is_master and bind == SimpleShareEPGP.VARS.boe
         if (ml_tip) then
           local frame = GetMouseFocus()
           if (frame) and (frame.IsFrameType ~= nil) and (frame:IsFrameType("Button"))  then
@@ -716,11 +719,11 @@ function sepgp:TipHook()
         end
       end
     end
-    sepgp:AddDataToTooltip(GameTooltip, itemLink, nil, ml_tip)
+    SimpleShareEPGP:AddDataToTooltip(GameTooltip, itemLink, nil, ml_tip)
   end
   )
   self:SecureHook(GameTooltip, "SetLootItem", function(this, slot)
-    local is_master = (sepgp:lootMaster()) and true or nil
+    local is_master = (SimpleShareEPGP:lootMaster()) and true or nil
     if (is_master) then
       local frame = GetMouseFocus()
       if (frame) and (frame.IsFrameType ~= nil) and (frame:IsFrameType("Button"))  then
@@ -730,52 +733,52 @@ function sepgp:TipHook()
         end
       end
     end
-    sepgp:AddDataToTooltip(GameTooltip, GetLootSlotLink(slot), nil, is_master)
+    SimpleShareEPGP:AddDataToTooltip(GameTooltip, GetLootSlotLink(slot), nil, is_master)
   end
   )
   self:SecureHook(GameTooltip, "SetLootRollItem", function(this, id)
-    sepgp:AddDataToTooltip(GameTooltip, GetLootRollItemLink(id))
+    SimpleShareEPGP:AddDataToTooltip(GameTooltip, GetLootRollItemLink(id))
   end
   ) 
   self:HookScript(GameTooltip, "OnHide", function()
-    if sepgp.extratip:IsVisible() then sepgp.extratip:Hide() end
+    if SimpleShareEPGP.extratip:IsVisible() then SimpleShareEPGP.extratip:Hide() end
     self.hooks[GameTooltip]["OnHide"]()
   end
   )
   self:HookScript(ItemRefTooltip, "OnHide", function()
-    if sepgp.extratip:IsVisible() then sepgp.extratip:Hide() end
+    if SimpleShareEPGP.extratip:IsVisible() then SimpleShareEPGP.extratip:Hide() end
     self.hooks[ItemRefTooltip]["OnHide"]()
   end
   )
   if (AtlasLootTooltip) then
     self:SecureHook(AtlasLootTooltip, "SetHyperlink", function(this, itemstring)
-      sepgp:AddDataToTooltip(AtlasLootTooltip,nil,itemstring)
+      SimpleShareEPGP:AddDataToTooltip(AtlasLootTooltip,nil,itemstring)
     end)
     self:HookScript(AtlasLootTooltip, "OnHide", function()
-      if sepgp.extratip:IsVisible() then sepgp.extratip:Hide() end
+      if SimpleShareEPGP.extratip:IsVisible() then SimpleShareEPGP.extratip:Hide() end
       self.hooks[AtlasLootTooltip]["OnHide"]()
     end)
   end
 end
 
-function sepgp:delayedInit()
+function SimpleShareEPGP:delayedInit()
   -- migrate EPGP storage if needed
-  self:parseVersion(sepgp._versionString)
+  self:parseVersion(SimpleShareEPGP._versionString)
   local major_ver = self._version.major
 
-  sepgp_table_db = sepgp:init_table_db()
+  sepgp_table_db = SimpleShareEPGP:init_table_db()
 
   -- init options and comms
   self._options = self:buildMenu()
-  self:RegisterChatCommand({"/shooty","/sepgp","/shootyepgp"},self.cmdtable())
+  self:RegisterChatCommand({"/simpleshareepgp","/ssepgp"},self.cmdtable())
   self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
   -- broadcast our version
-  local addonMsg = string.format("VERSION;%s;%d",sepgp._versionString,major_ver)
+  local addonMsg = string.format("VERSION;%s;%d",SimpleShareEPGP._versionString,major_ver)
   self:anounceAddonMessage(addonMsg)
-  if (sepgp.isRootUnit()) then
+  if (SimpleShareEPGP.isRootUnit()) then
     self:shareSettings()
   end
-  self:defaultPrint(string.format(L["v%s Loaded."],sepgp._versionString))
+  self:defaultPrint(string.format(L["v%s Loaded."],SimpleShareEPGP._versionString))
   
   -- update prices from config.lua
   if (sepgp_prices and sepgp_custom_prices) then
@@ -783,7 +786,7 @@ function sepgp:delayedInit()
   end
 end
 
-function sepgp:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
+function SimpleShareEPGP:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
   local price
   if (itemstring) then
     price = sepgp_prices:GetPrice(itemstring,sepgp_progress)
@@ -798,7 +801,7 @@ function sepgp:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
   else 
     line_limit = 28 
   end
-  local ep,gp = (self:get_ep_value(self._playerName) or 0), (self:get_gp_value(self._playerName) or sepgp.VARS.basegp)
+  local ep,gp = (self:get_ep_value(self._playerName) or 0), (self:get_gp_value(self._playerName) or SimpleShareEPGP.VARS.basegp)
   local off_price = math.floor(price*sepgp_discount)
   local pr,new_pr,new_pr_off = ep/gp, ep/(gp+price), ep/(gp+off_price)
   local pr_delta = new_pr - pr
@@ -814,42 +817,42 @@ function sepgp:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
     end
     tooltip:Show()
   else
-    sepgp.extratip:ClearLines()
-    sepgp.extratip:SetOwner(tooltip,"ANCHOR_NONE")
-    sepgp.extratip:ClearAllPoints()
+    SimpleShareEPGP.extratip:ClearLines()
+    SimpleShareEPGP.extratip:SetOwner(tooltip,"ANCHOR_NONE")
+    SimpleShareEPGP.extratip:ClearAllPoints()
     if (EnhTooltip) and EnhancedTooltip:IsVisible() then
-      sepgp.extratip:SetPoint("BOTTOMLEFT", tooltip, "TOPLEFT", 0, 5)
-      sepgp.extratip:SetPoint("BOTTOMRIGHT", tooltip, "TOPRIGHT", 0, 5)          
+      SimpleShareEPGP.extratip:SetPoint("BOTTOMLEFT", tooltip, "TOPLEFT", 0, 5)
+      SimpleShareEPGP.extratip:SetPoint("BOTTOMRIGHT", tooltip, "TOPRIGHT", 0, 5)          
     else
-      sepgp.extratip:SetPoint("TOPLEFT", tooltip, "BOTTOMLEFT", 0, -5)
-      sepgp.extratip:SetPoint("TOPRIGHT", tooltip, "BOTTOMRIGHT", 0, -5)
+      SimpleShareEPGP.extratip:SetPoint("TOPLEFT", tooltip, "BOTTOMLEFT", 0, -5)
+      SimpleShareEPGP.extratip:SetPoint("TOPRIGHT", tooltip, "BOTTOMRIGHT", 0, -5)
     end
-    sepgp.extratip:SetText("|cff9664c8shootyepgp|r")
-    sepgp.extratip:AddDoubleLine(" ",textRight)
-    sepgp.extratip:AddDoubleLine(" ",textRight2)
+    SimpleShareEPGP.extratip:SetText("|cff9664c8shootyepgp|r")
+    SimpleShareEPGP.extratip:AddDoubleLine(" ",textRight)
+    SimpleShareEPGP.extratip:AddDoubleLine(" ",textRight2)
     if (is_master) then
-      sepgp.extratip:AddDoubleLine(left1,right1)
+      SimpleShareEPGP.extratip:AddDoubleLine(left1,right1)
     end
-    sepgp.extratip:Show()
+    SimpleShareEPGP.extratip:Show()
   end
 end
 
-function sepgp:OnUpdate(elapsed)
-  sepgp.timer.count_down = sepgp.timer.count_down - elapsed
+function SimpleShareEPGP:OnUpdate(elapsed)
+  SimpleShareEPGP.timer.count_down = SimpleShareEPGP.timer.count_down - elapsed
   lastUpdate = lastUpdate + elapsed
-  if sepgp.timer.count_down <= 0 then
+  if SimpleShareEPGP.timer.count_down <= 0 then
     running_check = nil
-    sepgp.timer:Hide()
-    sepgp.timer.cd_text = L["|cffff0000Finished|r"]
+    SimpleShareEPGP.timer:Hide()
+    SimpleShareEPGP.timer.cd_text = L["|cffff0000Finished|r"]
   else
-    sepgp.timer.cd_text = string.format(L["|cff00ff00%02d|r|cffffffffsec|r"],sepgp.timer.count_down)
+    SimpleShareEPGP.timer.cd_text = string.format(L["|cff00ff00%02d|r|cffffffffsec|r"],SimpleShareEPGP.timer.count_down)
   end
   if lastUpdate > 0.5 then
     lastUpdate = 0
   end
 end
 
-function sepgp:SetItemRef(link, name, button)
+function SimpleShareEPGP:SetItemRef(link, name, button)
   if string.sub(link,1,9) == "shootybid" then
     local _,_,bid,masterlooter = string.find(link,"shootybid:(%d+):(%w+)")
     if bid == "1" then
@@ -880,7 +883,7 @@ function sepgp:SetItemRef(link, name, button)
   end
 end
 
-function sepgp:LootFrameItem_OnClick(button,data)
+function SimpleShareEPGP:LootFrameItem_OnClick(button,data)
   if not IsAltKeyDown() then return end
   if not UnitInRaid("player") then return end
   if not (self:lootMaster()) then 
@@ -900,21 +903,21 @@ function sepgp:LootFrameItem_OnClick(button,data)
     end
   end
 
-  if (LootSlotIsItem(slot) and quality >= sepgp.VARS.minimalItemLootQualiti) then 
+  if (LootSlotIsItem(slot) and quality >= SimpleShareEPGP.VARS.minimalItemLootQualiti) then 
     local itemLink = GetLootSlotLink(slot)
     if (itemLink) then
       if button == "LeftButton" then
-        self:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],sepgp._playerName,itemLink))
+        self:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],SimpleShareEPGP._playerName,itemLink))
       elseif button == "RightButton" then
-        self:widestAudience(string.format(L["Whisper %s a - for %s (offspec)"],sepgp._playerName,itemLink))
+        self:widestAudience(string.format(L["Whisper %s a - for %s (offspec)"],SimpleShareEPGP._playerName,itemLink))
       elseif button == "MiddleButton" then
-        self:widestAudience(string.format(L["Whisper %s a + or - for %s (mainspec or offspec)"],sepgp._playerName,itemLink))
+        self:widestAudience(string.format(L["Whisper %s a + or - for %s (mainspec or offspec)"],SimpleShareEPGP._playerName,itemLink))
       end
     end
   end
 end
 
-function sepgp:ContainerFrameItemButton_OnClick(button,ignoreModifiers)
+function SimpleShareEPGP:ContainerFrameItemButton_OnClick(button,ignoreModifiers)
   if not IsAltKeyDown() then 
     return self.hooks["ContainerFrameItemButton_OnClick"](button,ignoreModifiers) 
   end
@@ -938,13 +941,13 @@ function sepgp:ContainerFrameItemButton_OnClick(button,ignoreModifiers)
       local bind = self:itemBinding(itemString) or ""
       if (bind == self.VARS.boe) then
         if button == "LeftButton" then
-          self:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],sepgp._playerName,itemLink))
+          self:widestAudience(string.format(L["Whisper %s a + for %s (mainspec)"],SimpleShareEPGP._playerName,itemLink))
           return
         elseif button == "RightButton" then
-          self:widestAudience(string.format(L["Whisper %s a - for %s (offspec)"],sepgp._playerName,itemLink))
+          self:widestAudience(string.format(L["Whisper %s a - for %s (offspec)"],SimpleShareEPGP._playerName,itemLink))
           return
         elseif button == "MiddleButton" then
-          self:widestAudience(string.format(L["Whisper %s a + or - for %s (mainspec or offspec)"],sepgp._playerName,itemLink))
+          self:widestAudience(string.format(L["Whisper %s a + or - for %s (mainspec or offspec)"],SimpleShareEPGP._playerName,itemLink))
           return
         end    
       end      
@@ -953,7 +956,7 @@ function sepgp:ContainerFrameItemButton_OnClick(button,ignoreModifiers)
   return self.hooks["ContainerFrameItemButton_OnClick"](button,ignoreModifiers) 
 end
 
-function sepgp:pfUI_UpdateLootFrame()
+function SimpleShareEPGP:pfUI_UpdateLootFrame()
   for slotid, pflootitem in pairs(pfUI.loot.slots) do
     if not self:IsHooked(pflootitem,"OnClick") then
       pflootitem:RegisterForClicks("LeftButtonUp","RightButtonUp","MiddleButtonUp")
@@ -968,7 +971,7 @@ end
 -------------------
 -- Communication
 -------------------
-function sepgp:flashFrame(frame)
+function SimpleShareEPGP:flashFrame(frame)
   local tabFlash = getglobal(frame:GetName().."TabFlash")
   if ( not frame.isDocked or (frame == SELECTED_DOCK_FRAME) or UIFrameIsFlashing(tabFlash) ) then
     return
@@ -977,7 +980,7 @@ function sepgp:flashFrame(frame)
   UIFrameFlash(tabFlash, 0.25, 0.25, 60, nil, 0.5, 0.5)
 end
 
-function sepgp:debugPrint(msg)
+function SimpleShareEPGP:debugPrint(msg)
   if (shooty_debugchat) then
     shooty_debugchat:AddMessage(string.format(out,msg))
     self:flashFrame(shooty_debugchat)
@@ -986,14 +989,14 @@ function sepgp:debugPrint(msg)
   end
 end
 
-function sepgp:defaultPrint(msg)
+function SimpleShareEPGP:defaultPrint(msg)
   if not DEFAULT_CHAT_FRAME:IsVisible() then
     FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
   end
   DEFAULT_CHAT_FRAME:AddMessage(string.format(out,msg))
 end
 
-function sepgp:bidPrint(link, masterlooter, need, greed, bid)
+function SimpleShareEPGP:bidPrint(link, masterlooter, need, greed, bid)
   local mslink = string.gsub(bidlink["ms"],"$ML",masterlooter)
   local oslink = string.gsub(bidlink["os"],"$ML",masterlooter)
   local msg = string.format(L["Click $MS or $OS for %s"],link)
@@ -1027,17 +1030,17 @@ function sepgp:bidPrint(link, masterlooter, need, greed, bid)
   end
 end
 
-function sepgp:simpleSay(msg)
+function SimpleShareEPGP:simpleSay(msg)
   SendChatMessage(string.format("shootyepgp: %s",msg), sepgp_saychannel)
 end
 
-function sepgp:adminSay(msg)
-  if (sepgp.isAdminUnit()) then
+function SimpleShareEPGP:adminSay(msg)
+  if (SimpleShareEPGP.isAdminUnit()) then
     SendChatMessage(string.format("shootyepgp: %s",msg), sepgp_saychannel)
   end
 end
 
-function sepgp:widestAudience(msg)
+function SimpleShareEPGP:widestAudience(msg)
   local channel = "SAY"
   if UnitInRaid("player") then
     if (IsRaidLeader() or IsRaidOfficer()) then
@@ -1051,11 +1054,11 @@ function sepgp:widestAudience(msg)
   SendChatMessage(msg, channel)
 end
 
-function sepgp:addonMessage(message,channel,sender)
+function SimpleShareEPGP:addonMessage(message,channel,sender)
   SendAddonMessage(self.VARS.prefix,message,channel,sender)
 end
 
-function sepgp:addonComms(prefix, message, channel, sender)
+function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
   -- we don't care for messages from other addons
   if (not prefix == self.VARS.prefix) then
     return
@@ -1103,7 +1106,7 @@ function sepgp:addonComms(prefix, message, channel, sender)
         self:defaultPrint(string.format(L["New %s version available: |cff00ff00%s|r"], version_type, what));
         self:defaultPrint(string.format(L["Visit %s to update."], self._websiteString));
       end
-      if (sepgp.isRootUnit()) then
+      if (SimpleShareEPGP.isRootUnit()) then
         self:shareSettings()
       end
     elseif who == "SETTINGS" then
@@ -1127,11 +1130,11 @@ function sepgp:addonComms(prefix, message, channel, sender)
         if minep and minep ~= sepgp_minep then
           sepgp_minep = minep
           settings_notice = L["New Minimum EP"]
-          sepgp:refreshPRTablets()
+          SimpleShareEPGP:refreshPRTablets()
         end
         if decay and decay ~= sepgp_decay then
           sepgp_decay = decay
-          if (sepgp.isAdminUnit()) then
+          if (SimpleShareEPGP.isAdminUnit()) then
             if (settings_notice) then
               settings_notice = settings_notice..L[", decay %"]
             else
@@ -1156,12 +1159,12 @@ function sepgp:addonComms(prefix, message, channel, sender)
   end
 end
 
-function sepgp:anounceAddonMessage(msg)
+function SimpleShareEPGP:anounceAddonMessage(msg)
   -- self:addonMessage(msg, "GUILD");
   self:addonMessage(msg, "RAID");
 end
 
-function sepgp:shareSettings(force)
+function SimpleShareEPGP:shareSettings(force)
   --TODO: need to think through a synchronization system
   return;
 
@@ -1173,7 +1176,7 @@ function sepgp:shareSettings(force)
   -- end
 end
 
-function sepgp:refreshPRTablets()
+function SimpleShareEPGP:refreshPRTablets()
   --if not T:IsAttached("sepgp_standings") then
   sepgp_standings:Refresh()
   --end
@@ -1185,31 +1188,31 @@ end
 ---------------------
 -- EPGP Helpers
 ---------------------
-function sepgp:init_notes_value(name)
+function SimpleShareEPGP:init_notes_value(name)
   if (not name) then
     return
   end
 
-  local table_db = sepgp:init_table_db();
+  local table_db = SimpleShareEPGP:init_table_db();
 
   if (not table_db[name]) then
     table_db[name] = {
       ep = 0,
-      gp = sepgp.VARS.basegp,
-      class = sepgp.VARS.undefinedClass,
+      gp = SimpleShareEPGP.VARS.basegp,
+      class = SimpleShareEPGP.VARS.undefinedClass,
     };
   end
   return table_db[name];
 end
 
-function sepgp:clean_note_value(name)
-  local table_db = sepgp:init_table_db();
+function SimpleShareEPGP:clean_note_value(name)
+  local table_db = SimpleShareEPGP:init_table_db();
 
   if (not table_db[name]) then
     return;
   end
 
-  local newDB = sepgp:clean_table_db();
+  local newDB = SimpleShareEPGP:clean_table_db();
   for i, v in pairs(table_db) do
     if (i ~= name) then
       newDB[i] = v;
@@ -1217,15 +1220,15 @@ function sepgp:clean_note_value(name)
   end
 end
   
-function sepgp:set_class_value(name, class)
-  local data = sepgp:init_notes_value(name);
+function SimpleShareEPGP:set_class_value(name, class)
+  local data = SimpleShareEPGP:init_notes_value(name);
 
-  data.class = class or sepgp.VARS.undefinedClass;
+  data.class = class or SimpleShareEPGP.VARS.undefinedClass;
   return data;
 end
 
-function sepgp:get_class_value(name)
-  local table_db = sepgp:init_table_db();
+function SimpleShareEPGP:get_class_value(name)
+  local table_db = SimpleShareEPGP:init_table_db();
   if (not table_db[name]) then
     return;
   end
@@ -1236,8 +1239,8 @@ end
 ---------------------
 -- EPGP Operations
 ---------------------
-function sepgp:set_ep_value(name, ep)
-  local data = sepgp:init_notes_value(name);
+function SimpleShareEPGP:set_ep_value(name, ep)
+  local data = SimpleShareEPGP:init_notes_value(name);
 
   if (ep) then
     data.ep = math.max(0, ep);
@@ -1245,17 +1248,17 @@ function sepgp:set_ep_value(name, ep)
   return data;
 end
 
-function sepgp:set_gp_value(name, gp)
-  local data = sepgp:init_notes_value(name);
+function SimpleShareEPGP:set_gp_value(name, gp)
+  local data = SimpleShareEPGP:init_notes_value(name);
 
   if (gp) then
-    data.gp = math.max(sepgp.VARS.basegp, gp);
+    data.gp = math.max(SimpleShareEPGP.VARS.basegp, gp);
   end
   return data;
 end
 
-function sepgp:get_ep_value(name)
-  local table_db = sepgp:init_table_db();
+function SimpleShareEPGP:get_ep_value(name)
+  local table_db = SimpleShareEPGP:init_table_db();
   if (not table_db[name]) then
     return;
   end
@@ -1263,8 +1266,8 @@ function sepgp:get_ep_value(name)
   return table_db[name].ep;
 end
 
-function sepgp:get_gp_value(name)
-  local table_db = sepgp:init_table_db();
+function SimpleShareEPGP:get_gp_value(name)
+  local table_db = SimpleShareEPGP:init_table_db();
   if (not table_db[name]) then
     return;
   end
@@ -1272,12 +1275,12 @@ function sepgp:get_gp_value(name)
   return table_db[name].gp;
 end
 
-function sepgp:award_raid_ep(ep) -- awards ep to raid members in zone
+function SimpleShareEPGP:award_raid_ep(ep) -- awards ep to raid members in zone
   if GetNumRaidMembers()>0 then
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
       if (name) then
-        local dbValue = sepgp:init_notes_value(name);
+        local dbValue = SimpleShareEPGP:init_notes_value(name);
         dbValue.class = class;
         self:give_ep_value(name, ep);
       end
@@ -1290,8 +1293,8 @@ function sepgp:award_raid_ep(ep) -- awards ep to raid members in zone
   else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"], 1, 0, 0) end
 end
 
-function sepgp:give_ep_value(name, ep)
-  if (not sepgp.isAdminUnit()) then
+function SimpleShareEPGP:give_ep_value(name, ep)
+  if (not SimpleShareEPGP.isAdminUnit()) then
     return
   end
   
@@ -1307,28 +1310,28 @@ function sepgp:give_ep_value(name, ep)
   end
 end
 
-function sepgp:give_gp_value(name, gp)
-  if (not sepgp.isAdminUnit()) then
+function SimpleShareEPGP:give_gp_value(name, gp)
+  if (not SimpleShareEPGP.isAdminUnit()) then
     return;
   end
 
-  local oldgp = (self:get_gp_value(name) or sepgp.VARS.basegp); 
+  local oldgp = (self:get_gp_value(name) or SimpleShareEPGP.VARS.basegp); 
   local newgp = gp + oldgp;
   self:set_gp_value(name, newgp);
   self:debugPrint(string.format(L["Giving %d gp to %s."], gp, name));
-  local msg = string.format(L["Awarding %d GP to %s. (Previous: %d, New: %d)"], gp, name, oldgp, math.max(sepgp.VARS.basegp, newgp));
+  local msg = string.format(L["Awarding %d GP to %s. (Previous: %d, New: %d)"], gp, name, oldgp, math.max(SimpleShareEPGP.VARS.basegp, newgp));
   self:adminSay(msg);
   self:addToLog(msg);
   local addonMsg = string.format("%s;%s;%s", name, "GP", gp);
   self:anounceAddonMessage(addonMsg);
 end
 
-function sepgp:decay_epgp_value()
-  if (not sepgp.isAdminUnit()) then
+function SimpleShareEPGP:decay_epgp_value()
+  if (not SimpleShareEPGP.isAdminUnit()) then
     return;
   end
 
-  local table_db = sepgp:init_table_db();
+  local table_db = SimpleShareEPGP:init_table_db();
 
   for i, v in pairs(table_db) do
     local name = i;
@@ -1343,36 +1346,36 @@ function sepgp:decay_epgp_value()
   local msg = string.format(L["All EP and GP decayed by %s%%"],(1-sepgp_decay)*100)
   self:simpleSay(msg)
   self:adminSay(msg)
-  local addonMsg = string.format("ALL;DECAY;%s",(1-(sepgp_decay or sepgp.VARS.decay))*100)
+  local addonMsg = string.format("ALL;DECAY;%s",(1-(sepgp_decay or SimpleShareEPGP.VARS.decay))*100)
   self:anounceAddonMessage(addonMsg)
   self:addToLog(msg)
   self:refreshPRTablets() 
 end
 
-function sepgp:reset_value()
-  if (not sepgp.isAdminUnit()) then
+function SimpleShareEPGP:reset_value()
+  if (not SimpleShareEPGP.isAdminUnit()) then
     return
   end
 
-  local table_db = sepgp:init_table_db();
+  local table_db = SimpleShareEPGP:init_table_db();
 
   for i, v in pairs(table_db) do
     local name = i;
     self:set_ep_value(name, 0);
-    self:set_gp_value(name, sepgp.VARS.basegp);
+    self:set_gp_value(name, SimpleShareEPGP.VARS.basegp);
   end
 
   local msg = L["All EP and GP has been reset to 0/%d."]
-  self:debugPrint(string.format(msg,sepgp.VARS.basegp))
-  self:adminSay(string.format(msg,sepgp.VARS.basegp))
-  self:addToLog(string.format(msg,sepgp.VARS.basegp))
+  self:debugPrint(string.format(msg,SimpleShareEPGP.VARS.basegp))
+  self:adminSay(string.format(msg,SimpleShareEPGP.VARS.basegp))
+  self:addToLog(string.format(msg,SimpleShareEPGP.VARS.basegp))
 end
 
-function sepgp:capcalc(ep,gp,gain)
+function SimpleShareEPGP:capcalc(ep,gp,gain)
   -- CAP_EP = EP_GAIN*DECAY/(1-DECAY) CAP_PR = CAP_EP/base_gp
   local pr = ep/gp
   local ep_decayed = self:num_round(ep*sepgp_decay)
-  local gp_decayed = math.max(sepgp.VARS.basegp,self:num_round(gp*sepgp_decay))
+  local gp_decayed = math.max(SimpleShareEPGP.VARS.basegp,self:num_round(gp*sepgp_decay))
   local pr_decay = tonumber(string.format("%.03f",pr))-tonumber(string.format("%.03f",ep_decayed/gp_decayed))
   if (pr_decay < 0.5) then 
     pr_decay = 0 
@@ -1383,13 +1386,13 @@ function sepgp:capcalc(ep,gp,gain)
   local cap_ep, cap_pr
   if (cycle_gain) then
     cap_ep = self:num_round(cycle_gain*sepgp_decay/(1-sepgp_decay))
-    cap_pr = tonumber(string.format("%.03f",cap_ep/sepgp.VARS.basegp))
+    cap_pr = tonumber(string.format("%.03f",cap_ep/SimpleShareEPGP.VARS.basegp))
   end
   return pr_decay, cap_ep, cap_pr
 end
 
-function sepgp:my_epgp_announce()
-  local ep, gp = (self:get_ep_value(self._playerName) or 0), (self:get_gp_value(self._playerName) or sepgp.VARS.basegp)
+function SimpleShareEPGP:my_epgp_announce()
+  local ep, gp = (self:get_ep_value(self._playerName) or 0), (self:get_gp_value(self._playerName) or SimpleShareEPGP.VARS.basegp)
   local pr = ep/gp
   local msg = string.format(L["You now have: %d EP %d GP |cffffff00%.03f|r|cffff7f00PR|r."], ep,gp,pr)
   self:defaultPrint(msg)
@@ -1400,24 +1403,24 @@ function sepgp:my_epgp_announce()
   end
 end
 
-function sepgp:my_epgp()
+function SimpleShareEPGP:my_epgp()
   self:ScheduleEvent("shootyepgpRosterRefresh",self.my_epgp_announce,3,self)
 end
 
 ---------
 -- Menu
 ---------
-sepgp.hasIcon = "Interface\\PetitionFrame\\GuildCharter-Icon"
-sepgp.title = "custom shootyepgp"
-sepgp.defaultMinimapPosition = 180
-sepgp.defaultPosition = "RIGHT"
-sepgp.cannotDetachTooltip = true
-sepgp.tooltipHiddenWhenEmpty = false
-sepgp.independentProfile = true
+SimpleShareEPGP.hasIcon = "Interface\\PetitionFrame\\GuildCharter-Icon"
+SimpleShareEPGP.title = "custom shootyepgp"
+SimpleShareEPGP.defaultMinimapPosition = 180
+SimpleShareEPGP.defaultPosition = "RIGHT"
+SimpleShareEPGP.cannotDetachTooltip = true
+SimpleShareEPGP.tooltipHiddenWhenEmpty = false
+SimpleShareEPGP.independentProfile = true
 
-function sepgp:OnTooltipUpdate()
+function SimpleShareEPGP:OnTooltipUpdate()
   local hint = L["|cffffff00Right-Click|r for Options."]
-  if (sepgp.isAdminUnit()) then
+  if (SimpleShareEPGP.isAdminUnit()) then
     hint = string.format("%s \n%s%s", L["|cffffff00Click|r to toggle Standings."], hint, L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."]);
   else
     hint = string.format(hint,"");
@@ -1425,8 +1428,8 @@ function sepgp:OnTooltipUpdate()
   T:SetHint(hint);
 end
 
-function sepgp:OnClick()
-  local is_admin = sepgp.isAdminUnit();
+function SimpleShareEPGP:OnClick()
+  local is_admin = SimpleShareEPGP.isAdminUnit();
 
   -- now any leftclick for not admin ignored
   if (not is_admin) then
@@ -1444,25 +1447,25 @@ function sepgp:OnClick()
   end
 end
 
-function sepgp:SetRefresh(flag)
+function SimpleShareEPGP:SetRefresh(flag)
   needRefresh = flag
   if (flag) then
     self:refreshPRTablets()
   end
 end
 
-function sepgp:ClearLogs()
+function SimpleShareEPGP:ClearLogs()
   sepgp_log = {};
   sepgp_logs:Refresh();
-  sepgp:defaultPrint(L["Logs cleared"]);
+  SimpleShareEPGP:defaultPrint(L["Logs cleared"]);
 end
 
-function sepgp:clean_table_db()
+function SimpleShareEPGP:clean_table_db()
   sepgp_table_db = {};
   return sepgp_table_db;
 end
 
-function sepgp:init_table_db()
+function SimpleShareEPGP:init_table_db()
   if (not sepgp_table_db) then
     sepgp_table_db = {};
   end
@@ -1470,7 +1473,7 @@ function sepgp:init_table_db()
   return sepgp_table_db;
 end
 
-function sepgp:updateRaidRosterInfo()
+function SimpleShareEPGP:updateRaidRosterInfo()
   if (GetNumRaidMembers() < 1) then
     return;
   end
@@ -1478,14 +1481,14 @@ function sepgp:updateRaidRosterInfo()
   for i = 1, GetNumRaidMembers(true) do
     local raiderName, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
     if (raiderName) then
-      local dbValue = sepgp:init_notes_value(raiderName);
+      local dbValue = SimpleShareEPGP:init_notes_value(raiderName);
       dbValue.class = class;
     end
   end
 end
 
-function sepgp:buildRosterTable()
-  local table_db = sepgp:init_table_db();
+function SimpleShareEPGP:buildRosterTable()
+  local table_db = SimpleShareEPGP:init_table_db();
 
   local g, r = { }, { }
   if (sepgp_raidonly) and GetNumRaidMembers() > 0 then
@@ -1493,7 +1496,7 @@ function sepgp:buildRosterTable()
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i);
       
       if (name) then
-        local dbValue = sepgp:init_notes_value(name);
+        local dbValue = SimpleShareEPGP:init_notes_value(name);
         dbValue.class = class;
         r[name] = class;
       end
@@ -1502,7 +1505,7 @@ function sepgp:buildRosterTable()
   
   for i, v in pairs(table_db) do
     local name = i;
-    local class = v.class or sepgp.VARS.undefinedClass;
+    local class = v.class or SimpleShareEPGP.VARS.undefinedClass;
     if (sepgp_raidonly and next(r)) then
       if (r[name]) then
         table.insert(g, {["name"]=name, ["class"]=class});
@@ -1515,7 +1518,7 @@ function sepgp:buildRosterTable()
   return g;
 end
 
-function sepgp:buildChooseClassMember(roster)
+function SimpleShareEPGP:buildChooseClassMember(roster)
   local c = { };
 
   table.sort(roster, function(a,b)
@@ -1526,7 +1529,7 @@ function sepgp:buildChooseClassMember(roster)
   local classToColorValue = {};
   local colorToClassValue = {};
 
-  for class, _ in pairs(sepgp.classNames) do
+  for class, _ in pairs(SimpleShareEPGP.classNames) do
     local colorClassValue = C:Colorize(BC:GetHexColor(class), class);
     table.insert(validateValues, colorClassValue);
     classToColorValue[class] = colorClassValue;
@@ -1542,10 +1545,10 @@ function sepgp:buildChooseClassMember(roster)
       c[name].name = C:Colorize(BC:GetHexColor(class), name);
       c[name].desc = "set class value for member";
       c[name].hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end;
       c[name].get = function() return classToColorValue[class] end;
-      c[name].set = function(v) sepgp:set_class_value(name, colorToClassValue[v]); sepgp:refreshPRTablets();  end --sepgp:buildMenu();
+      c[name].set = function(v) SimpleShareEPGP:set_class_value(name, colorToClassValue[v]); SimpleShareEPGP:refreshPRTablets();  end --SimpleShareEPGP:buildMenu();
       c[name].validate = validateValues;
     end
   end
@@ -1553,7 +1556,7 @@ function sepgp:buildChooseClassMember(roster)
   return c;
 end
 
-function sepgp:buildClassRemoveMember(roster)
+function SimpleShareEPGP:buildClassRemoveMember(roster)
   local c = { };
 
   for i, member in ipairs(roster) do
@@ -1564,7 +1567,7 @@ function sepgp:buildClassRemoveMember(roster)
       c[class].name = C:Colorize(BC:GetHexColor(class), class);
       c[class].desc = L["Group remove member"];
       c[class].hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end;
       c[class].args = { };
     end
@@ -1574,9 +1577,9 @@ function sepgp:buildClassRemoveMember(roster)
       c[class].args[name].name = name;
       c[class].args[name].desc = L["Remove this member"];
       c[class].args[name].func = function()
-        sepgp:clean_note_value(name);
-        sepgp:defaultPrint(C:Colorize(BC:GetHexColor(class), name).." "..L["Member removed from DB"]);
-        sepgp:refreshPRTablets();
+        SimpleShareEPGP:clean_note_value(name);
+        SimpleShareEPGP:defaultPrint(C:Colorize(BC:GetHexColor(class), name).." "..L["Member removed from DB"]);
+        SimpleShareEPGP:refreshPRTablets();
       end;
     end
   end
@@ -1584,10 +1587,10 @@ function sepgp:buildClassRemoveMember(roster)
   return c;
 end
 
-function sepgp:buildClassNewMember()
+function SimpleShareEPGP:buildClassNewMember()
   local c = {};
 
-  for class, className in pairs(sepgp.classNames) do
+  for class, className in pairs(SimpleShareEPGP.classNames) do
     local _class = class;
     if (c[class] == nil) then
       c[class] = { };
@@ -1597,25 +1600,25 @@ function sepgp:buildClassNewMember()
     c[class].name = C:Colorize(BC:GetHexColor(class), className);
     c[class].desc = L["Name for new class member"];
     c[class].hidden = function()
-      return not sepgp.isAdminUnit();
+      return not SimpleShareEPGP.isAdminUnit();
     end
     c[class].get = function() return "" end;
     c[class].usage = "<new_member>";
     c[class].set = function(v)
-      local newValueDB = sepgp:init_notes_value(v);
+      local newValueDB = SimpleShareEPGP:init_notes_value(v);
       newValueDB.class = _class;
-      sepgp:refreshPRTablets();
-      sepgp:defaultPrint(L["New member added in DB"]..": "..C:Colorize(BC:GetHexColor(_class), v));
+      SimpleShareEPGP:refreshPRTablets();
+      SimpleShareEPGP:defaultPrint(L["New member added in DB"]..": "..C:Colorize(BC:GetHexColor(_class), v));
     end;
     c[class].validate = function(v) 
-      return (string.len(v) > 2) and (sepgp:verifyMember(v, true) == nil);
+      return (string.len(v) > 2) and (SimpleShareEPGP:verifyMember(v, true) == nil);
     end;
   end
 
   return c;
 end
 
-function sepgp:buildClassMemberTable(roster,epgp)
+function SimpleShareEPGP:buildClassMemberTable(roster,epgp)
   local desc,usage
   if epgp == "ep" then
     desc = L["Account EPs to %s."]
@@ -1633,7 +1636,7 @@ function sepgp:buildClassMemberTable(roster,epgp)
       c[class].name = C:Colorize(BC:GetHexColor(class),class)
       c[class].desc = class .. " members"
       c[class].hidden = function()
-        return not sepgp.isAdminUnit();
+        return not SimpleShareEPGP.isAdminUnit();
       end
       c[class].args = { }
     end
@@ -1645,20 +1648,20 @@ function sepgp:buildClassMemberTable(roster,epgp)
       c[class].args[name].usage = usage
       if epgp == "ep" then
         c[class].args[name].get = "suggestedAwardEP"
-        c[class].args[name].set = function(v) sepgp:give_ep_value(name, tonumber(v)) sepgp:refreshPRTablets() end
+        c[class].args[name].set = function(v) SimpleShareEPGP:give_ep_value(name, tonumber(v)) SimpleShareEPGP:refreshPRTablets() end
       elseif epgp == "gp" then
         c[class].args[name].get = false
-        c[class].args[name].set = function(v) sepgp:give_gp_value(name, tonumber(v)) sepgp:refreshPRTablets() end
+        c[class].args[name].set = function(v) SimpleShareEPGP:give_gp_value(name, tonumber(v)) SimpleShareEPGP:refreshPRTablets() end
       end
-      c[class].args[name].validate = function(v) return (type(v) == "number" or tonumber(v)) and tonumber(v) < sepgp.VARS.max end
+      c[class].args[name].validate = function(v) return (type(v) == "number" or tonumber(v)) and tonumber(v) < SimpleShareEPGP.VARS.max end
     end
   end
   return c
 end
 
 
-function sepgp:getCharacterData(name)
-  local table_db = sepgp:init_table_db();
+function SimpleShareEPGP:getCharacterData(name)
+  local table_db = SimpleShareEPGP:init_table_db();
   if (not name or type(table_db[name]) ~= "table") then
     return nil;
   end
@@ -1688,7 +1691,7 @@ lootCall.os = {
 lootCall.bs = { -- blacklist
   "^(roll)[%s%p%c]+.+",".+[%s%p%c]+(roll)$",".*[%s%p%c]+(roll)[%s%p%c]+.*"
 }
-function sepgp:captureLootCall(text, sender)
+function SimpleShareEPGP:captureLootCall(text, sender)
   if not (string.find(text, "|Hitem:", 1, true)) then
     return;
   end
@@ -1738,12 +1741,12 @@ function sepgp:captureLootCall(text, sender)
     end
     if (link_found) then
       local quality = hexColorQuality[itemColor] or -1;
-      if (quality >= sepgp.VARS.minimalItemLootQualiti) then
+      if (quality >= SimpleShareEPGP.VARS.minimalItemLootQualiti) then
         if (IsRaidLeader() or self:lootMaster()) and (sender == self._playerName) then
           self:clearBids(true)
-          sepgp.bid_item.link = itemString
-          sepgp.bid_item.linkFull = itemLink
-          sepgp.bid_item.name = string.format("%s%s|r", itemColor, itemName)
+          SimpleShareEPGP.bid_item.link = itemString
+          SimpleShareEPGP.bid_item.linkFull = itemLink
+          SimpleShareEPGP.bid_item.name = string.format("%s%s|r", itemColor, itemName)
           self:ScheduleEvent("shootyepgpBidTimeout", self.clearBids, 300, self)
           running_bid = true
           self:debugPrint("Capturing Bids for 5min.")
@@ -1758,7 +1761,7 @@ end
 local lootBid = {}
 lootBid.ms = {"(%+)",".+(%+).*",".*(%+).+",".*(%+).*","(ms)","(need)"}
 lootBid.os = {"(%-)",".+(%-).*",".*(%-).+",".*(%-).*","(os)","(greed)"}
-function sepgp:captureBid(text, sender)
+function SimpleShareEPGP:captureBid(text, sender)
   if (not running_bid) then
     return;
   end
@@ -1767,7 +1770,7 @@ function sepgp:captureBid(text, sender)
     return;
   end
 
-  if (not sepgp.bid_item.link) then
+  if (not SimpleShareEPGP.bid_item.link) then
     return
   end
 
@@ -1806,26 +1809,26 @@ function sepgp:captureBid(text, sender)
   end
 
   local ep = member.ep or 0; 
-  local gp = member.gp or sepgp.VARS.basegp;
-  local class = member.class or sepgp.VARS.undefinedClass;
+  local gp = member.gp or SimpleShareEPGP.VARS.basegp;
+  local class = member.class or SimpleShareEPGP.VARS.undefinedClass;
 
   if (mskw_found) then
     bids_blacklist[sender] = true;
-    table.insert(sepgp.bids_main, {sender, class, ep, gp, ep/gp});
+    table.insert(SimpleShareEPGP.bids_main, {sender, class, ep, gp, ep/gp});
   elseif (oskw_found) then
     bids_blacklist[sender] = true
-    table.insert(sepgp.bids_off, {sender, class, ep, gp, ep/gp});
+    table.insert(SimpleShareEPGP.bids_off, {sender, class, ep, gp, ep/gp});
   end
   sepgp_bids:Toggle(true);
 end
 
-function sepgp:clearBids(reset)
+function SimpleShareEPGP:clearBids(reset)
   if reset~=nil then
     self:debugPrint(L["Clearing old Bids"])
   end
-  sepgp.bid_item = {}
-  sepgp.bids_main = {}
-  sepgp.bids_off = {}
+  SimpleShareEPGP.bid_item = {}
+  SimpleShareEPGP.bids_main = {}
+  SimpleShareEPGP.bids_off = {}
   bids_blacklist = {}
   if self:IsEventScheduled("shootyepgpBidTimeout") then
     self:CancelScheduledEvent("shootyepgpBidTimeout")
@@ -1840,9 +1843,9 @@ end
 ----------------
 -- /script DEFAULT_CHAT_FRAME:AddMessage("\124cffa335ee\124Hitem:16864:0:0:0:0:0:0:0:0\124h[Belt of Might]\124h\124r");
 -- test: "You receive loot: \124cffa335ee\124Hitem:16866:0:0:0\124h[Helm of Might]\124h\124r."
--- test: /run sepgp:captureLoot("Raerlas receives loot: \124cffa335ee\124Hitem:16846:0:0:0\124h[Giantstalker's Helmet]\124h\124r.")
--- test: /run sepgp:captureLoot("You receive loot: \124cffa335ee\124Hitem:16864:0:0:0\124h[Belt of Might]\124h\124r.")
-sepgp.loot_index = {
+-- test: /run SimpleShareEPGP:captureLoot("Raerlas receives loot: \124cffa335ee\124Hitem:16846:0:0:0\124h[Giantstalker's Helmet]\124h\124r.")
+-- test: /run SimpleShareEPGP:captureLoot("You receive loot: \124cffa335ee\124Hitem:16864:0:0:0\124h[Belt of Might]\124h\124r.")
+SimpleShareEPGP.loot_index = {
   time=1,
   player=2,
   player_c=3,
@@ -1853,8 +1856,8 @@ sepgp.loot_index = {
   action=8,
   update=9
 }
-function sepgp:captureLoot(message)
-  if not (UnitInRaid("player") and self:lootMaster() and sepgp.isAdminUnit()) then return end
+function SimpleShareEPGP:captureLoot(message)
+  if not (UnitInRaid("player") and self:lootMaster() and SimpleShareEPGP.isAdminUnit()) then return end
   local who,what,amount,player,itemLink
   who,what,amount = DF:Deformat(message,LOOT_ITEM_MULTIPLE)
   if (amount) then -- skip multiples / stacks
@@ -1872,10 +1875,10 @@ function sepgp:captureLoot(message)
   self:processLoot(player,itemLink,"chat")
 end
 
-function sepgp:GiveMasterLoot(slot, index)
+function SimpleShareEPGP:GiveMasterLoot(slot, index)
   if LootSlotIsItem(slot) then
     local texture, itemname, quantity, quality = GetLootSlotInfo(slot)
-    if (quantity == 1 and quality >= sepgp.VARS.minimalItemLootQualiti) then -- not a stack and rare or higher
+    if (quantity == 1 and quality >= SimpleShareEPGP.VARS.minimalItemLootQualiti) then -- not a stack and rare or higher
       local itemLink = GetLootSlotLink(slot);
       local player = GetMasterLootCandidate(index);
       if not (player and itemLink) then
@@ -1887,7 +1890,7 @@ function sepgp:GiveMasterLoot(slot, index)
   end
 end
 
-function sepgp:findLootReminder(itemLink)
+function SimpleShareEPGP:findLootReminder(itemLink)
   for i,data in ipairs(sepgp_looted) do
     if data[self.loot_index.item] == itemLink and data[self.loot_index.action] == self.VARS.reminder then
       return data;
@@ -1895,8 +1898,8 @@ function sepgp:findLootReminder(itemLink)
   end
 end
 
-function sepgp:tradeLoot(playerState,targetState)
-  if not (UnitInRaid("player") and self:lootMaster() and sepgp.isAdminUnit()) then
+function SimpleShareEPGP:tradeLoot(playerState,targetState)
+  if not (UnitInRaid("player") and self:lootMaster() and SimpleShareEPGP.isAdminUnit()) then
     return;
   end
 
@@ -1943,39 +1946,39 @@ function sepgp:tradeLoot(playerState,targetState)
   end
 end
 
-sepgp.item_bind_patterns = {
+SimpleShareEPGP.item_bind_patterns = {
   CRAFT = "("..ITEM_SPELL_TRIGGER_ONUSE..")",
   BOP = "("..ITEM_BIND_ON_PICKUP..")",
   QUEST = "("..ITEM_BIND_QUEST..")",
   BOU = "("..ITEM_BIND_ON_EQUIP..")",
   BOE = "("..ITEM_BIND_ON_USE..")"
 }
-function sepgp:itemBinding(item)
+function SimpleShareEPGP:itemBinding(item)
   G:SetHyperlink(item)
   if G:Find(self.item_bind_patterns.CRAFT,2,4,nil,true) then
   else
     if G:Find(self.item_bind_patterns.BOP,2,4,nil,true) then
-      return sepgp.VARS.bop
+      return SimpleShareEPGP.VARS.bop
     elseif G:Find(self.item_bind_patterns.QUEST,2,4,nil,true) then
-      return sepgp.VARS.bop
+      return SimpleShareEPGP.VARS.bop
     elseif G:Find(self.item_bind_patterns.BOE,2,4,nil,true) then
-      return sepgp.VARS.boe
+      return SimpleShareEPGP.VARS.boe
     elseif G:Find(self.item_bind_patterns.BOU,2,4,nil,true) then
-      return sepgp.VARS.boe
+      return SimpleShareEPGP.VARS.boe
     else
-      return sepgp.VARS.nobind
+      return SimpleShareEPGP.VARS.nobind
     end
   end
   return
 end
 
-function sepgp:addOrUpdateLoot(data,update)
+function SimpleShareEPGP:addOrUpdateLoot(data,update)
   if not (update) then
     table.insert(sepgp_looted,data)
   end
 end
 
-function sepgp:testLootPrompt()
+function SimpleShareEPGP:testLootPrompt()
   raidStatus = UnitInRaid("player") and true or false
   if lastRaidStatus == nil then
     lastRaidStatus = raidStatus
@@ -1993,8 +1996,8 @@ end
 ------------
 -- Logging
 ------------
-function sepgp:addToLog(line,skipTime)
-  local over = table.getn(sepgp_log)-sepgp.VARS.maxloglines+1
+function SimpleShareEPGP:addToLog(line,skipTime)
+  local over = table.getn(sepgp_log)-SimpleShareEPGP.VARS.maxloglines+1
   if over > 0 then
     for i=1,over do
       table.remove(sepgp_log,1)
@@ -2012,18 +2015,18 @@ end
 ------------
 -- Utility 
 ------------
-function sepgp:num_round(i)
+function SimpleShareEPGP:num_round(i)
   return math.floor(i+0.5)
 end
 
-function sepgp:strsplit(delimiter, subject)
+function SimpleShareEPGP:strsplit(delimiter, subject)
   local delimiter, fields = delimiter or ":", {}
   local pattern = string.format("([^%s]+)", delimiter)
   string.gsub(subject, pattern, function(c) fields[table.getn(fields)+1] = c end)
   return unpack(fields)
 end
 
-function sepgp:processLootDupe(player,itemName,source)
+function SimpleShareEPGP:processLootDupe(player,itemName,source)
   local now = GetTime()
   local player_name = player == YOU and self._playerName or player
   local player_item = string.format("%s%s",player_name,itemName)
@@ -2035,7 +2038,7 @@ function sepgp:processLootDupe(player,itemName,source)
   return false, player_item, now
 end
 
-function sepgp:processLoot(player, itemLink, source)
+function SimpleShareEPGP:processLoot(player, itemLink, source)
   local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])");
   if (link_found) then
     local dupe, player_item, now = self:processLootDupe(player, itemName, source);
@@ -2084,8 +2087,8 @@ function sepgp:processLoot(player, itemLink, source)
   end
 end
 
-function sepgp:verifyMember(name, silent)
-  local table_db = sepgp:init_table_db();
+function SimpleShareEPGP:verifyMember(name, silent)
+  local table_db = SimpleShareEPGP:init_table_db();
   if (not name or not table_db[name]) then
     if not (silent) then
       self:defaultPrint(string.format(L["%s not found member!"], name ))
@@ -2096,7 +2099,7 @@ function sepgp:verifyMember(name, silent)
   return table_db[name];
 end
 
-function sepgp:verifyRaidMember(name)
+function SimpleShareEPGP:verifyRaidMember(name)
   if (not name) then
     return;
   end
@@ -2105,7 +2108,7 @@ function sepgp:verifyRaidMember(name)
     for i = 1, GetNumRaidMembers(true) do
       local raiderName, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i)
       if (name == raiderName) then
-        local dbValue = sepgp:init_notes_value(name);
+        local dbValue = SimpleShareEPGP:init_notes_value(name);
         dbValue.class = class;
         return dbValue;
       end
@@ -2115,7 +2118,7 @@ function sepgp:verifyRaidMember(name)
   return;
 end
 
-function sepgp:inRaid(name)
+function SimpleShareEPGP:inRaid(name)
   for i=1,GetNumRaidMembers() do
     if name == (UnitName(raidUnit[i])) then
       return true;
@@ -2124,7 +2127,7 @@ function sepgp:inRaid(name)
   return false;
 end
 
-function sepgp:lootMaster()
+function SimpleShareEPGP:lootMaster()
   local method, lootmasterID = GetLootMethod()
   if method == "master" and lootmasterID == 0 then
     return true
@@ -2133,7 +2136,7 @@ function sepgp:lootMaster()
   end
 end
 
-function sepgp:make_escable(framename,operation)
+function SimpleShareEPGP:make_escable(framename,operation)
   local found
   for i,f in ipairs(UISpecialFrames) do
     if f==framename then
@@ -2154,7 +2157,7 @@ local zone_multipliers = {
   ["T2"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=0.5, ["T1"]=0.5},
   ["T1"] =   {["T3"]=1,["T2.5"]=1,   ["T2"]=1,  ["T1.5"]=1,   ["T1"]=1}
 }
-function sepgp:suggestedAwardEP()
+function SimpleShareEPGP:suggestedAwardEP()
   local currentTier, zoneEN, zoneLoc, checkTier, multiplier
   local inInstance, instanceType = IsInInstance()
   if (inInstance == nil) or (instanceType ~= nil and instanceType == "none") then
@@ -2171,54 +2174,54 @@ function sepgp:suggestedAwardEP()
     end
   end
   if not currentTier then 
-    return sepgp.VARS.baseaward_ep
+    return SimpleShareEPGP.VARS.baseaward_ep
   else
     multiplier = zone_multipliers[sepgp_progress][currentTier]
   end
   if (multiplier) then
-    return multiplier*sepgp.VARS.baseaward_ep
+    return multiplier*SimpleShareEPGP.VARS.baseaward_ep
   else
-    return sepgp.VARS.baseaward_ep
+    return SimpleShareEPGP.VARS.baseaward_ep
   end
 end
 
-function sepgp:parseVersion(version,otherVersion)
-  if not sepgp._version then sepgp._version = {} end
+function SimpleShareEPGP:parseVersion(version,otherVersion)
+  if not SimpleShareEPGP._version then SimpleShareEPGP._version = {} end
   for major,minor,patch in string.gfind(version,"(%d+)[^%d]?(%d*)[^%d]?(%d*)") do
-    sepgp._version.major = tonumber(major)
-    sepgp._version.minor = tonumber(minor)
-    sepgp._version.patch = tonumber(patch)
+    SimpleShareEPGP._version.major = tonumber(major)
+    SimpleShareEPGP._version.minor = tonumber(minor)
+    SimpleShareEPGP._version.patch = tonumber(patch)
   end
   if (otherVersion) then
-    if not sepgp._otherversion then sepgp._otherversion = {} end
+    if not SimpleShareEPGP._otherversion then SimpleShareEPGP._otherversion = {} end
     for major,minor,patch in string.gfind(otherVersion,"(%d+)[^%d]?(%d*)[^%d]?(%d*)") do
-      sepgp._otherversion.major = tonumber(major)
-      sepgp._otherversion.minor = tonumber(minor)
-      sepgp._otherversion.patch = tonumber(patch)      
+      SimpleShareEPGP._otherversion.major = tonumber(major)
+      SimpleShareEPGP._otherversion.minor = tonumber(minor)
+      SimpleShareEPGP._otherversion.patch = tonumber(patch)      
     end
-    if (sepgp._otherversion.major ~= nil and sepgp._version.major ~= nil) then
-      if (sepgp._otherversion.major < sepgp._version.major) then -- we are newer
+    if (SimpleShareEPGP._otherversion.major ~= nil and SimpleShareEPGP._version.major ~= nil) then
+      if (SimpleShareEPGP._otherversion.major < SimpleShareEPGP._version.major) then -- we are newer
         return
-      elseif (sepgp._otherversion.major > sepgp._version.major) then -- they are newer
+      elseif (SimpleShareEPGP._otherversion.major > SimpleShareEPGP._version.major) then -- they are newer
         return true, "major"        
       else -- tied on major, go minor
-        if (sepgp._otherversion.minor ~= nil and sepgp._version.minor ~= nil) then
-          if (sepgp._otherversion.minor < sepgp._version.minor) then -- we are newer
+        if (SimpleShareEPGP._otherversion.minor ~= nil and SimpleShareEPGP._version.minor ~= nil) then
+          if (SimpleShareEPGP._otherversion.minor < SimpleShareEPGP._version.minor) then -- we are newer
             return
-          elseif (sepgp._otherversion.minor > sepgp._version.minor) then -- they are newer
+          elseif (SimpleShareEPGP._otherversion.minor > SimpleShareEPGP._version.minor) then -- they are newer
             return true, "minor"
           else -- tied on minor, go patch
-            if (sepgp._otherversion.patch ~= nil and sepgp._version.patch ~= nil) then
-              if (sepgp._otherversion.patch < sepgp._version.patch) then -- we are newer
+            if (SimpleShareEPGP._otherversion.patch ~= nil and SimpleShareEPGP._version.patch ~= nil) then
+              if (SimpleShareEPGP._otherversion.patch < SimpleShareEPGP._version.patch) then -- we are newer
                 return
-              elseif (sepgp._otherversion.patch > sepgp._version.patch) then -- they are newwer
+              elseif (SimpleShareEPGP._otherversion.patch > SimpleShareEPGP._version.patch) then -- they are newwer
                 return true, "patch"
               end
-            elseif (sepgp._otherversion.patch ~= nil and sepgp._version.patch == nil) then -- they are newer
+            elseif (SimpleShareEPGP._otherversion.patch ~= nil and SimpleShareEPGP._version.patch == nil) then -- they are newer
               return true, "patch"
             end
           end    
-        elseif (sepgp._otherversion.minor ~= nil and sepgp._version.minor == nil) then -- they are newer
+        elseif (SimpleShareEPGP._otherversion.minor ~= nil and SimpleShareEPGP._version.minor == nil) then -- they are newer
           return true, "minor"
         end
       end
@@ -2226,7 +2229,7 @@ function sepgp:parseVersion(version,otherVersion)
   end
 end
 
-function sepgp:camelCase(word)
+function SimpleShareEPGP:camelCase(word)
   return string.gsub(word,"(%a)([%w_']*)",function(head,tail) 
     return string.format("%s%s",string.upper(head),string.lower(tail)) 
     end)
@@ -2241,12 +2244,12 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   button2 = L["Show me"],
   OnAccept = function()
     sepgp_looted = {}
-    sepgp:defaultPrint(L["Loot info cleared"])
+    SimpleShareEPGP:defaultPrint(L["Loot info cleared"])
   end,
   OnCancel = function(_,reason)
     if reason == "clicked" then
       sepgp_loot:Toggle(true)
-      sepgp:defaultPrint(L["Loot info can be cleared at any time from the Tablet context menu or '/shooty clearloot' command"])
+      SimpleShareEPGP:defaultPrint(L["Loot info can be cleared at any time from the Tablet context menu or '/shooty clearloot' command"])
     end
   end,
   timeout = 0,
@@ -2260,8 +2263,8 @@ StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_RESET"] = {
   button1 = TEXT(OKAY),
   button2 = TEXT(CANCEL),
   OnAccept = function()
-    sepgp:reset_value();
-    sepgp:refreshPRTablets();
+    SimpleShareEPGP:reset_value();
+    SimpleShareEPGP:refreshPRTablets();
   end,
   timeout = 0,
   whileDead = 1,
@@ -2275,8 +2278,8 @@ StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_DECAY"] = {
   button1 = TEXT(OKAY),
   button2 = TEXT(CANCEL),
   OnAccept = function()
-    sepgp:decay_epgp_value();
-    sepgp:refreshPRTablets();
+    SimpleShareEPGP:decay_epgp_value();
+    SimpleShareEPGP:refreshPRTablets();
   end,
   timeout = 0,
   whileDead = 1,
@@ -2291,12 +2294,12 @@ local sepgp_auto_gp_menu = {
     local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_AUTO_GEARPOINTS")
     if (dialog) then
       local data = dialog.data
-      local player, price = data[sepgp.loot_index.player], data[sepgp.loot_index.price]
-      sepgp:give_gp_value((player==YOU and sepgp._playerName or player),price)
-      sepgp:refreshPRTablets()
-      data[sepgp.loot_index.action] = sepgp.VARS.msgp
-      local update = data[sepgp.loot_index.update] ~= nil
-      sepgp:addOrUpdateLoot(data,update)
+      local player, price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.price]
+      SimpleShareEPGP:give_gp_value((player==YOU and SimpleShareEPGP._playerName or player),price)
+      SimpleShareEPGP:refreshPRTablets()
+      data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.msgp
+      local update = data[SimpleShareEPGP.loot_index.update] ~= nil
+      SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
       sepgp_loot:Refresh()
     end
@@ -2305,12 +2308,12 @@ local sepgp_auto_gp_menu = {
     local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_AUTO_GEARPOINTS")
     if (dialog) then
       local data = dialog.data
-      local player, off_price = data[sepgp.loot_index.player], data[sepgp.loot_index.off_price]
-      sepgp:give_gp_value((player==YOU and sepgp._playerName or player),off_price)
-      sepgp:refreshPRTablets()
-      data[sepgp.loot_index.action] = sepgp.VARS.osgp
-      local update = data[sepgp.loot_index.update] ~= nil
-      sepgp:addOrUpdateLoot(data,update)
+      local player, off_price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.off_price]
+      SimpleShareEPGP:give_gp_value((player==YOU and SimpleShareEPGP._playerName or player),off_price)
+      SimpleShareEPGP:refreshPRTablets()
+      data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.osgp
+      local update = data[SimpleShareEPGP.loot_index.update] ~= nil
+      SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
       sepgp_loot:Refresh()
     end
@@ -2319,9 +2322,9 @@ local sepgp_auto_gp_menu = {
     local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_AUTO_GEARPOINTS")
     if (dialog) then
       local data = dialog.data
-      data[sepgp.loot_index.action] = sepgp.VARS.bankde
-      local update = data[sepgp.loot_index.update] ~= nil
-      sepgp:addOrUpdateLoot(data,update)
+      data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.bankde
+      local update = data[SimpleShareEPGP.loot_index.update] ~= nil
+      SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
       sepgp_loot:Refresh()
     end
@@ -2332,14 +2335,14 @@ StaticPopupDialogs["SHOOTY_EPGP_AUTO_GEARPOINTS"] = {
   button1 = L["GP Actions"],
   button2 = L["Remind me Later"],
   OnAccept = function()
-    sepgp:EasyMenu(sepgp_auto_gp_menu, sepgp._menuFrame, this, 0, 0, "MENU", 1)
+    SimpleShareEPGP:EasyMenu(sepgp_auto_gp_menu, SimpleShareEPGP._menuFrame, this, 0, 0, "MENU", 1)
     return true
   end,
   OnCancel = function(data,reason)
     if reason == "override" or reason == "clicked" then
-      data[sepgp.loot_index.action] = sepgp.VARS.reminder
-      local update = data[sepgp.loot_index.update] ~= nil
-      sepgp:addOrUpdateLoot(data,update)
+      data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.reminder
+      local update = data[SimpleShareEPGP.loot_index.update] ~= nil
+      SimpleShareEPGP:addOrUpdateLoot(data,update)
       sepgp_loot:Refresh()
       return
     elseif reason == "timeout" then
@@ -2347,7 +2350,7 @@ StaticPopupDialogs["SHOOTY_EPGP_AUTO_GEARPOINTS"] = {
     end
   end,
   OnShow = function()
-    sepgp._menuFrame = sepgp._menuFrame or CreateFrame("Frame", "sepgp_auto_gp_menuframe", UIParent, "UIDropDownMenuTemplate")
+    SimpleShareEPGP._menuFrame = SimpleShareEPGP._menuFrame or CreateFrame("Frame", "sepgp_auto_gp_menuframe", UIParent, "UIDropDownMenuTemplate")
   end,
   OnHide = function()
     CloseDropDownMenus()
@@ -2357,7 +2360,7 @@ StaticPopupDialogs["SHOOTY_EPGP_AUTO_GEARPOINTS"] = {
   whileDead = 1,
   hideOnEscape = 1
 }
-function sepgp:EasyMenu_Initialize(level, menuList)
+function SimpleShareEPGP:EasyMenu_Initialize(level, menuList)
   for i, info in ipairs(menuList) do
     if (info.text) then
       info.index = i
@@ -2365,13 +2368,13 @@ function sepgp:EasyMenu_Initialize(level, menuList)
     end
   end
 end
-function sepgp:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode, level)
+function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode, level)
   if ( displayMode == "MENU" ) then
     menuFrame.displayMode = displayMode
   end
-  UIDropDownMenu_Initialize(menuFrame, function() sepgp:EasyMenu_Initialize(level, menuList) end, displayMode, level)
+  UIDropDownMenu_Initialize(menuFrame, function() SimpleShareEPGP:EasyMenu_Initialize(level, menuList) end, displayMode, level)
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
 -- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
+-- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs

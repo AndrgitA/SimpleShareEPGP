@@ -6,7 +6,7 @@ local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
 local _G = getfenv(0)
 
-sepgp_standings = sepgp:NewModule("sepgp_standings", "AceDB-2.0")
+sepgp_standings = SimpleShareEPGP:NewModule("sepgp_standings", "AceDB-2.0")
 local groupings = {
   "sepgp_groupbyclass",
   "sepgp_groupbyarmor",
@@ -105,18 +105,18 @@ shooty_export.scroll = CreateFrame("ScrollFrame", "shooty_exportscroll", shooty_
 shooty_export.scroll:SetPoint('TOPLEFT', shooty_export, 'TOPLEFT', 8, -30)
 shooty_export.scroll:SetPoint('BOTTOMRIGHT', shooty_export, 'BOTTOMRIGHT', -30, 8)
 shooty_export.scroll:SetScrollChild(shooty_export.edit)
-sepgp:make_escable("shooty_exportframe","add")
+SimpleShareEPGP:make_escable("shooty_exportframe","add")
 
 function sepgp_standings:GetExportData()
   local t = {};
-  local table_db = sepgp:init_table_db();
+  local table_db = SimpleShareEPGP:init_table_db();
   for i, v in pairs(table_db) do
     local name = i;
     local ep = v.ep or 0;
-    local gp = v.gp or sepgp.VARS.basegp;
+    local gp = v.gp or SimpleShareEPGP.VARS.basegp;
     local class = "";
 
-    if (v.class and sepgp.classNames[v.class]) then
+    if (v.class and SimpleShareEPGP.classNames[v.class]) then
       class = v.class;
     end
     table.insert(t, {name, ep, gp, ep/gp, class});
@@ -144,7 +144,7 @@ function sepgp_standings:Export()
 end
 
 function sepgp_export_superwow()  
-  if (not sepgp.SUPER_WOW) then
+  if (not SimpleShareEPGP.SUPER_WOW) then
     return;
   end
 
@@ -152,11 +152,11 @@ function sepgp_export_superwow()
   local txt = sepgp_standings:GetExportData();
 
   ExportFile(timestamp, txt);
-  sepgp:defaultPrint(string.format("%s %s.txt", L["Export data with SuperWoW ExportFile"], timestamp));
+  SimpleShareEPGP:defaultPrint(string.format("%s %s.txt", L["Export data with SuperWoW ExportFile"], timestamp));
 end
 
 function sepgp_standings:Import()
-  if (not sepgp.isAdminUnit()) then return end
+  if (not SimpleShareEPGP.isAdminUnit()) then return end
   shooty_export.action:Show()
   shooty_export.title:SetText(C:Red("Ctrl-V to paste data. Esc to close."))
   shooty_export.AddSelectText(L.IMPORT_WARNING)
@@ -164,14 +164,14 @@ function sepgp_standings:Import()
 end
 
 function sepgp_standings.import()
-  if (not sepgp.isAdminUnit()) then return end
+  if (not SimpleShareEPGP.isAdminUnit()) then return end
   local text = shooty_export.edit:GetText()
   local importFaildString = L["Failed to import:\n"];
   local errorFlag = false;
 
   local tmpTable = {};
   for line in string.gfind(text,"[^\r\n]+") do
-    local name,ep,gp,pr,class = sepgp:strsplit(";",line);
+    local name,ep,gp,pr,class = SimpleShareEPGP:strsplit(";",line);
     ep,gp,pr = tonumber(ep),tonumber(gp),tonumber(pr);
     if (name) and (ep) and (gp) then
       table.insert(tmpTable, {name, ep, gp, pr, class});
@@ -183,25 +183,25 @@ function sepgp_standings.import()
 
   if (errorFlag) then
     shooty_export.edit:SetText(importFaildString);
-    sepgp:defaultPrint(L["Import cancelled due to invalid data"]);
+    SimpleShareEPGP:defaultPrint(L["Import cancelled due to invalid data"]);
   else
-    sepgp:clean_table_db();
+    SimpleShareEPGP:clean_table_db();
     local name, ep, gp, pr, class;
     
     for i=1,table.getn(tmpTable) do
       name, ep, gp, pr, class = tmpTable[i][1], tmpTable[i][2], tmpTable[i][3], tmpTable[i][4], tmpTable[i][5];
-      sepgp:set_ep_value(name, ep);
-      sepgp:set_gp_value(name, gp);
-      if (class and sepgp.classNames[class]) then
-        sepgp:set_class_value(name, class);
+      SimpleShareEPGP:set_ep_value(name, ep);
+      SimpleShareEPGP:set_gp_value(name, gp);
+      if (class and SimpleShareEPGP.classNames[class]) then
+        SimpleShareEPGP:set_class_value(name, class);
       end
     end
-    sepgp:ClearLogs();
+    SimpleShareEPGP:ClearLogs();
 
     shooty_export.edit:SetText(L["Import finished"]);
-    sepgp:defaultPrint(string.format(L["Imported %d members."], table.getn(tmpTable)));
+    SimpleShareEPGP:defaultPrint(string.format(L["Imported %d members."], table.getn(tmpTable)));
   end
-  sepgp:refreshPRTablets();
+  SimpleShareEPGP:refreshPRTablets();
 end
 
 local class_cache = setmetatable({},{__index = function(t,k)
@@ -285,7 +285,7 @@ function sepgp_standings:OnEnable()
           "func", function() sepgp_standings:Refresh() end
         )
 
-        if (sepgp.SUPER_WOW) then
+        if (SimpleShareEPGP.SUPER_WOW) then
           D:AddLine(
             "text", L["ExportFile (SuperWoW)"],
             "tooltipText", L["Export standings with SuperWoW function to csv"],
@@ -298,7 +298,7 @@ function sepgp_standings:OnEnable()
           "tooltipText", L["Export standings to csv."],
           "func", function() sepgp_standings:Export() end
         )
-        if (sepgp.isAdminUnit()) then
+        if (SimpleShareEPGP.isAdminUnit()) then
           D:AddLine(
             "text", L["Import"],
             "tooltipText", L["Import standings from csv."],
@@ -326,7 +326,7 @@ function sepgp_standings:setHideScript()
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
     if tablet.owner ~= nil and tablet.owner == "sepgp_standings" then
-      sepgp:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
+      SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
           if not T:IsAttached("sepgp_standings") then
@@ -378,7 +378,7 @@ end
 function sepgp_standings:ToggleRaidOnly()
   sepgp_raidonly = not sepgp_raidonly
   self:Top()
-  sepgp:SetRefresh(true)
+  SimpleShareEPGP:SetRefresh(true)
 end
 
 local pr_sorter_standings = function(a,b)
@@ -408,14 +408,14 @@ end
 -- name, class, armor_class, roles, EP, GP, PR
 -- and sorted by PR
 function sepgp_standings:BuildStandingsTable()
-  local table_db = sepgp:init_table_db();
+  local table_db = SimpleShareEPGP:init_table_db();
   local t = { }
   local r = { }
   if (sepgp_raidonly) and GetNumRaidMembers() > 0 then
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i);
       if (name) then
-        local dbValue = sepgp:init_notes_value(name);
+        local dbValue = SimpleShareEPGP:init_notes_value(name);
         dbValue.class = class;
         r[name] = class;
       end
@@ -425,8 +425,8 @@ function sepgp_standings:BuildStandingsTable()
   for i,v in pairs(table_db) do
     local name = i;
     local ep = (v.ep or 0);
-    local gp = (v.gp or sepgp.VARS.basegp);
-    local class = (v.class or sepgp.VARS.undefinedClass);
+    local gp = (v.gp or SimpleShareEPGP.VARS.basegp);
+    local class = (v.class or SimpleShareEPGP.VARS.undefinedClass);
 
     local armor_class = self:getArmorClass(class);
     if (sepgp_raidonly and next(r)) then
@@ -517,9 +517,9 @@ function sepgp_standings:OnTooltipUpdate()
       text4 = string.format("%.4g", pr)
     end
     local text3 = string.format("%.4g", gp)    
-    if (sepgp._playerName and sepgp._playerName == name) then
+    if (SimpleShareEPGP._playerName and SimpleShareEPGP._playerName == name) then
       text = string.format("(*)%s",text)
-      local pr_decay = sepgp:capcalc(ep,gp)
+      local pr_decay = SimpleShareEPGP:capcalc(ep,gp)
       if pr_decay < 0 then
         text4 = string.format("%s(|cffff0000%.4g|r)",text4,pr_decay)
       end

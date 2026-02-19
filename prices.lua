@@ -763,14 +763,7 @@ local prices = {
   [20639] = {12,"T1.5"}; --Strangely Glyphed Legplates
   [20644] = {4,"T1.5"}; --Nightmare Engulfed Object
 }
-sepgp.gp_prices = prices
---[[local price_scaling = {
-  ["T1"] = 1,
-  ["T1.5"] = 1.5,
-  ["T2"] = 3,
-  ["T2.5"] = 6,
-  ["T3"] = 9
-}]]
+SimpleShareEPGP.gp_prices = prices;
 local progress_scaling = {
   ["T3"] =   {["T3"]=1,  ["T2.5"]=1,  ["T2"]=1,  ["T1.5"]=1,["T1"]=1},
   ["T2.5"] = {["T3"]=1.5,["T2.5"]=1.5,["T2"]=2,  ["T1.5"]=2,["T1"]=2},
@@ -783,7 +776,7 @@ local function get_adjusted_price(price,tier,progress)
   return math.floor(progress_scaling[progress][tier] * price)
 end
 
-sepgp_prices = sepgp:NewModule("sepgp_prices", "AceDB-2.0")
+sepgp_prices = SimpleShareEPGP:NewModule("sepgp_prices", "AceDB-2.0")
 
 function sepgp_prices:GetPrice(item, progress)
   if not progress then progress = "T3" end
@@ -835,8 +828,8 @@ function sepgp_prices:UpdatePrices(modify)
     end
   end
 
-  sepgp:debugPrint(L["Items price updated"]);
+  SimpleShareEPGP:debugPrint(L["Items price updated"]);
 end
 
 -- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
+-- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs

@@ -5,7 +5,7 @@ local C = AceLibrary("Crayon-2.0")
 local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
 
-sepgp_bids = sepgp:NewModule("sepgp_bids", "AceDB-2.0", "AceEvent-2.0")
+sepgp_bids = SimpleShareEPGP:NewModule("sepgp_bids", "AceDB-2.0", "AceEvent-2.0")
 
 function sepgp_bids:OnEnable()
   if not T:IsRegistered("sepgp_bids") then
@@ -44,7 +44,7 @@ function sepgp_bids:setHideScript()
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
     if tablet.owner ~= nil and tablet.owner == "sepgp_bids" then
-      sepgp:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
+      SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
           if not T:IsAttached("sepgp_bids") then
@@ -83,18 +83,18 @@ function sepgp_bids:Toggle(forceShow)
 end
 
 function sepgp_bids:announceWinnerMS(name, pr)
-  sepgp:widestAudience(string.format(L["Winning Mainspec Bid: %s (%.03f PR)"],name,pr))
+  SimpleShareEPGP:widestAudience(string.format(L["Winning Mainspec Bid: %s (%.03f PR)"],name,pr))
 end
 
 function sepgp_bids:announceWinnerOS(name, pr)
-  sepgp:widestAudience(string.format(L["Winning Offspec Bid: %s (%.03f PR)"],name,pr))
+  SimpleShareEPGP:widestAudience(string.format(L["Winning Offspec Bid: %s (%.03f PR)"],name,pr))
 end
 
 function sepgp_bids:countdownCounter()
   self._counter = (self._counter or 6) - 1
   if GetNumRaidMembers()>0 and self._counter > 0 then
     self._counterText = C:Yellow(tostring(self._counter))
-    sepgp:widestAudience(tostring(self._counter))
+    SimpleShareEPGP:widestAudience(tostring(self._counter))
     --SendChatMessage(tostring(self._counter),"RAID")
     self:Refresh()
   end
@@ -145,15 +145,15 @@ end
 
 function sepgp_bids:BuildBidsTable()
   -- {name,class,ep,gp,ep/gp[,main]}
-  table.sort(sepgp.bids_main, pr_sorter_bids)
-  table.sort(sepgp.bids_off, pr_sorter_bids)
-  return sepgp.bids_main, sepgp.bids_off
+  table.sort(SimpleShareEPGP.bids_main, pr_sorter_bids)
+  table.sort(SimpleShareEPGP.bids_off, pr_sorter_bids)
+  return SimpleShareEPGP.bids_main, SimpleShareEPGP.bids_off
 end
 
 function sepgp_bids:OnTooltipUpdate()
-  if not (sepgp.bid_item and sepgp.bid_item.link) then return end
-  local link = sepgp.bid_item.link
-  local itemName = sepgp.bid_item.name
+  if not (SimpleShareEPGP.bid_item and SimpleShareEPGP.bid_item.link) then return end
+  local link = SimpleShareEPGP.bid_item.link
+  local itemName = SimpleShareEPGP.bid_item.name
   local price = sepgp_prices:GetPrice(link,sepgp_progress)
   local offspec
   if not price then 
@@ -266,4 +266,4 @@ function sepgp_bids:OnTooltipUpdate()
 end
 
 -- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
+-- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
