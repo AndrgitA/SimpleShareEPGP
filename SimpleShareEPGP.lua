@@ -62,6 +62,11 @@ SimpleShareEPGPConfigDefault = {
   debug = {},
 };
 
+SimpleSharedEPGPCharacterConfig = {};
+SimpleSharedEPGPCharacterConfigDefault = {
+
+};
+
 sepgp_table_db = {};
 
 local out = "|cff9664c8shootyepgp:|r %s"
@@ -351,7 +356,7 @@ SimpleShareEPGP.timer:SetScript("OnUpdate",function() SimpleShareEPGP.OnUpdate(t
 SimpleShareEPGP.timer:SetScript("OnEvent",function() 
 end)
 
-function SimpleShareEPGP:UpdateAddonVariables()
+function SimpleShareEPGP:InitAddonVariables()
   if (not SimpleShareEPGPConfig) then
     SimpleShareEPGPConfig = {};
   end
@@ -360,6 +365,20 @@ function SimpleShareEPGP:UpdateAddonVariables()
     if (SimpleShareEPGPConfig[i] == nil) then
       SimpleShareEPGPConfig[i] = v;
     end
+  end
+
+  if (not SimpleSharedEPGPCharacterConfig) then
+    SimpleSharedEPGPCharacterConfig = {};
+  end
+
+  for i, v in pairs(SimpleSharedEPGPCharacterConfigDefault) do
+    if (SimpleSharedEPGPCharacterConfig[i] == nil) then
+      SimpleSharedEPGPCharacterConfig[i] = v;
+    end
+  end
+
+  if (SimpleSharedEPGPLog == nil) then
+    SimpleSharedEPGPLog = {};
   end
 end
 
@@ -602,12 +621,11 @@ function SimpleShareEPGP:buildMenu()
 end
 
 function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
-  SimpleShareEPGP:UpdateAddonVariables();
+  SimpleShareEPGP:InitAddonVariables();
   if sepgp_decay == nil then sepgp_decay = SimpleShareEPGP.VARS.decay end
   if sepgp_minep == nil then sepgp_minep = SimpleShareEPGP.VARS.minep end
   if sepgp_progress == nil then sepgp_progress = "T1" end
   if sepgp_discount == nil then sepgp_discount = 0.25 end
-  if sepgp_log == nil then sepgp_log = {} end
   if sepgp_looted == nil then sepgp_looted = {} end
   self:RegisterDB("simple_share_epgp_fubar")
   self:RegisterDefaults("char",{})
@@ -1458,7 +1476,7 @@ function SimpleShareEPGP:OnClick()
   end
 
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
-    sepgp_logs:Toggle()
+    SimpleSharedEPGPLogs:Toggle()
   elseif (IsShiftKeyDown() and is_admin) then
     sepgp_loot:Toggle()      
   elseif (IsAltKeyDown() and is_admin) then
@@ -1476,8 +1494,8 @@ function SimpleShareEPGP:SetRefresh(flag)
 end
 
 function SimpleShareEPGP:ClearLogs()
-  sepgp_log = {};
-  sepgp_logs:Refresh();
+  SimpleSharedEPGPLog = {};
+  SimpleSharedEPGPLogs:Refresh();
   SimpleShareEPGP:defaultPrint(L["Logs cleared"]);
 end
 
@@ -2018,19 +2036,21 @@ end
 -- Logging
 ------------
 function SimpleShareEPGP:addToLog(line,skipTime)
-  local over = table.getn(sepgp_log)-SimpleShareEPGP.VARS.maxloglines+1
-  if over > 0 then
+  local over = table.getn(SimpleSharedEPGPLog) - SimpleShareEPGP.VARS.maxloglines + 1;
+  if (over > 0) then
     for i=1,over do
-      table.remove(sepgp_log,1)
+      table.remove(SimpleSharedEPGPLog, 1);
     end
   end
-  local timestamp
+
+  local timestamp;
   if (skipTime) then
-    timestamp = ""
+    timestamp = "";
   else
-    timestamp = date("%b/%d %H:%M:%S")
+    timestamp = date("%b/%d %H:%M:%S");
   end
-  table.insert(sepgp_log,{timestamp,line})
+
+  table.insert(SimpleSharedEPGPLog, {timestamp, line});
 end
 
 ------------
@@ -2397,5 +2417,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
--- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
+-- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_looted
+-- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot
