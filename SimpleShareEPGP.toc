@@ -35,7 +35,7 @@ Libs\FuBarPlugin-2.0\FuBarPlugin-2.0.lua
 
 localization.lua
 config.lua
-shootyepgp.lua
+SimpleShareEPGP.lua
 prices.lua
 standings.lua
 bids.lua
