@@ -1309,7 +1309,7 @@ end
 function sepgp:reset_value()
   local table_db = sepgp:init_table_db();
 
-  if (sepgp.isRootUnit()) then
+  if (sepgp.isAdminUnit()) then
     for i, v in pairs(table_db) do
       local name = i;
       self:set_ep_value(name, 0);
