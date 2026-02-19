@@ -58,7 +58,8 @@ SimpleShareEPGPConfigDefault = {
   groupbyclass = false,
   groupbyarmor = false,
   groupbyrole = false,
-  raidonly = false
+  raidonly = false,
+  debug = {},
 };
 
 sepgp_table_db = {};
@@ -608,14 +609,13 @@ function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
   if sepgp_discount == nil then sepgp_discount = 0.25 end
   if sepgp_log == nil then sepgp_log = {} end
   if sepgp_looted == nil then sepgp_looted = {} end
-  if sepgp_debug == nil then sepgp_debug = {} end
-  self:RegisterDB("sepgp_fubar")
+  self:RegisterDB("simple_share_epgp_fubar")
   self:RegisterDefaults("char",{})
-  --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
+  --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
 end
 
 function SimpleShareEPGP:OnEnable() -- PLAYER_LOGIN (2)
-  --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
+  --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
   SimpleShareEPGP._playerLevel = UnitLevel("player")
   SimpleShareEPGP.extratip = (SimpleShareEPGP.extratip) or CreateFrame("GameTooltip","shootyepgp_tooltip",UIParent,"GameTooltipTemplate")
   SimpleShareEPGP._versionString = GetAddOnMetadata("SimpleShareEPGP", "Version")
@@ -652,12 +652,12 @@ function SimpleShareEPGP:OnEnable() -- PLAYER_LOGIN (2)
 end
 
 function SimpleShareEPGP:OnDisable()
-  --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnDisable"})
+  --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="OnDisable"})
   self:UnregisterAllEvents()
 end
 
 function SimpleShareEPGP:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER_LOGIN, PLAYER_ENTERING_WORLD (3)
-  --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="AceEvent_FullyInitialized"})
+  --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="AceEvent_FullyInitialized"})
   if self._hasInitFull then return end
   
   for i=1,NUM_CHAT_WINDOWS do
@@ -2397,5 +2397,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
+-- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
