@@ -173,7 +173,7 @@ function sepgp_standings.import()
   for line in string.gfind(text,"[^\r\n]+") do
     local name,ep,gp,pr,class = sepgp:strsplit(";",line);
     ep,gp,pr = tonumber(ep),tonumber(gp),tonumber(pr);
-    if (name) and (ep) and (gp) and (pr) then
+    if (name) and (ep) and (gp) then
       table.insert(tmpTable, {name, ep, gp, pr, class});
     else
       importFaildString = string.format("%s%s\n",importFaildString,line)
