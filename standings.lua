@@ -9,8 +9,8 @@ local _G = getfenv(0)
 sepgp_standings = SimpleShareEPGP:NewModule("sepgp_standings", "AceDB-2.0")
 local groupings = {
   "groupbyclass",
-  "sepgp_groupbyarmor",
-  "sepgp_groupbyrole",
+  "groupbyarmor",
+  "groupbyrole",
 }
 local PLATE, MAIL, LEATHER, CLOTH = 4,3,2,1
 local DPS, CASTER, HEALER, TANK = 4,3,2,1
@@ -270,14 +270,14 @@ function sepgp_standings:OnEnable()
         D:AddLine(
           "text", L["Group by armor"],
           "tooltipText", L["Group members by armor."],
-          "checked", sepgp_groupbyarmor,
-          "func", function() sepgp_standings:ToggleGroupBy("sepgp_groupbyarmor") end
+          "checked", SimpleShareEPGPConfig.groupbyarmor,
+          "func", function() sepgp_standings:ToggleGroupBy("groupbyarmor") end
         )
         D:AddLine(
           "text", L["Group by roles"],
           "tooltipText", L["Group members by roles."],
-          "checked", sepgp_groupbyrole,
-          "func", function() sepgp_standings:ToggleGroupBy("sepgp_groupbyrole") end
+          "checked", SimpleShareEPGPConfig.groupbyrole,
+          "func", function() sepgp_standings:ToggleGroupBy("groupbyrole") end
         )
         D:AddLine(
           "text", L["Refresh"],
@@ -444,12 +444,12 @@ function sepgp_standings:BuildStandingsTable()
       if (a[2] ~= b[2]) then return a[2] > b[2]
       else return pr_sorter_standings(a,b) end
     end)
-  elseif (sepgp_groupbyarmor) then
+  elseif (SimpleShareEPGPConfig.groupbyarmor) then
     table.sort(t, function(a,b)
       if (a[3] ~= b[3]) then return a[3] > b[3]
       else return pr_sorter_standings(a,b) end
     end)
-  elseif (sepgp_groupbyrole) then
+  elseif (SimpleShareEPGPConfig.groupbyrole) then
     t = self:getRolesClass(t) -- we are subbing role into armor_class to avoid extra table creation
     table.sort(t, function(a,b)
     if (a[3] ~= b[3]) then return a[3] > b[3]
@@ -474,11 +474,11 @@ function sepgp_standings:OnTooltipUpdate()
   local separator
   for i = 1, table.getn(t) do
     local name, class, armor_class, ep, gp, pr = unpack(t[i])
-    if (sepgp_groupbyarmor) or (sepgp_groupbyrole) then
+    if (SimpleShareEPGPConfig.groupbyarmor) or (SimpleShareEPGPConfig.groupbyrole) then
       if not (separator) then
-        if (sepgp_groupbyarmor) then
+        if (SimpleShareEPGPConfig.groupbyarmor) then
           separator = armor_text[armor_class]
-        elseif (sepgp_groupbyrole) then
+        elseif (SimpleShareEPGPConfig.groupbyrole) then
           separator = role_text[armor_class]
         end
         if (separator) then
@@ -492,9 +492,9 @@ function sepgp_standings:OnTooltipUpdate()
         end
       else
         local last_separator = separator
-        if (sepgp_groupbyarmor) then
+        if (SimpleShareEPGPConfig.groupbyarmor) then
           separator = armor_text[armor_class]
-        elseif (sepgp_groupbyrole) then
+        elseif (SimpleShareEPGPConfig.groupbyrole) then
           separator = role_text[armor_class]
         end
         if (separator) and (separator ~= last_separator) then
@@ -534,5 +534,5 @@ function sepgp_standings:OnTooltipUpdate()
     )
   end
 end
--- GLOBALS: sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
+-- GLOBALS: sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs

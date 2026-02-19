@@ -56,6 +56,8 @@ SimpleShareEPGPConfig = {};
 SimpleShareEPGPConfigDefault = {
   sayChannel = SimpleShareEPGP.VARS.defaultSayChannel,
   groupbyclass = false,
+  groupbyarmor = false,
+  groupbyrole = false,
 };
 
 sepgp_table_db = {};
@@ -2394,5 +2396,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
+-- GLOBALS: sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
