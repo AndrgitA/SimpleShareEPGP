@@ -258,7 +258,7 @@ function sepgp_standings:OnEnable()
         D:AddLine(
           "text", L["Raid Only"],
           "tooltipText", L["Only show members in raid."],
-          "checked", sepgp_raidonly,
+          "checked", SimpleShareEPGPConfig.raidonly,
           "func", function() sepgp_standings:ToggleRaidOnly() end
         )      
         D:AddLine(
@@ -377,7 +377,7 @@ function sepgp_standings:ToggleGroupBy(setting)
 end
 
 function sepgp_standings:ToggleRaidOnly()
-  sepgp_raidonly = not sepgp_raidonly
+  SimpleShareEPGPConfig.raidonly = not SimpleShareEPGPConfig.raidonly;
   self:Top()
   SimpleShareEPGP:SetRefresh(true)
 end
@@ -412,7 +412,7 @@ function sepgp_standings:BuildStandingsTable()
   local table_db = SimpleShareEPGP:init_table_db();
   local t = { }
   local r = { }
-  if (sepgp_raidonly) and GetNumRaidMembers() > 0 then
+  if (SimpleShareEPGPConfig.raidonly) and GetNumRaidMembers() > 0 then
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i);
       if (name) then
@@ -430,7 +430,7 @@ function sepgp_standings:BuildStandingsTable()
     local class = (v.class or SimpleShareEPGP.VARS.undefinedClass);
 
     local armor_class = self:getArmorClass(class);
-    if (sepgp_raidonly and next(r)) then
+    if (SimpleShareEPGPConfig.raidonly and next(r)) then
       if (r[name]) then
         table.insert(t, {name, class, armor_class, ep, gp, ep/gp});
       end
@@ -534,5 +534,5 @@ function sepgp_standings:OnTooltipUpdate()
     )
   end
 end
--- GLOBALS: sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
+-- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs

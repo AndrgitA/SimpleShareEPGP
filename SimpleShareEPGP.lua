@@ -58,6 +58,7 @@ SimpleShareEPGPConfigDefault = {
   groupbyclass = false,
   groupbyarmor = false,
   groupbyrole = false,
+  raidonly = false
 };
 
 sepgp_table_db = {};
@@ -435,9 +436,9 @@ function SimpleShareEPGP:buildMenu()
       name = L["Raid Only"],
       desc = L["Only show members in raid."],
       order = 80,
-      get = function() return not not sepgp_raidonly end,
+      get = function() return SimpleShareEPGPConfig.raidonly end,
       set = function(v) 
-        sepgp_raidonly = not sepgp_raidonly
+        SimpleShareEPGPConfig.raidonly = not SimpleShareEPGPConfig.raidonly
         SimpleShareEPGP:SetRefresh(true)
       end,
       hidden = function()
@@ -587,7 +588,7 @@ function SimpleShareEPGP:buildMenu()
   end
   if (needInit) or (needRefresh) then
     local members = SimpleShareEPGP:buildRosterTable()
-    -- self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(sepgp_raidonly and "Raid" or "Full")))
+    -- self:debugPrint(string.format(L["Scanning %d members for EP/GP data. (%s)"],table.getn(members),(SimpleShareEPGPConfig.raidonly and "Raid" or "Full")))
     options.args["ep"].args = SimpleShareEPGP:buildClassMemberTable(members,"ep")
     options.args["gp"].args = SimpleShareEPGP:buildClassMemberTable(members,"gp")
     options.args["class"].args = SimpleShareEPGP:buildChooseClassMember(members);
@@ -1511,7 +1512,7 @@ function SimpleShareEPGP:buildRosterTable()
   local table_db = SimpleShareEPGP:init_table_db();
 
   local g, r = { }, { }
-  if (sepgp_raidonly) and GetNumRaidMembers() > 0 then
+  if (SimpleShareEPGPConfig.raidonly) and GetNumRaidMembers() > 0 then
     for i = 1, GetNumRaidMembers(true) do
       local name, rank, subgroup, level, class, fileName, zone, online, isDead = GetRaidRosterInfo(i);
       
@@ -1526,7 +1527,7 @@ function SimpleShareEPGP:buildRosterTable()
   for i, v in pairs(table_db) do
     local name = i;
     local class = v.class or SimpleShareEPGP.VARS.undefinedClass;
-    if (sepgp_raidonly and next(r)) then
+    if (SimpleShareEPGPConfig.raidonly and next(r)) then
       if (r[name]) then
         table.insert(g, {["name"]=name, ["class"]=class});
       end
@@ -2396,5 +2397,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
+-- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
