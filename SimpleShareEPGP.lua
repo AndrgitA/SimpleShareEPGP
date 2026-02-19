@@ -232,7 +232,7 @@ local admincmd, membercmd = {
       name = L["Standings"],
       desc = L["Show Standings Table."],
       func = function()
-        sepgp_standings:Toggle()
+        SimpleShareEPGPStandings:Toggle();
       end,
       order = 2,
     },    
@@ -301,7 +301,7 @@ local admincmd, membercmd = {
     --   name = L["Standings"],
     --   desc = L["Show Standings Table."],
     --   func = function()
-    --     sepgp_standings:Toggle()
+    --     SimpleShareEPGPStandings:Toggle();
     --   end,
     --   order = 1,
     -- },
@@ -339,7 +339,7 @@ local admincmd, membercmd = {
     name = "Standings",
     desc = "Show Standings Table.",
     func = function()
-      sepgp_standings:Toggle()
+      SimpleShareEPGPStandings:Toggle();
     end,
   }]]  
   SimpleShareEPGP.cmdtable = function() 
@@ -1217,12 +1217,8 @@ function SimpleShareEPGP:shareSettings(force)
 end
 
 function SimpleShareEPGP:refreshPRTablets()
-  --if not T:IsAttached("sepgp_standings") then
-  sepgp_standings:Refresh()
-  --end
-  --if not T:IsAttached("sepgp_bids") then
-  sepgp_bids:Refresh()
-  --end
+  SimpleShareEPGPStandings:Refresh();
+  sepgp_bids:Refresh();
 end
 
 ---------------------
@@ -1483,7 +1479,7 @@ function SimpleShareEPGP:OnClick()
   elseif (IsAltKeyDown() and is_admin) then
     sepgp_bids:Toggle()
   else
-    sepgp_standings:Toggle()
+    SimpleShareEPGPStandings:Toggle();
   end
 end
 
@@ -2423,4 +2419,4 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_standings,sepgp_bids
+-- GLOBALS: sepgp_bids

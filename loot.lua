@@ -122,4 +122,4 @@ function SimpleSharedEPGPLoot:OnTooltipUpdate()
   end
 end
 
--- GLOBALS: sepgp_standings,sepgp_bids,sepgp_loot
+-- GLOBALS: sepgp_bids

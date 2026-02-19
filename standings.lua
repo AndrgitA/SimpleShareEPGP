@@ -6,7 +6,7 @@ local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
 local _G = getfenv(0)
 
-sepgp_standings = SimpleShareEPGP:NewModule("sepgp_standings", "AceDB-2.0")
+SimpleShareEPGPStandings = SimpleShareEPGP:NewModule("SimpleShareEPGPStandings", "AceDB-2.0")
 local groupings = {
   "groupbyclass",
   "groupbyarmor",
@@ -70,7 +70,7 @@ shooty_export.action:SetHeight(22)
 shooty_export.action:SetPoint("BOTTOM",0,-20)
 shooty_export.action:SetText("Import")
 shooty_export.action:Hide()
-shooty_export.action:SetScript("OnClick",function() sepgp_standings.import() end)
+shooty_export.action:SetScript("OnClick",function() SimpleShareEPGPStandings.import() end)
 shooty_export.title = shooty_export:CreateFontString(nil,"OVERLAY")
 shooty_export.title:SetPoint("TOP",0,-5)
 shooty_export.title:SetFont("Fonts\\ARIALN.TTF", 12)
@@ -107,7 +107,7 @@ shooty_export.scroll:SetPoint('BOTTOMRIGHT', shooty_export, 'BOTTOMRIGHT', -30, 
 shooty_export.scroll:SetScrollChild(shooty_export.edit)
 SimpleShareEPGP:make_escable("shooty_exportframe","add")
 
-function sepgp_standings:GetExportData()
+function SimpleShareEPGPStandings:GetExportData()
   local t = {};
   local table_db = SimpleShareEPGP:init_table_db();
   for i, v in pairs(table_db) do
@@ -133,13 +133,13 @@ function sepgp_standings:GetExportData()
   return txt;
 end
 
-function sepgp_standings:Export()
+function SimpleShareEPGPStandings:Export()
   shooty_export.action:Hide();
   shooty_export.title:SetText(C:Gold(L["Ctrl-C to copy. Esc to close."]));
   
   shooty_export:Show();
   
-  local txt = sepgp_standings:GetExportData();
+  local txt = SimpleShareEPGPStandings:GetExportData();
   shooty_export.AddSelectText(txt);
 end
 
@@ -149,13 +149,13 @@ function sepgp_export_superwow()
   end
 
   local timestamp = date("%d_%m_%yT%H_%M_%S");
-  local txt = sepgp_standings:GetExportData();
+  local txt = SimpleShareEPGPStandings:GetExportData();
 
   ExportFile(timestamp, txt);
   SimpleShareEPGP:defaultPrint(string.format("%s %s.txt", L["Export data with SuperWoW ExportFile"], timestamp));
 end
 
-function sepgp_standings:Import()
+function SimpleShareEPGPStandings:Import()
   if (not SimpleShareEPGP.isAdminUnit()) then return end
   shooty_export.action:Show()
   shooty_export.title:SetText(C:Red("Ctrl-V to paste data. Esc to close."))
@@ -163,7 +163,7 @@ function sepgp_standings:Import()
   shooty_export:Show()
 end
 
-function sepgp_standings.import()
+function SimpleShareEPGPStandings.import()
   if (not SimpleShareEPGP.isAdminUnit()) then return end
   local text = shooty_export.edit:GetText()
   local importFaildString = L["Failed to import:\n"];
@@ -217,12 +217,12 @@ local class_cache = setmetatable({},{__index = function(t,k)
   end
   return k
 end})
-function sepgp_standings:getArmorClass(class)
+function SimpleShareEPGPStandings:getArmorClass(class)
   class = class_cache[class]
   return class_to_armor[class] or 0
 end
 
-function sepgp_standings:getRolesClass(roster)
+function SimpleShareEPGPStandings:getRolesClass(roster)
   local roster_num = table.getn(roster)
   for i=1,roster_num do
     local player = roster[i]
@@ -244,9 +244,9 @@ function sepgp_standings:getRolesClass(roster)
   return roster
 end 
 
-function sepgp_standings:OnEnable()
-  if not T:IsRegistered("sepgp_standings") then
-    T:Register("sepgp_standings",
+function SimpleShareEPGPStandings:OnEnable()
+  if not T:IsRegistered("SimpleShareEPGPStandings") then
+    T:Register("SimpleShareEPGPStandings",
       "children", function()
         T:SetTitle(L["shootyepgp standings"])
         self:OnTooltipUpdate()
@@ -259,30 +259,30 @@ function sepgp_standings:OnEnable()
           "text", L["Raid Only"],
           "tooltipText", L["Only show members in raid."],
           "checked", SimpleShareEPGPConfig.raidonly,
-          "func", function() sepgp_standings:ToggleRaidOnly() end
+          "func", function() SimpleShareEPGPStandings:ToggleRaidOnly() end
         )      
         D:AddLine(
           "text", L["Group by class"],
           "tooltipText", L["Group members by class."],
           "checked", SimpleShareEPGPConfig.groupbyclass,
-          "func", function() sepgp_standings:ToggleGroupBy("groupbyclass") end
+          "func", function() SimpleShareEPGPStandings:ToggleGroupBy("groupbyclass") end
         )
         D:AddLine(
           "text", L["Group by armor"],
           "tooltipText", L["Group members by armor."],
           "checked", SimpleShareEPGPConfig.groupbyarmor,
-          "func", function() sepgp_standings:ToggleGroupBy("groupbyarmor") end
+          "func", function() SimpleShareEPGPStandings:ToggleGroupBy("groupbyarmor") end
         )
         D:AddLine(
           "text", L["Group by roles"],
           "tooltipText", L["Group members by roles."],
           "checked", SimpleShareEPGPConfig.groupbyrole,
-          "func", function() sepgp_standings:ToggleGroupBy("groupbyrole") end
+          "func", function() SimpleShareEPGPStandings:ToggleGroupBy("groupbyrole") end
         )
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() sepgp_standings:Refresh() end
+          "func", function() SimpleShareEPGPStandings:Refresh() end
         )
 
         if (SimpleShareEPGP.SUPER_WOW) then
@@ -296,41 +296,41 @@ function sepgp_standings:OnEnable()
         D:AddLine(
           "text", L["Export"],
           "tooltipText", L["Export standings to csv."],
-          "func", function() sepgp_standings:Export() end
+          "func", function() SimpleShareEPGPStandings:Export() end
         )
         if (SimpleShareEPGP.isAdminUnit()) then
           D:AddLine(
             "text", L["Import"],
             "tooltipText", L["Import standings from csv."],
-            "func", function() sepgp_standings:Import() end
+            "func", function() SimpleShareEPGPStandings:Import() end
           )
         end
   		end
     )
   end
-  if not T:IsAttached("sepgp_standings") then
-    T:Open("sepgp_standings")
+  if not T:IsAttached("SimpleShareEPGPStandings") then
+    T:Open("SimpleShareEPGPStandings")
   end
 end
 
-function sepgp_standings:OnDisable()
-  T:Close("sepgp_standings")
+function SimpleShareEPGPStandings:OnDisable()
+  T:Close("SimpleShareEPGPStandings")
 end
 
-function sepgp_standings:Refresh()
-  T:Refresh("sepgp_standings")
+function SimpleShareEPGPStandings:Refresh()
+  T:Refresh("SimpleShareEPGPStandings")
 end
 
-function sepgp_standings:setHideScript()
+function SimpleShareEPGPStandings:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "sepgp_standings" then
+    if tablet.owner ~= nil and tablet.owner == "SimpleShareEPGPStandings" then
       SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("sepgp_standings") then
-            T:Attach("sepgp_standings")
+          if not T:IsAttached("SimpleShareEPGPStandings") then
+            T:Attach("SimpleShareEPGPStandings")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -341,30 +341,30 @@ function sepgp_standings:setHideScript()
   end  
 end
 
-function sepgp_standings:Top()
-  if T:IsRegistered("sepgp_standings") and (T.registry.sepgp_standings.tooltip) then
-    T.registry.sepgp_standings.tooltip.scroll=0
+function SimpleShareEPGPStandings:Top()
+  if T:IsRegistered("SimpleShareEPGPStandings") and (T.registry.SimpleShareEPGPStandings.tooltip) then
+    T.registry.SimpleShareEPGPStandings.tooltip.scroll=0
   end  
 end
 
-function sepgp_standings:Toggle(forceShow)
+function SimpleShareEPGPStandings:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("sepgp_standings") then -- hidden
-    T:Detach("sepgp_standings") -- show
-    if (T:IsLocked("sepgp_standings")) then
-      T:ToggleLocked("sepgp_standings")
+  if T:IsAttached("SimpleShareEPGPStandings") then -- hidden
+    T:Detach("SimpleShareEPGPStandings") -- show
+    if (T:IsLocked("SimpleShareEPGPStandings")) then
+      T:ToggleLocked("SimpleShareEPGPStandings")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      sepgp_standings:Refresh()
+      SimpleShareEPGPStandings:Refresh()
     else
-      T:Attach("sepgp_standings") -- hide
+      T:Attach("SimpleShareEPGPStandings") -- hide
     end
   end  
 end
 
-function sepgp_standings:ToggleGroupBy(setting)
+function SimpleShareEPGPStandings:ToggleGroupBy(setting)
   for _,value in ipairs(groupings) do
     if value ~= setting then
       SimpleShareEPGPConfig[value] = false;
@@ -376,7 +376,7 @@ function sepgp_standings:ToggleGroupBy(setting)
   self:Refresh()
 end
 
-function sepgp_standings:ToggleRaidOnly()
+function SimpleShareEPGPStandings:ToggleRaidOnly()
   SimpleShareEPGPConfig.raidonly = not SimpleShareEPGPConfig.raidonly;
   self:Top()
   SimpleShareEPGP:SetRefresh(true)
@@ -408,7 +408,7 @@ end
 -- Builds a standings table with record:
 -- name, class, armor_class, roles, EP, GP, PR
 -- and sorted by PR
-function sepgp_standings:BuildStandingsTable()
+function SimpleShareEPGPStandings:BuildStandingsTable()
   local table_db = SimpleShareEPGP:init_table_db();
   local t = { }
   local r = { }
@@ -461,7 +461,7 @@ function sepgp_standings:BuildStandingsTable()
   return t
 end
 
-function sepgp_standings:OnTooltipUpdate()
+function SimpleShareEPGPStandings:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 5,
       "text",  C:Copper(L["№"]),      "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",  "justify",  "LEFT",
@@ -535,4 +535,4 @@ function sepgp_standings:OnTooltipUpdate()
   end
 end
 
--- GLOBALS: sepgp_standings,sepgp_bids
+-- GLOBALS: sepgp_bids
