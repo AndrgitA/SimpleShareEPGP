@@ -80,7 +80,19 @@ do
   end
 end
 
+--[[
+  OPTIONS FOR ROOT
+
+  Share Settings
+]]
 function sepgp.isRootUnit()
+  --  temporary solution
+  if (sepgp:lootMaster()) then
+    return true;
+  else 
+    return false;
+  end
+
   if (sepgp.isRoot) then
     return true;
   end
@@ -118,7 +130,35 @@ function sepgp.isRootUnit()
   return false;
 end
 
+
+--[[
+  OPTIONS FOR ADMIN
+
+  +EPs to Member
+  +EPs to Raid
+  +GPs to Member
+  Add new member
+  Remove member
+  Set Class to Member
+  Raid Only
+  Reporting channel
+  Decay EPGP
+  Set Decay %
+  Offspec Price %
+  Set Minimum EP
+  Reset EPGP
+
+  Import
+]]
 function sepgp.isAdminUnit()
+  --  temporary solution
+  if (sepgp:lootMaster()) then
+    return true;
+  else 
+    return false;
+  end
+
+
   if (sepgp.isAdmin) then
     return true;
   end
@@ -1122,12 +1162,15 @@ function sepgp:anounceAddonMessage(msg)
 end
 
 function sepgp:shareSettings(force)
-  local now = GetTime()
-  if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
-    self._lastSettingsShare = now
-    local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,sepgp_decay,sepgp_minep)
-    self:anounceAddonMessage(addonMsg);
-  end
+  --TODO: need to think through a synchronization system
+  return;
+
+  -- local now = GetTime()
+  -- if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
+  --   self._lastSettingsShare = now
+  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,sepgp_decay,sepgp_minep)
+  --   self:anounceAddonMessage(addonMsg);
+  -- end
 end
 
 function sepgp:refreshPRTablets()
@@ -1307,20 +1350,22 @@ function sepgp:decay_epgp_value()
 end
 
 function sepgp:reset_value()
+  if (not sepgp.isAdminUnit()) then
+    return
+  end
+
   local table_db = sepgp:init_table_db();
 
-  if (sepgp.isAdminUnit()) then
-    for i, v in pairs(table_db) do
-      local name = i;
-      self:set_ep_value(name, 0);
-      self:set_gp_value(name, sepgp.VARS.basegp);
-    end
-
-    local msg = L["All EP and GP has been reset to 0/%d."]
-    self:debugPrint(string.format(msg,sepgp.VARS.basegp))
-    self:adminSay(string.format(msg,sepgp.VARS.basegp))
-    self:addToLog(string.format(msg,sepgp.VARS.basegp))
+  for i, v in pairs(table_db) do
+    local name = i;
+    self:set_ep_value(name, 0);
+    self:set_gp_value(name, sepgp.VARS.basegp);
   end
+
+  local msg = L["All EP and GP has been reset to 0/%d."]
+  self:debugPrint(string.format(msg,sepgp.VARS.basegp))
+  self:adminSay(string.format(msg,sepgp.VARS.basegp))
+  self:addToLog(string.format(msg,sepgp.VARS.basegp))
 end
 
 function sepgp:capcalc(ep,gp,gain)
