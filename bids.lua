@@ -120,9 +120,9 @@ function sepgp_bids:bidCountdown()
 end
 
 local pr_sorter_bids = function(a,b)
-  if sepgp_minep > 0 then
-    local a_over = a[3]-sepgp_minep >= 0
-    local b_over = b[3]-sepgp_minep >= 0
+  if (SimpleSharedEPGPCharacterConfig.minep > 0) then
+    local a_over = a[3] - SimpleSharedEPGPCharacterConfig.minep >= 0
+    local b_over = b[3] - SimpleSharedEPGPCharacterConfig.minep >= 0
     if a_over and b_over or (not a_over and not b_over) then
       if a[5] ~= b[5] then
         return tonumber(a[5]) > tonumber(b[5])
@@ -208,7 +208,7 @@ function sepgp_bids:OnTooltipUpdate()
       namedesc = C:Colorize(BC:GetHexColor(class), name)
     end
     local text2, text4
-    if sepgp_minep > 0 and ep < sepgp_minep then
+    if SimpleSharedEPGPCharacterConfig.minep > 0 and ep < SimpleSharedEPGPCharacterConfig.minep then
       text2 = C:Red(string.format("%.4g", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else
@@ -247,7 +247,7 @@ function sepgp_bids:OnTooltipUpdate()
       namedesc = C:Colorize(BC:GetHexColor(class), name)
     end
     local text2, text4
-    if sepgp_minep > 0 and ep < sepgp_minep then
+    if SimpleSharedEPGPCharacterConfig.minep > 0 and ep < SimpleSharedEPGPCharacterConfig.minep then
       text2 = C:Red(string.format("%.4g", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else
@@ -265,5 +265,5 @@ function sepgp_bids:OnTooltipUpdate()
   end   
 end
 
--- GLOBALS: sepgp_minep,sepgp_progress,sepgp_discount
+-- GLOBALS: sepgp_progress,sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids

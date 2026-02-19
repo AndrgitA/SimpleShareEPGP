@@ -124,5 +124,5 @@ function SimpleSharedEPGPLogs:OnTooltipUpdate()
   end  
 end
 
--- GLOBALS: sepgp_minep,sepgp_progress,sepgp_discount
+-- GLOBALS: sepgp_progress,sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids

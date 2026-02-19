@@ -65,6 +65,7 @@ SimpleShareEPGPConfigDefault = {
 SimpleSharedEPGPCharacterConfig = {};
 SimpleSharedEPGPCharacterConfigDefault = {
   decay = SimpleShareEPGP.VARS.decay,
+  minep = SimpleShareEPGP.VARS.minep,
 };
 
 sepgp_table_db = {};
@@ -569,7 +570,7 @@ function SimpleShareEPGP:buildMenu()
     }
     options.args["set_min_ep_header"] = {
       type = "header",
-      name = string.format(L["Minimum EP: %s"],sepgp_minep),
+      name = string.format(L["Minimum EP: %s"], SimpleSharedEPGPCharacterConfig.minep),
       order = 117,
       hidden = function()
         return SimpleShareEPGP.isAdminUnit();
@@ -581,10 +582,10 @@ function SimpleShareEPGP:buildMenu()
       desc = L["Set Minimum EP"],
       usage = "<minep>",
       order = 118,
-      get = function() return sepgp_minep end,
+      get = function() return SimpleSharedEPGPCharacterConfig.minep end,
       set = function(v) 
-        sepgp_minep = tonumber(v)
-        SimpleShareEPGP:refreshPRTablets()
+        SimpleSharedEPGPCharacterConfig.minep = tonumber(v);
+        SimpleShareEPGP:refreshPRTablets();
         if (SimpleShareEPGP.isRootUnit()) then
           SimpleShareEPGP:shareSettings(true)
         end        
@@ -624,7 +625,6 @@ end
 
 function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
   SimpleShareEPGP:InitAddonVariables();
-  if sepgp_minep == nil then sepgp_minep = SimpleShareEPGP.VARS.minep end
   if sepgp_progress == nil then sepgp_progress = "T1" end
   if sepgp_discount == nil then sepgp_discount = 0.25 end
 
@@ -1167,10 +1167,10 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
             settings_notice = L["New offspec price %"]
           end
         end
-        if minep and minep ~= sepgp_minep then
-          sepgp_minep = minep
-          settings_notice = L["New Minimum EP"]
-          SimpleShareEPGP:refreshPRTablets()
+        if (minep and minep ~= SimpleSharedEPGPCharacterConfig.minep) then
+          SimpleSharedEPGPCharacterConfig.minep = minep;
+          settings_notice = L["New Minimum EP"];
+          SimpleShareEPGP:refreshPRTablets();
         end
         if decay and decay ~= SimpleSharedEPGPCharacterConfig.decay then
           SimpleSharedEPGPCharacterConfig.decay = decay;
@@ -1188,7 +1188,7 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
           self:defaultPrint(settings_notice);
           self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], sepgp_progress);
           self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], sepgp_discount * 100);
-          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], sepgp_minep);
+          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleSharedEPGPCharacterConfig.minep);
         end
       end
     end
@@ -1211,7 +1211,7 @@ function SimpleShareEPGP:shareSettings(force)
   -- local now = GetTime()
   -- if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
   --   self._lastSettingsShare = now
-  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,SimpleSharedEPGPCharacterConfig.decay,sepgp_minep)
+  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,SimpleSharedEPGPCharacterConfig.decay,SimpleSharedEPGPCharacterConfig.minep)
   --   self:anounceAddonMessage(addonMsg);
   -- end
 end
@@ -2423,5 +2423,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_minep,sepgp_progress,sepgp_discount
+-- GLOBALS: sepgp_progress,sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
