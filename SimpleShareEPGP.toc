@@ -9,7 +9,7 @@
 ## Version: 1.8
 ## X-Alpha: 
 ## OptionalDeps: Ace2
-## SavedVariables: sepgp_saychannel, sepgp_groupbyclass, sepgp_groupbyarmor, sepgp_groupbyrole, sepgp_raidonly, sepgp_debug, sepgp_fubar
+## SavedVariables: SimpleShareEPGPConfig, sepgp_groupbyclass, sepgp_groupbyarmor, sepgp_groupbyrole, sepgp_raidonly, sepgp_debug, sepgp_fubar
 ## SavedVariablesPerCharacter: sepgp_log, sepgp_looted, sepgp_decay, sepgp_minep, sepgp_progress, sepgp_discount, sepgp_table_db
 
 Libs\AceLibrary\AceLibrary.lua

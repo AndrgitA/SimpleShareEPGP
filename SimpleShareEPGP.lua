@@ -52,6 +52,11 @@ if (not GetPlayerBuffID or not CombatLogAdd or not SpellInfo or not ExportFile) 
   SimpleShareEPGP.SUPER_WOW = false;
 end
 
+SimpleShareEPGPConfig = {};
+SimpleShareEPGPConfigDefault = {
+  sayChannel = SimpleShareEPGP.VARS.defaultSayChannel,
+};
+
 sepgp_table_db = {};
 
 local out = "|cff9664c8shootyepgp:|r %s"
@@ -341,6 +346,18 @@ SimpleShareEPGP.timer:SetScript("OnUpdate",function() SimpleShareEPGP.OnUpdate(t
 SimpleShareEPGP.timer:SetScript("OnEvent",function() 
 end)
 
+function SimpleShareEPGP:UpdateAddonVariables()
+  if (not SimpleShareEPGPConfig) then
+    SimpleShareEPGPConfig = {};
+  end
+  
+  for i, v in pairs(SimpleShareEPGPConfigDefault) do
+    if (SimpleShareEPGPConfig[i] == nil) then
+      SimpleShareEPGPConfig[i] = v;
+    end
+  end
+end
+
 function SimpleShareEPGP:buildMenu()
   if not (options) then
     options = {
@@ -459,8 +476,8 @@ function SimpleShareEPGP:buildMenu()
       hidden = function()
         return not SimpleShareEPGP.isAdminUnit();
       end,
-      get = function() return sepgp_saychannel end,
-      set = function(v) sepgp_saychannel = v end,
+      get = function() return SimpleShareEPGPConfig.sayChannel end,
+      set = function(v) SimpleShareEPGPConfig.sayChannel = v end,
       validate = { "PARTY", "RAID", "GUILD", "OFFICER" },
     }    
     options.args["decay"] = {
@@ -580,7 +597,7 @@ function SimpleShareEPGP:buildMenu()
 end
 
 function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
-  if sepgp_saychannel == nil then sepgp_saychannel = SimpleShareEPGP.VARS.defaultSayChannel end
+  SimpleShareEPGP:UpdateAddonVariables();
   if sepgp_decay == nil then sepgp_decay = SimpleShareEPGP.VARS.decay end
   if sepgp_minep == nil then sepgp_minep = SimpleShareEPGP.VARS.minep end
   if sepgp_progress == nil then sepgp_progress = "T1" end
@@ -1031,12 +1048,12 @@ function SimpleShareEPGP:bidPrint(link, masterlooter, need, greed, bid)
 end
 
 function SimpleShareEPGP:simpleSay(msg)
-  SendChatMessage(string.format("shootyepgp: %s",msg), sepgp_saychannel)
+  SendChatMessage(string.format("shootyepgp: %s",msg), SimpleShareEPGPConfig.sayChannel)
 end
 
 function SimpleShareEPGP:adminSay(msg)
   if (SimpleShareEPGP.isAdminUnit()) then
-    SendChatMessage(string.format("shootyepgp: %s",msg), sepgp_saychannel)
+    SendChatMessage(string.format("shootyepgp: %s",msg), SimpleShareEPGPConfig.sayChannel)
   end
 end
 
@@ -2376,5 +2393,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
+-- GLOBALS: sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
