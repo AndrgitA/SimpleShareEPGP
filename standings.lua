@@ -156,7 +156,7 @@ function sepgp_export_superwow()
 end
 
 function sepgp_standings:Import()
-  if not sepgp.isRootUnit() then return end
+  if (not sepgp.isAdminUnit()) then return end
   shooty_export.action:Show()
   shooty_export.title:SetText(C:Red("Ctrl-V to paste data. Esc to close."))
   shooty_export.AddSelectText(L.IMPORT_WARNING)
@@ -164,7 +164,7 @@ function sepgp_standings:Import()
 end
 
 function sepgp_standings.import()
-  if not sepgp.isRootUnit() then return end
+  if (not sepgp.isAdminUnit()) then return end
   local text = shooty_export.edit:GetText()
   local importFaildString = L["Failed to import:\n"];
   local errorFlag = false;
@@ -298,7 +298,7 @@ function sepgp_standings:OnEnable()
           "tooltipText", L["Export standings to csv."],
           "func", function() sepgp_standings:Export() end
         )
-        if sepgp.isRootUnit() then
+        if (sepgp.isAdminUnit()) then
           D:AddLine(
           "text", L["Import"],
           "tooltipText", L["Import standings from csv."],

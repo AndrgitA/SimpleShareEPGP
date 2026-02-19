@@ -58,7 +58,6 @@ local out = "|cff9664c8shootyepgp:|r %s"
 local raidStatus,lastRaidStatus
 local lastUpdate = 0
 local needInit,needRefresh = true
-local admin
 local shooty_debugchat
 local running_check,running_bid
 local partyUnit,raidUnit = {},{}
@@ -110,6 +109,44 @@ function sepgp.isRootUnit()
           gData[i].name == playerName
         ) then
           sepgp.isRoot = true;
+          return true;
+        end
+      end
+    end
+  end
+
+  return false;
+end
+
+function sepgp.isAdminUnit()
+  if (sepgp.isAdmin) then
+    return true;
+  end
+
+  if (not sepgp_config) then
+    return false;
+  end
+
+  local canEditDB = sepgp_config.canEditDB;
+  if (not canEditDB) then
+    return false;
+  end
+
+  local playerName = sepgp._playerName;
+  local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
+
+  if (not playerGuildName) then
+    playerGuildName = sepgp.VARS.unknownGuildName;
+  end
+
+  for gName, gData in pairs(canEditDB) do
+    if (gName == playerGuildName and type(gData) == "table") then
+      for i = 1, table.getn(gData) do
+        if (
+          gData[i].rank == playerGuildName or
+          gData[i].name == playerName
+        ) then
+          sepgp.isAdmin = true;
           return true;
         end
       end
@@ -246,7 +283,7 @@ local admincmd, membercmd = {
     end,
   }]]  
 sepgp.cmdtable = function() 
-  if (admin()) then
+  if (sepgp.isAdminUnit()) then
     return admincmd
   else
     return membercmd
@@ -274,7 +311,9 @@ function sepgp:buildMenu()
       name = L["+EPs to Member"],
       desc = L["Account EPs for member."],
       order = 10,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
     }
     options.args["ep_raid"] = {
       type = "text",
@@ -284,7 +323,9 @@ function sepgp:buildMenu()
       get = "suggestedAwardEP",
       set = function(v) sepgp:award_raid_ep(tonumber(v)) end,
       usage = "<EP>",
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
       validate = function(v)
         local n = tonumber(v)
         return n and n >= 0 and n < sepgp.VARS.max
@@ -295,28 +336,36 @@ function sepgp:buildMenu()
       name = L["+GPs to Member"],
       desc = L["Account GPs for member."],
       order = 30,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
     }
     options.args["class"] = {
       type = "group",
       name = L["Set Class to Member"],
       desc = L["Choose one of classes for Undefined Class member"],
       order = 41,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
     }
     options.args["new_member"] = {
       type = "group",
       name = L["Add new member"],
       desc = L["Add new member for DB"],
       order = 42,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
     }
     options.args["remove_member"] = {
       type = "group",
       name = L["Remove member"],
       desc = L["Remove member from DB"],
       order = 43,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
     };
     options.args["raid_only"] = {
       type = "toggle",
@@ -329,14 +378,16 @@ function sepgp:buildMenu()
         sepgp:SetRefresh(true)
       end,
       hidden = function()
-        return not admin();
+        return not sepgp.isAdminUnit();
       end
     }
     options.args["progress_tier_header"] = {
       type = "header",
       name = string.format(L["Progress Setting: %s"],sepgp_progress),
       order = 85,
-      hidden = function() return admin() end,
+      hidden = function()
+        return sepgp.isAdminUnit();
+      end,
     }
     options.args["progress_tier"] = {
       type = "text",
@@ -345,7 +396,7 @@ function sepgp:buildMenu()
       order = 90,
       hidden = function()
         return true;
-        -- return not (admin())
+        -- return not sepgp.isAdminUnit();
       end,
       get = function() return sepgp_progress end,
       set = function(v) 
@@ -362,7 +413,9 @@ function sepgp:buildMenu()
       name = L["Reporting channel"],
       desc = L["Channel used by reporting functions."],
       order = 95,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
       get = function() return sepgp_saychannel end,
       set = function(v) sepgp_saychannel = v end,
       validate = { "PARTY", "RAID", "GUILD", "OFFICER" },
@@ -372,7 +425,9 @@ function sepgp:buildMenu()
       name = L["Decay EPGP"],
       desc = string.format(L["Decays all EPGP by %s%%"],(1-(sepgp_decay or sepgp.VARS.decay))*100),
       order = 100,
-      hidden = function() return not (admin()) end,      
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,      
       func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_DECAY") end
     }    
     options.args["set_decay"] = {
@@ -394,20 +449,26 @@ function sepgp:buildMenu()
       step = 0.01,
       bigStep = 0.05,
       isPercent = true,
-      hidden = function() return not (admin()) end,    
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,    
     }
     options.args["set_discount_header"] = {
       type = "header",
       name = string.format(L["Offspec Price: %s%%"],sepgp_discount*100),
       order = 111,
-      hidden = function() return admin() end,
+      hidden = function()
+        return sepgp.isAdminUnit();
+      end,
     }
     options.args["set_discount"] = {
       type = "range",
       name = L["Offspec Price %"],
       desc = L["Set Offspec Items GP Percent."],
       order = 115,
-      hidden = function() return not (admin()) end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
       get = function() return sepgp_discount end,
       set = function(v) 
         sepgp_discount = v
@@ -424,7 +485,9 @@ function sepgp:buildMenu()
       type = "header",
       name = string.format(L["Minimum EP: %s"],sepgp_minep),
       order = 117,
-      hidden = function() return admin() end,
+      hidden = function()
+        return sepgp.isAdminUnit();
+      end,
     }
     options.args["set_min_ep"] = {
       type = "text",
@@ -444,15 +507,19 @@ function sepgp:buildMenu()
         local n = tonumber(v)
         return n and n >= 0 and n <= sepgp.VARS.max
       end,
-      hidden = function() return not admin() end,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
     }
     options.args["reset"] = {
-     type = "execute",
-     name = L["Reset EPGP"],
-     desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Admin only)."],sepgp.VARS.basegp),
-     order = 120,
-     hidden = function() return not (sepgp.isRootUnit()) end,
-     func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_RESET") end
+      type = "execute",
+      name = L["Reset EPGP"],
+      desc = string.format(L["Resets everyone\'s EPGP to 0/%d (Admin only)."],sepgp.VARS.basegp),
+      order = 120,
+      hidden = function()
+        return not sepgp.isAdminUnit();
+      end,
+      func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_RESET") end
     }
   end
   if (needInit) or (needRefresh) then
@@ -932,7 +999,7 @@ function sepgp:adminSay(msg)
   -- API is broken on Elysium
   -- local g_listen, g_speak, officer_listen, officer_speak, g_promote, g_demote, g_invite, g_remove, set_gmotd, set_publicnote, view_officernote, edit_officernote, set_guildinfo = GuildControlGetRankFlags() 
   -- if (officer_speak) then
-  if (admin()) then
+  if (sepgp.isAdminUnit()) then
     SendChatMessage(string.format("shootyepgp: %s",msg), sepgp_saychannel)
   end
   -- end
@@ -1031,7 +1098,7 @@ function sepgp:addonComms(prefix, message, channel, sender)
         end
         if decay and decay ~= sepgp_decay then
           sepgp_decay = decay
-          if (admin()) then
+          if (sepgp.isAdminUnit()) then
             if (settings_notice) then
               settings_notice = settings_notice..L[", decay %"]
             else
@@ -1188,7 +1255,7 @@ function sepgp:award_raid_ep(ep) -- awards ep to raid members in zone
 end
 
 function sepgp:give_ep_value(name, ep)
-  if not (admin()) then
+  if (not sepgp.isAdminUnit()) then
     return
   end
   
@@ -1205,7 +1272,7 @@ function sepgp:give_ep_value(name, ep)
 end
 
 function sepgp:give_gp_value(name, gp)
-  if not (admin()) then
+  if (not sepgp.isAdminUnit()) then
     return;
   end
 
@@ -1221,7 +1288,7 @@ function sepgp:give_gp_value(name, gp)
 end
 
 function sepgp:decay_epgp_value()
-  if (not admin()) then
+  if (not sepgp.isAdminUnit()) then
     return;
   end
 
@@ -1312,7 +1379,7 @@ sepgp.independentProfile = true
 
 function sepgp:OnTooltipUpdate()
   local hint = L["|cffffff00Right-Click|r for Options."]
-  if (admin()) then
+  if (sepgp.isAdminUnit()) then
     hint = string.format("%s \n%s%s", L["|cffffff00Click|r to toggle Standings."], hint, L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."]);
   else
     hint = string.format(hint,"");
@@ -1321,7 +1388,7 @@ function sepgp:OnTooltipUpdate()
 end
 
 function sepgp:OnClick()
-  local is_admin = admin()
+  local is_admin = sepgp.isAdminUnit();
 
   -- now any leftclick for not admin ignored
   if (not is_admin) then
@@ -1436,7 +1503,9 @@ function sepgp:buildChooseClassMember(roster)
       c[name].type = "text";
       c[name].name = C:Colorize(BC:GetHexColor(class), name);
       c[name].desc = "set class value for member";
-      c[name].hidden = function() return not (admin()) end;
+      c[name].hidden = function()
+        return not sepgp.isAdminUnit();
+      end;
       c[name].get = function() return classToColorValue[class] end;
       c[name].set = function(v) sepgp:set_class_value(name, colorToClassValue[v]); sepgp:refreshPRTablets();  end --sepgp:buildMenu();
       c[name].validate = validateValues;
@@ -1456,7 +1525,9 @@ function sepgp:buildClassRemoveMember(roster)
       c[class].type = "group";
       c[class].name = C:Colorize(BC:GetHexColor(class), class);
       c[class].desc = L["Group remove member"];
-      c[class].hidden = function() return not (admin()) end;
+      c[class].hidden = function()
+        return not sepgp.isAdminUnit();
+      end;
       c[class].args = { };
     end
     if (name) and (c[class].args[name] == nil) then
@@ -1487,7 +1558,9 @@ function sepgp:buildClassNewMember()
     c[class].type = "text";
     c[class].name = C:Colorize(BC:GetHexColor(class), className);
     c[class].desc = L["Name for new class member"];
-    c[class].hidden = function() return not (admin()) end
+    c[class].hidden = function()
+      return not sepgp.isAdminUnit();
+    end
     c[class].get = function() return "" end;
     c[class].usage = "<new_member>";
     c[class].set = function(v)
@@ -1521,7 +1594,9 @@ function sepgp:buildClassMemberTable(roster,epgp)
       c[class].type = "group"
       c[class].name = C:Colorize(BC:GetHexColor(class),class)
       c[class].desc = class .. " members"
-      c[class].hidden = function() return not (admin()) end
+      c[class].hidden = function()
+        return not sepgp.isAdminUnit();
+      end
       c[class].args = { }
     end
     if (name) and (c[class].args[name] == nil) then
@@ -1741,7 +1816,7 @@ sepgp.loot_index = {
   update=9
 }
 function sepgp:captureLoot(message)
-  if not (UnitInRaid("player") and self:lootMaster() and admin()) then return end
+  if not (UnitInRaid("player") and self:lootMaster() and sepgp.isAdminUnit()) then return end
   local who,what,amount,player,itemLink
   who,what,amount = DF:Deformat(message,LOOT_ITEM_MULTIPLE)
   if (amount) then -- skip multiples / stacks
@@ -1783,7 +1858,7 @@ function sepgp:findLootReminder(itemLink)
 end
 
 function sepgp:tradeLoot(playerState,targetState)
-  if not (UnitInRaid("player") and self:lootMaster() and admin()) then
+  if not (UnitInRaid("player") and self:lootMaster() and sepgp.isAdminUnit()) then
     return;
   end
 
@@ -2117,44 +2192,6 @@ function sepgp:camelCase(word)
   return string.gsub(word,"(%a)([%w_']*)",function(head,tail) 
     return string.format("%s%s",string.upper(head),string.lower(tail)) 
     end)
-end
-
-admin = function ()
-  if (sepgp.isAdmin) then
-    return true;
-  end
-
-  if (not sepgp_config) then
-    return false;
-  end
-
-  local canEditDB = sepgp_config.canEditDB;
-  if (not canEditDB) then
-    return false;
-  end
-
-  local playerName = sepgp._playerName;
-  local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
-
-  if (not playerGuildName) then
-    playerGuildName = sepgp.VARS.unknownGuildName;
-  end
-
-  for gName, gData in pairs(canEditDB) do
-    if (gName == playerGuildName and type(gData) == "table") then
-      for i = 1, table.getn(gData) do
-        if (
-          gData[i].rank == playerGuildName or
-          gData[i].name == playerName
-        ) then
-          sepgp.isAdmin = true;
-          return true;
-        end
-      end
-    end
-  end
-
-  return false;
 end
 
 -------------
