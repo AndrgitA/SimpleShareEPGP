@@ -70,7 +70,7 @@ SimpleSharedEPGPCharacterConfigDefault = {
   discount = 0.25,
 };
 
-sepgp_table_db = {};
+SimpleSharedEPGP_DB = {};
 
 local out = "|cff9664c8shootyepgp:|r %s"
 local raidStatus,lastRaidStatus
@@ -378,11 +378,11 @@ function SimpleShareEPGP:InitAddonVariables()
     end
   end
 
-  if (SimpleSharedEPGPLog == nil) then
+  if (not SimpleSharedEPGPLog) then
     SimpleSharedEPGPLog = {};
   end
 
-  if (SimpleSharedEPGPLooted == nil) then
+  if (not SimpleSharedEPGPLooted) then
     SimpleSharedEPGPLooted = {};
   end
 end
@@ -806,7 +806,7 @@ function SimpleShareEPGP:delayedInit()
   self:parseVersion(SimpleShareEPGP._versionString)
   local major_ver = self._version.major
 
-  sepgp_table_db = SimpleShareEPGP:init_table_db()
+  SimpleSharedEPGP_DB = SimpleShareEPGP:init_table_db();
 
   -- init options and comms
   self._options = self:buildMenu()
@@ -1507,16 +1507,16 @@ function SimpleShareEPGP:ClearLoot()
 end
 
 function SimpleShareEPGP:clean_table_db()
-  sepgp_table_db = {};
-  return sepgp_table_db;
+  SimpleSharedEPGP_DB = {};
+  return SimpleSharedEPGP_DB;
 end
 
 function SimpleShareEPGP:init_table_db()
-  if (not sepgp_table_db) then
-    sepgp_table_db = {};
+  if (not SimpleSharedEPGP_DB) then
+    SimpleSharedEPGP_DB = {};
   end
 
-  return sepgp_table_db;
+  return SimpleSharedEPGP_DB;
 end
 
 function SimpleShareEPGP:updateRaidRosterInfo()
