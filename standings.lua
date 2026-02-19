@@ -8,7 +8,7 @@ local _G = getfenv(0)
 
 sepgp_standings = SimpleShareEPGP:NewModule("sepgp_standings", "AceDB-2.0")
 local groupings = {
-  "sepgp_groupbyclass",
+  "groupbyclass",
   "sepgp_groupbyarmor",
   "sepgp_groupbyrole",
 }
@@ -264,8 +264,8 @@ function sepgp_standings:OnEnable()
         D:AddLine(
           "text", L["Group by class"],
           "tooltipText", L["Group members by class."],
-          "checked", sepgp_groupbyclass,
-          "func", function() sepgp_standings:ToggleGroupBy("sepgp_groupbyclass") end
+          "checked", SimpleShareEPGPConfig.groupbyclass,
+          "func", function() sepgp_standings:ToggleGroupBy("groupbyclass") end
         )
         D:AddLine(
           "text", L["Group by armor"],
@@ -367,10 +367,11 @@ end
 function sepgp_standings:ToggleGroupBy(setting)
   for _,value in ipairs(groupings) do
     if value ~= setting then
-      _G[value] = false
+      SimpleShareEPGPConfig[value] = false;
+    else
+      SimpleShareEPGPConfig[setting] = not SimpleShareEPGPConfig[setting];
     end
   end
-  _G[setting] = not _G[setting]
   self:Top()
   self:Refresh()
 end
@@ -438,7 +439,7 @@ function sepgp_standings:BuildStandingsTable()
     end
   end
 
-  if (sepgp_groupbyclass) then
+  if (SimpleShareEPGPConfig.groupbyclass) then
     table.sort(t, function(a,b)
       if (a[2] ~= b[2]) then return a[2] > b[2]
       else return pr_sorter_standings(a,b) end
@@ -533,5 +534,5 @@ function sepgp_standings:OnTooltipUpdate()
     )
   end
 end
--- GLOBALS: sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
+-- GLOBALS: sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs

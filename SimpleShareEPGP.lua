@@ -55,6 +55,7 @@ end
 SimpleShareEPGPConfig = {};
 SimpleShareEPGPConfigDefault = {
   sayChannel = SimpleShareEPGP.VARS.defaultSayChannel,
+  groupbyclass = false,
 };
 
 sepgp_table_db = {};
@@ -614,8 +615,8 @@ function SimpleShareEPGP:OnEnable() -- PLAYER_LOGIN (2)
   --table.insert(sepgp_debug,{[date("%b/%d %H:%M:%S")]="OnEnable"})
   SimpleShareEPGP._playerLevel = UnitLevel("player")
   SimpleShareEPGP.extratip = (SimpleShareEPGP.extratip) or CreateFrame("GameTooltip","shootyepgp_tooltip",UIParent,"GameTooltipTemplate")
-  SimpleShareEPGP._versionString = GetAddOnMetadata("shootyepgp", "Version")
-  SimpleShareEPGP._websiteString = GetAddOnMetadata("shootyepgp", "X-Website")
+  SimpleShareEPGP._versionString = GetAddOnMetadata("SimpleShareEPGP", "Version")
+  SimpleShareEPGP._websiteString = GetAddOnMetadata("SimpleShareEPGP", "X-Website")
 
   self:RegisterEvent("RAID_ROSTER_UPDATE",function()
     SimpleShareEPGP:updateRaidRosterInfo();
@@ -2393,5 +2394,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
+-- GLOBALS: sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_looted,sepgp_debug,sepgp_fubar
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_logs
