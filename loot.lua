@@ -26,7 +26,7 @@ function sepgp_loot:OnEnable()
         D:AddLine(
           "text", L["Clear"],
           "tooltipText", L["Clear Loot."],
-          "func", function() sepgp_looted = {} sepgp_loot:Refresh() end
+          "func", function() SimpleShareEPGP:ClearLoot() end
         )        
       end      
     )
@@ -88,11 +88,11 @@ function sepgp_loot:Toggle(forceShow)
 end
 
 function sepgp_loot:BuildLootTable()
-  table.sort(sepgp_looted, function(a,b)
+  table.sort(SimpleSharedEPGPLooted, function(a,b)
     if (a[1] ~= b[1]) then return a[1] > b[1]
     else return a[2] > b[2] end
   end)
-  return sepgp_looted
+  return SimpleSharedEPGPLooted;
 end
 
 function sepgp_loot:OnClickItem(data)
@@ -122,5 +122,5 @@ function sepgp_loot:OnTooltipUpdate()
   end
 end
 
--- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_looted
+-- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot

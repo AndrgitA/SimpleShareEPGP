@@ -238,9 +238,7 @@ local admincmd, membercmd = {
       name = L["ClearLoot"],
       desc = L["Clear Loot Table."],
       func = function()
-        sepgp_looted = {}
-        sepgp_loot:Refresh()
-        SimpleShareEPGP:defaultPrint(L["Loot info cleared"])
+        SimpleShareEPGP:ClearLoot();
       end,
       order = 3,
     },
@@ -379,6 +377,10 @@ function SimpleShareEPGP:InitAddonVariables()
 
   if (SimpleSharedEPGPLog == nil) then
     SimpleSharedEPGPLog = {};
+  end
+
+  if (SimpleSharedEPGPLooted == nil) then
+    SimpleSharedEPGPLooted = {};
   end
 end
 
@@ -626,7 +628,7 @@ function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
   if sepgp_minep == nil then sepgp_minep = SimpleShareEPGP.VARS.minep end
   if sepgp_progress == nil then sepgp_progress = "T1" end
   if sepgp_discount == nil then sepgp_discount = 0.25 end
-  if sepgp_looted == nil then sepgp_looted = {} end
+
   self:RegisterDB("simple_share_epgp_fubar")
   self:RegisterDefaults("char",{})
   --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
@@ -1499,6 +1501,12 @@ function SimpleShareEPGP:ClearLogs()
   SimpleShareEPGP:defaultPrint(L["Logs cleared"]);
 end
 
+function SimpleShareEPGP:ClearLoot()
+  SimpleSharedEPGPLooted = {};
+  sepgp_loot:Refresh();
+  SimpleShareEPGP:defaultPrint(L["Loot info cleared"]);
+end
+
 function SimpleShareEPGP:clean_table_db()
   sepgp_table_db = {};
   return sepgp_table_db;
@@ -1930,7 +1938,7 @@ function SimpleShareEPGP:GiveMasterLoot(slot, index)
 end
 
 function SimpleShareEPGP:findLootReminder(itemLink)
-  for i,data in ipairs(sepgp_looted) do
+  for i,data in ipairs(SimpleSharedEPGPLooted) do
     if data[self.loot_index.item] == itemLink and data[self.loot_index.action] == self.VARS.reminder then
       return data;
     end
@@ -2013,7 +2021,7 @@ end
 
 function SimpleShareEPGP:addOrUpdateLoot(data,update)
   if not (update) then
-    table.insert(sepgp_looted,data)
+    table.insert(SimpleSharedEPGPLooted, data)
   end
 end
 
@@ -2023,7 +2031,7 @@ function SimpleShareEPGP:testLootPrompt()
     lastRaidStatus = raidStatus
   end
   if (raidStatus == false) and (lastRaidStatus == true) then
-    local hasLoot = table.getn(sepgp_looted)
+    local hasLoot = table.getn(SimpleSharedEPGPLooted)
     local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_CLEAR_LOOT")
     if (not (dialog)) and (hasLoot > 0) then
       StaticPopup_Show("SHOOTY_EPGP_CLEAR_LOOT",hasLoot)
@@ -2284,8 +2292,7 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   button1 = TEXT(YES),
   button2 = L["Show me"],
   OnAccept = function()
-    sepgp_looted = {}
-    SimpleShareEPGP:defaultPrint(L["Loot info cleared"])
+    SimpleShareEPGP:ClearLoot();
   end,
   OnCancel = function(_,reason)
     if reason == "clicked" then
@@ -2417,5 +2424,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_looted
+-- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot
