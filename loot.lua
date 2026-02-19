@@ -5,11 +5,11 @@ local C = AceLibrary("Crayon-2.0")
 local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
 
-sepgp_loot = SimpleShareEPGP:NewModule("sepgp_loot", "AceDB-2.0")
+SimpleSharedEPGPLoot = SimpleShareEPGP:NewModule("SimpleSharedEPGPLoot", "AceDB-2.0")
 
-function sepgp_loot:OnEnable()
-  if not T:IsRegistered("sepgp_loot") then
-    T:Register("sepgp_loot",
+function SimpleSharedEPGPLoot:OnEnable()
+  if not T:IsRegistered("SimpleSharedEPGPLoot") then
+    T:Register("SimpleSharedEPGPLoot",
       "children", function()
         T:SetTitle(L["shootyepgp loot info"])
         self:OnTooltipUpdate()
@@ -21,7 +21,7 @@ function sepgp_loot:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() sepgp_loot:Refresh() end
+          "func", function() SimpleSharedEPGPLoot:Refresh() end
         )
         D:AddLine(
           "text", L["Clear"],
@@ -31,29 +31,29 @@ function sepgp_loot:OnEnable()
       end      
     )
   end
-  if not T:IsAttached("sepgp_loot") then
-    T:Open("sepgp_loot")
+  if not T:IsAttached("SimpleSharedEPGPLoot") then
+    T:Open("SimpleSharedEPGPLoot")
   end
 end
 
-function sepgp_loot:OnDisable()
-  T:Close("sepgp_loot")
+function SimpleSharedEPGPLoot:OnDisable()
+  T:Close("SimpleSharedEPGPLoot")
 end
 
-function sepgp_loot:Refresh()
-  T:Refresh("sepgp_loot")
+function SimpleSharedEPGPLoot:Refresh()
+  T:Refresh("SimpleSharedEPGPLoot")
 end
 
-function sepgp_loot:setHideScript()
+function SimpleSharedEPGPLoot:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "sepgp_loot" then
+    if tablet.owner ~= nil and tablet.owner == "SimpleSharedEPGPLoot" then
       SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("sepgp_loot") then
-            T:Attach("sepgp_loot")
+          if not T:IsAttached("SimpleSharedEPGPLoot") then
+            T:Attach("SimpleSharedEPGPLoot")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -64,30 +64,30 @@ function sepgp_loot:setHideScript()
   end  
 end
 
-function sepgp_loot:Top()
-  if T:IsRegistered("sepgp_loot") and (T.registry.sepgp_loot.tooltip) then
-    T.registry.sepgp_loot.tooltip.scroll=0
+function SimpleSharedEPGPLoot:Top()
+  if T:IsRegistered("SimpleSharedEPGPLoot") and (T.registry.SimpleSharedEPGPLoot.tooltip) then
+    T.registry.SimpleSharedEPGPLoot.tooltip.scroll=0
   end  
 end
 
-function sepgp_loot:Toggle(forceShow)
+function SimpleSharedEPGPLoot:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("sepgp_loot") then
-    T:Detach("sepgp_loot") -- show
-    if (T:IsLocked("sepgp_loot")) then
-      T:ToggleLocked("sepgp_loot")
+  if T:IsAttached("SimpleSharedEPGPLoot") then
+    T:Detach("SimpleSharedEPGPLoot") -- show
+    if (T:IsLocked("SimpleSharedEPGPLoot")) then
+      T:ToggleLocked("SimpleSharedEPGPLoot")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      sepgp_loot:Refresh()
+      SimpleSharedEPGPLoot:Refresh()
     else
-      T:Attach("sepgp_loot") -- hide
+      T:Attach("SimpleSharedEPGPLoot") -- hide
     end
   end  
 end
 
-function sepgp_loot:BuildLootTable()
+function SimpleSharedEPGPLoot:BuildLootTable()
   table.sort(SimpleSharedEPGPLooted, function(a,b)
     if (a[1] ~= b[1]) then return a[1] > b[1]
     else return a[2] > b[2] end
@@ -95,11 +95,11 @@ function sepgp_loot:BuildLootTable()
   return SimpleSharedEPGPLooted;
 end
 
-function sepgp_loot:OnClickItem(data)
+function SimpleSharedEPGPLoot:OnClickItem(data)
 
 end
 
-function sepgp_loot:OnTooltipUpdate()
+function SimpleSharedEPGPLoot:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 5,
       "text",  C:Orange(L["Time"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",

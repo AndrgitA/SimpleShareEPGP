@@ -1480,7 +1480,7 @@ function SimpleShareEPGP:OnClick()
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
     SimpleSharedEPGPLogs:Toggle()
   elseif (IsShiftKeyDown() and is_admin) then
-    sepgp_loot:Toggle()      
+    SimpleSharedEPGPLoot:Toggle()      
   elseif (IsAltKeyDown() and is_admin) then
     sepgp_bids:Toggle()
   else
@@ -1503,7 +1503,7 @@ end
 
 function SimpleShareEPGP:ClearLoot()
   SimpleSharedEPGPLooted = {};
-  sepgp_loot:Refresh();
+  SimpleSharedEPGPLoot:Refresh();
   SimpleShareEPGP:defaultPrint(L["Loot info cleared"]);
 end
 
@@ -2296,7 +2296,7 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   end,
   OnCancel = function(_,reason)
     if reason == "clicked" then
-      sepgp_loot:Toggle(true)
+      SimpleSharedEPGPLoot:Toggle(true)
       SimpleShareEPGP:defaultPrint(L["Loot info can be cleared at any time from the Tablet context menu or '/shooty clearloot' command"])
     end
   end,
@@ -2349,7 +2349,7 @@ local sepgp_auto_gp_menu = {
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
-      sepgp_loot:Refresh()
+      SimpleSharedEPGPLoot:Refresh()
     end
   end},
   {text = L["Add OffSpec GP"], func = function()
@@ -2363,7 +2363,7 @@ local sepgp_auto_gp_menu = {
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
-      sepgp_loot:Refresh()
+      SimpleSharedEPGPLoot:Refresh()
     end
   end},
   {text = L["Bank or D/E"], func = function()
@@ -2374,7 +2374,7 @@ local sepgp_auto_gp_menu = {
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
-      sepgp_loot:Refresh()
+      SimpleSharedEPGPLoot:Refresh()
     end
   end}
 }
@@ -2391,7 +2391,7 @@ StaticPopupDialogs["SHOOTY_EPGP_AUTO_GEARPOINTS"] = {
       data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.reminder
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
-      sepgp_loot:Refresh()
+      SimpleSharedEPGPLoot:Refresh()
       return
     elseif reason == "timeout" then
       return
@@ -2425,4 +2425,4 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
 end
 
 -- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount
--- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot
+-- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
