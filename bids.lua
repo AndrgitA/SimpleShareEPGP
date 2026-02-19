@@ -160,7 +160,7 @@ function sepgp_bids:OnTooltipUpdate()
     price = "<n/a>"
     offspec = "<n/a>"
   else
-    offspec = math.floor(price*sepgp_discount)
+    offspec = math.floor(price * SimpleSharedEPGPCharacterConfig.discount);
   end
   local bidcat = T:AddCategory(
       "columns", 3,    
@@ -265,5 +265,4 @@ function sepgp_bids:OnTooltipUpdate()
   end   
 end
 
--- GLOBALS: sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
