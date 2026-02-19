@@ -1,4 +1,4 @@
-local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
 L:RegisterTranslations("enUS", function() return {
   --["Term"] = true, -- Example

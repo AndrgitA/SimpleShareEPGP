@@ -3,7 +3,7 @@ local D = AceLibrary("Dewdrop-2.0")
 local C = AceLibrary("Crayon-2.0")
 
 local BC = AceLibrary("Babble-Class-2.2")
-local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
 SimpleShareEPGPBids = SimpleShareEPGP:NewModule("SimpleShareEPGPBids", "AceDB-2.0", "AceEvent-2.0")
 

@@ -7,7 +7,7 @@ local BC = AceLibrary("Babble-Class-2.2")
 local DF = AceLibrary("Deformat-2.0")
 local G = AceLibrary("Gratuity-2.0")
 local T = AceLibrary("Tablet-2.0")
-local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
 local UnitName, GetRaidRosterInfo = UnitName, GetRaidRosterInfo;
 

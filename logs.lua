@@ -2,7 +2,7 @@ local T = AceLibrary("Tablet-2.0")
 local D = AceLibrary("Dewdrop-2.0")
 local C = AceLibrary("Crayon-2.0")
 local CP = AceLibrary("Compost-2.0")
-local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
 SimpleSharedEPGPLogs = SimpleShareEPGP:NewModule("SimpleSharedEPGPLogs", "AceDB-2.0")
 SimpleSharedEPGPLogs.tmp = CP:Acquire()
