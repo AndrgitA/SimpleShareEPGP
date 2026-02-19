@@ -64,7 +64,7 @@ SimpleShareEPGPConfigDefault = {
 
 SimpleSharedEPGPCharacterConfig = {};
 SimpleSharedEPGPCharacterConfigDefault = {
-
+  decay = SimpleShareEPGP.VARS.decay,
 };
 
 sepgp_table_db = {};
@@ -509,7 +509,7 @@ function SimpleShareEPGP:buildMenu()
     options.args["decay"] = {
       type = "execute",
       name = L["Decay EPGP"],
-      desc = string.format(L["Decays all EPGP by %s%%"],(1-(sepgp_decay or SimpleShareEPGP.VARS.decay))*100),
+      desc = string.format(L["Decays all EPGP by %s%%"],(1-(SimpleSharedEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay))*100),
       order = 100,
       hidden = function()
         return not SimpleShareEPGP.isAdminUnit();
@@ -522,10 +522,10 @@ function SimpleShareEPGP:buildMenu()
       desc = L["Set Decay percentage (Admin only)."],
       order = 110,
       usage = "<Decay>",
-      get = function() return (1.0-sepgp_decay) end,
+      get = function() return (1.0 - SimpleSharedEPGPCharacterConfig.decay) end,
       set = function(v) 
-        sepgp_decay = (1 - v)
-        options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"],(1-sepgp_decay)*100)
+        SimpleSharedEPGPCharacterConfig.decay = (1 - v);
+        options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"], (1 - SimpleSharedEPGPCharacterConfig.decay) * 100)
         if (SimpleShareEPGP.isRootUnit()) then
           SimpleShareEPGP:shareSettings(true)
         end
@@ -624,7 +624,6 @@ end
 
 function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
   SimpleShareEPGP:InitAddonVariables();
-  if sepgp_decay == nil then sepgp_decay = SimpleShareEPGP.VARS.decay end
   if sepgp_minep == nil then sepgp_minep = SimpleShareEPGP.VARS.minep end
   if sepgp_progress == nil then sepgp_progress = "T1" end
   if sepgp_discount == nil then sepgp_discount = 0.25 end
@@ -1173,8 +1172,8 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
           settings_notice = L["New Minimum EP"]
           SimpleShareEPGP:refreshPRTablets()
         end
-        if decay and decay ~= sepgp_decay then
-          sepgp_decay = decay
+        if decay and decay ~= SimpleSharedEPGPCharacterConfig.decay then
+          SimpleSharedEPGPCharacterConfig.decay = decay;
           if (SimpleShareEPGP.isAdminUnit()) then
             if (settings_notice) then
               settings_notice = settings_notice..L[", decay %"]
@@ -1212,7 +1211,7 @@ function SimpleShareEPGP:shareSettings(force)
   -- local now = GetTime()
   -- if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
   --   self._lastSettingsShare = now
-  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,sepgp_decay,sepgp_minep)
+  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,SimpleSharedEPGPCharacterConfig.decay,sepgp_minep)
   --   self:anounceAddonMessage(addonMsg);
   -- end
 end
@@ -1379,15 +1378,15 @@ function SimpleShareEPGP:decay_epgp_value()
     local ep, gp = v.ep, v.gp;
 
     if (ep and gp) then
-      self:set_ep_value(name, self:num_round(ep * sepgp_decay));
-      self:set_gp_value(name, self:num_round(gp * sepgp_decay));
+      self:set_ep_value(name, self:num_round(ep * SimpleSharedEPGPCharacterConfig.decay));
+      self:set_gp_value(name, self:num_round(gp * SimpleSharedEPGPCharacterConfig.decay));
     end
   end
 
-  local msg = string.format(L["All EP and GP decayed by %s%%"],(1-sepgp_decay)*100)
+  local msg = string.format(L["All EP and GP decayed by %s%%"],(1 - SimpleSharedEPGPCharacterConfig.decay) * 100)
   self:simpleSay(msg)
   self:adminSay(msg)
-  local addonMsg = string.format("ALL;DECAY;%s",(1-(sepgp_decay or SimpleShareEPGP.VARS.decay))*100)
+  local addonMsg = string.format("ALL;DECAY;%s", (1 - (SimpleSharedEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay)) *100)
   self:anounceAddonMessage(addonMsg)
   self:addToLog(msg)
   self:refreshPRTablets() 
@@ -1415,8 +1414,8 @@ end
 function SimpleShareEPGP:capcalc(ep,gp,gain)
   -- CAP_EP = EP_GAIN*DECAY/(1-DECAY) CAP_PR = CAP_EP/base_gp
   local pr = ep/gp
-  local ep_decayed = self:num_round(ep*sepgp_decay)
-  local gp_decayed = math.max(SimpleShareEPGP.VARS.basegp,self:num_round(gp*sepgp_decay))
+  local ep_decayed = self:num_round(ep * SimpleSharedEPGPCharacterConfig.decay)
+  local gp_decayed = math.max(SimpleShareEPGP.VARS.basegp,self:num_round(gp * SimpleSharedEPGPCharacterConfig.decay))
   local pr_decay = tonumber(string.format("%.03f",pr))-tonumber(string.format("%.03f",ep_decayed/gp_decayed))
   if (pr_decay < 0.5) then 
     pr_decay = 0 
@@ -1426,7 +1425,7 @@ function SimpleShareEPGP:capcalc(ep,gp,gain)
   local cycle_gain = tonumber(gain)
   local cap_ep, cap_pr
   if (cycle_gain) then
-    cap_ep = self:num_round(cycle_gain*sepgp_decay/(1-sepgp_decay))
+    cap_ep = self:num_round(cycle_gain * SimpleSharedEPGPCharacterConfig.decay / (1 - SimpleSharedEPGPCharacterConfig.decay))
     cap_pr = tonumber(string.format("%.03f",cap_ep/SimpleShareEPGP.VARS.basegp))
   end
   return pr_decay, cap_ep, cap_pr
@@ -2424,5 +2423,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount
+-- GLOBALS: sepgp_minep,sepgp_progress,sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
