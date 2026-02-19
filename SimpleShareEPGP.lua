@@ -821,17 +821,17 @@ function SimpleShareEPGP:delayedInit()
   self:defaultPrint(string.format(L["v%s Loaded."],SimpleShareEPGP._versionString))
   
   -- update prices from config.lua
-  if (sepgp_prices and sepgp_custom_prices) then
-    sepgp_prices:UpdatePrices(sepgp_custom_prices);
+  if (SimpleShareEPGPPrices and sepgp_custom_prices) then
+    SimpleShareEPGPPrices:UpdatePrices(sepgp_custom_prices);
   end
 end
 
 function SimpleShareEPGP:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
   local price
   if (itemstring) then
-    price = sepgp_prices:GetPrice(itemstring, SimpleSharedEPGPCharacterConfig.progress);
+    price = SimpleShareEPGPPrices:GetPrice(itemstring, SimpleSharedEPGPCharacterConfig.progress);
   elseif (itemlink) then
-    price = sepgp_prices:GetPrice(itemlink, SimpleSharedEPGPCharacterConfig.progress);
+    price = SimpleShareEPGPPrices:GetPrice(itemlink, SimpleSharedEPGPCharacterConfig.progress);
   end
   if not price then return end
   local line_limit, left1,right1
@@ -1960,7 +1960,7 @@ function SimpleShareEPGP:tradeLoot(playerState,targetState)
     if (itemLink) then
       local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
       if (link_found) then
-        local price = sepgp_prices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
+        local price = SimpleShareEPGPPrices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
         if not (price) or price == 0 then
           return
         end
@@ -2101,7 +2101,7 @@ function SimpleShareEPGP:processLoot(player, itemLink, source)
       return
     end
 
-    local price = sepgp_prices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
+    local price = SimpleShareEPGPPrices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
     if (not (price)) or (price == 0) then
       return
     end
@@ -2423,4 +2423,4 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
+-- GLOBALS: sepgp_standings,sepgp_bids

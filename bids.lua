@@ -145,20 +145,20 @@ end
 
 function sepgp_bids:BuildBidsTable()
   -- {name,class,ep,gp,ep/gp[,main]}
-  table.sort(SimpleShareEPGP.bids_main, pr_sorter_bids)
-  table.sort(SimpleShareEPGP.bids_off, pr_sorter_bids)
-  return SimpleShareEPGP.bids_main, SimpleShareEPGP.bids_off
+  table.sort(SimpleShareEPGP.bids_main, pr_sorter_bids);
+  table.sort(SimpleShareEPGP.bids_off, pr_sorter_bids);
+  return SimpleShareEPGP.bids_main, SimpleShareEPGP.bids_off;
 end
 
 function sepgp_bids:OnTooltipUpdate()
   if not (SimpleShareEPGP.bid_item and SimpleShareEPGP.bid_item.link) then return end
-  local link = SimpleShareEPGP.bid_item.link
-  local itemName = SimpleShareEPGP.bid_item.name
-  local price = sepgp_prices:GetPrice(link, SimpleSharedEPGPCharacterConfig.progress)
-  local offspec
+  local link = SimpleShareEPGP.bid_item.link;
+  local itemName = SimpleShareEPGP.bid_item.name;
+  local price = SimpleShareEPGPPrices:GetPrice(link, SimpleSharedEPGPCharacterConfig.progress);
+  local offspec;
   if not price then 
-    price = "<n/a>"
-    offspec = "<n/a>"
+    price = "<n/a>";
+    offspec = "<n/a>";
   else
     offspec = math.floor(price * SimpleSharedEPGPCharacterConfig.discount);
   end
@@ -265,4 +265,4 @@ function sepgp_bids:OnTooltipUpdate()
   end   
 end
 
--- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
+-- GLOBALS: sepgp_standings,sepgp_bids

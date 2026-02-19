@@ -124,4 +124,4 @@ function SimpleSharedEPGPLogs:OnTooltipUpdate()
   end  
 end
 
--- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
+-- GLOBALS: sepgp_standings,sepgp_bids

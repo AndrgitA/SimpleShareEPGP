@@ -776,9 +776,9 @@ local function get_adjusted_price(price,tier,progress)
   return math.floor(progress_scaling[progress][tier] * price)
 end
 
-sepgp_prices = SimpleShareEPGP:NewModule("sepgp_prices", "AceDB-2.0")
+SimpleShareEPGPPrices = SimpleShareEPGP:NewModule("SimpleShareEPGPPrices", "AceDB-2.0");
 
-function sepgp_prices:GetPrice(item, progress)
+function SimpleShareEPGPPrices:GetPrice(item, progress)
   if not progress then progress = "T3" end
   local itemID,found,_,itemString,data,tier,is,il
   local price
@@ -811,7 +811,7 @@ function sepgp_prices:GetPrice(item, progress)
   return price
 end
 
-function sepgp_prices:UpdatePrices(modify)
+function SimpleShareEPGPPrices:UpdatePrices(modify)
   if (type(modify) ~= "table") then
     return;
   end
@@ -831,4 +831,4 @@ function sepgp_prices:UpdatePrices(modify)
   SimpleShareEPGP:debugPrint(L["Items price updated"]);
 end
 
--- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
+-- GLOBALS: sepgp_standings,sepgp_bids
