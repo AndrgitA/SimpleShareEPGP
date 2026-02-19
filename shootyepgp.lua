@@ -572,16 +572,6 @@ function sepgp:OnEnable() -- PLAYER_LOGIN (2)
     sepgp:SetRefresh(true)
     sepgp:testLootPrompt()
   end)
-  if sepgp._playerLevel and sepgp._playerLevel < MAX_PLAYER_LEVEL then
-    self:RegisterEvent("PLAYER_LEVEL_UP", function()
-        if (arg1) then
-          sepgp._playerLevel = tonumber(arg1)
-          if sepgp._playerLevel == MAX_PLAYER_LEVEL then
-            sepgp:UnregisterEvent("PLAYER_LEVEL_UP")
-          end
-        end
-      end)
-  end
   self:RegisterEvent("CHAT_MSG_RAID","captureLootCall")
   self:RegisterEvent("CHAT_MSG_RAID_LEADER","captureLootCall")
   self:RegisterEvent("CHAT_MSG_RAID_WARNING","captureLootCall")
@@ -647,6 +637,7 @@ function sepgp:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later than PLAYER
   if pfUI ~= nil and pfUI.loot ~= nil and type(pfUI.loot.UpdateLootFrame) == "function" then
     self:SecureHook(pfUI.loot, "UpdateLootFrame", "pfUI_UpdateLootFrame")
   end
+
   self._hasInitFull = true
 end
 
@@ -745,6 +736,11 @@ function sepgp:delayedInit()
     self:shareSettings()
   end
   self:defaultPrint(string.format(L["v%s Loaded."],sepgp._versionString))
+  
+  -- update prices from config.lua
+  if (sepgp_prices and sepgp_custom_prices) then
+    sepgp_prices:UpdatePrices(sepgp_custom_prices);
+  end
 end
 
 function sepgp:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)

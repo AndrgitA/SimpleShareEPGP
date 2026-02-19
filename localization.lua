@@ -216,6 +216,7 @@ Results will print here when done.]],
   ["Remove member from DB"] = true,
   ["Group remove member"] = true,
   ["№"] = true,
+  ["Items price updated"] = true,
 } end)
 
 L:RegisterTranslations("zhCN", function() return {

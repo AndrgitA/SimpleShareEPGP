@@ -300,10 +300,10 @@ function sepgp_standings:OnEnable()
         )
         if (sepgp.isAdminUnit()) then
           D:AddLine(
-          "text", L["Import"],
-          "tooltipText", L["Import standings from csv."],
-          "func", function() sepgp_standings:Import() end
-        )
+            "text", L["Import"],
+            "tooltipText", L["Import standings from csv."],
+            "func", function() sepgp_standings:Import() end
+          )
         end
   		end
     )

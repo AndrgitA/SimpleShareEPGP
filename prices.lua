@@ -675,7 +675,6 @@ local prices = {
   [18832] = {24,"T1"}; --Brutality Blade
   [18842] = {24,"T1"}; --Staff of Dominance
   [18861] = {4,"T1"}; --Flamewalker Legplates
-  [18861] = {4,"T1"}; --Flamewalker Legplates
   [18870] = {8,"T1"}; --Helm of the Lifegiver
   [18872] = {8,"T1"}; --Manastorm Leggings
   [18875] = {42,"T1"}; --Salamander Scale Pants
@@ -817,6 +816,26 @@ function sepgp_prices:GetPrice(item, progress)
   end
   
   return price
+end
+
+function sepgp_prices:UpdatePrices(modify)
+  if (type(modify) ~= "table") then
+    return;
+  end
+
+  local _price, _tier;
+  for i, v in pairs(modify) do
+    if (type(v) == "table" and v[1]) then
+      _price, _tier = prices[i] and prices[i][1] or 0, prices[i] and prices[i][2] or nil;
+
+      prices[i] = {
+        v[1] or _price,
+        v[2] or _tier,
+      };
+    end
+  end
+
+  sepgp:debugPrint(L["Items price updated"]);
 end
 
 -- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
