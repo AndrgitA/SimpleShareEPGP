@@ -77,14 +77,14 @@ local tooltipAddonString = "|cff9664c8" .. L["AddonName"] .. "|r";
 local raidStatus,lastRaidStatus
 local lastUpdate = 0
 local needInit,needRefresh = true
-local shooty_debugchat
+local SimpleShareDebugChat
 local running_check,running_bid
 local partyUnit,raidUnit = {},{}
 local hexColorQuality = {}
 local bids_blacklist = {},{}
 local bidlink = {
-  ["ms"]=L["|cffFF3333|Hshootybid:1:$ML|h[Mainspec/NEED]|h|r"],
-  ["os"]=L["|cff009900|Hshootybid:2:$ML|h[Offspec/GREED]|h|r"]
+  ["ms"]=L["|cffFF3333|Hsimpleshareepgpbid:1:$ML|h[Mainspec/NEED]|h|r"],
+  ["os"]=L["|cff009900|Hsimpleshareepgpbid:2:$ML|h[Offspec/GREED]|h|r"]
 }
 local options
 do
@@ -685,9 +685,9 @@ function SimpleShareEPGP:AceEvent_FullyInitialized() -- SYNTHETIC EVENT, later t
     local cf = getglobal("ChatFrame"..i)
     local tabName = tab:GetText()
     if tab ~= nil and (string.lower(tabName) == "debug") then
-      shooty_debugchat = cf
-      ChatFrame_RemoveAllMessageGroups(shooty_debugchat)
-      shooty_debugchat:SetMaxLines(1024)
+      SimpleShareDebugChat = cf
+      ChatFrame_RemoveAllMessageGroups(SimpleShareDebugChat)
+      SimpleShareDebugChat:SetMaxLines(1024)
       break
     end
   end
@@ -1022,9 +1022,9 @@ function SimpleShareEPGP:flashFrame(frame)
 end
 
 function SimpleShareEPGP:debugPrint(msg)
-  if (shooty_debugchat) then
-    shooty_debugchat:AddMessage(string.format(out,msg))
-    self:flashFrame(shooty_debugchat)
+  if (SimpleShareDebugChat) then
+    SimpleShareDebugChat:AddMessage(string.format(out,msg))
+    self:flashFrame(SimpleShareDebugChat)
   else
     self:defaultPrint(msg)
   end
@@ -2293,7 +2293,7 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   OnCancel = function(_,reason)
     if reason == "clicked" then
       SimpleSharedEPGPLoot:Toggle(true)
-      SimpleShareEPGP:defaultPrint(L["Loot info can be cleared at any time from the Tablet context menu or '/shooty clearloot' command"])
+      SimpleShareEPGP:defaultPrint(L["Loot info can be cleared at any time from the Tablet context menu or '/simpleshareepgp clearloot' command"])
     end
   end,
   timeout = 0,
