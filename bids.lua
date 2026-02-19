@@ -154,7 +154,7 @@ function sepgp_bids:OnTooltipUpdate()
   if not (SimpleShareEPGP.bid_item and SimpleShareEPGP.bid_item.link) then return end
   local link = SimpleShareEPGP.bid_item.link
   local itemName = SimpleShareEPGP.bid_item.name
-  local price = sepgp_prices:GetPrice(link,sepgp_progress)
+  local price = sepgp_prices:GetPrice(link, SimpleSharedEPGPCharacterConfig.progress)
   local offspec
   if not price then 
     price = "<n/a>"
@@ -265,5 +265,5 @@ function sepgp_bids:OnTooltipUpdate()
   end   
 end
 
--- GLOBALS: sepgp_progress,sepgp_discount
+-- GLOBALS: sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids

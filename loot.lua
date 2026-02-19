@@ -122,5 +122,5 @@ function SimpleSharedEPGPLoot:OnTooltipUpdate()
   end
 end
 
--- GLOBALS: sepgp_progress,sepgp_discount
+-- GLOBALS: sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot

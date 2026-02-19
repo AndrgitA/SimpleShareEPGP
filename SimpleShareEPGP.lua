@@ -66,6 +66,7 @@ SimpleSharedEPGPCharacterConfig = {};
 SimpleSharedEPGPCharacterConfigDefault = {
   decay = SimpleShareEPGP.VARS.decay,
   minep = SimpleShareEPGP.VARS.minep,
+  progress = "T1",
 };
 
 sepgp_table_db = {};
@@ -257,7 +258,7 @@ local admincmd, membercmd = {
       name = L["Progress"],
       desc = L["Print Progress Multiplier."],
       func = function()
-        SimpleShareEPGP:defaultPrint(sepgp_progress)
+        SimpleShareEPGP:defaultPrint(SimpleSharedEPGPCharacterConfig.progress);
       end,
       order = 5,
     },
@@ -308,7 +309,7 @@ local admincmd, membercmd = {
     --   name = L["Progress"],
     --   desc = L["Print Progress Multiplier."],
     --   func = function()
-    --     SimpleShareEPGP:defaultPrint(sepgp_progress)
+    --     SimpleShareEPGP:defaultPrint(SimpleSharedEPGPCharacterConfig.progress);
     --   end,
     --   order = 2,
     -- },
@@ -470,7 +471,7 @@ function SimpleShareEPGP:buildMenu()
     }
     options.args["progress_tier_header"] = {
       type = "header",
-      name = string.format(L["Progress Setting: %s"],sepgp_progress),
+      name = string.format(L["Progress Setting: %s"], SimpleSharedEPGPCharacterConfig.progress),
       order = 85,
       hidden = function()
         return SimpleShareEPGP.isAdminUnit();
@@ -485,9 +486,9 @@ function SimpleShareEPGP:buildMenu()
         return true;
         -- return not SimpleShareEPGP.isAdminUnit();
       end,
-      get = function() return sepgp_progress end,
+      get = function() return SimpleSharedEPGPCharacterConfig.progress end,
       set = function(v) 
-        sepgp_progress = v 
+        SimpleSharedEPGPCharacterConfig.progress = v;
         SimpleShareEPGP:refreshPRTablets()
         if (SimpleShareEPGP.isRootUnit()) then
           SimpleShareEPGP:shareSettings(true)
@@ -625,7 +626,6 @@ end
 
 function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
   SimpleShareEPGP:InitAddonVariables();
-  if sepgp_progress == nil then sepgp_progress = "T1" end
   if sepgp_discount == nil then sepgp_discount = 0.25 end
 
   self:RegisterDB("simple_share_epgp_fubar")
@@ -829,9 +829,9 @@ end
 function SimpleShareEPGP:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
   local price
   if (itemstring) then
-    price = sepgp_prices:GetPrice(itemstring,sepgp_progress)
+    price = sepgp_prices:GetPrice(itemstring, SimpleSharedEPGPCharacterConfig.progress);
   elseif (itemlink) then
-    price = sepgp_prices:GetPrice(itemlink,sepgp_progress)
+    price = sepgp_prices:GetPrice(itemlink, SimpleSharedEPGPCharacterConfig.progress);
   end
   if not price then return end
   local line_limit, left1,right1
@@ -1155,9 +1155,9 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
         decay = tonumber(decay)
         minep = tonumber(minep)
         local settings_notice
-        if progress and progress ~= sepgp_progress then
-          sepgp_progress = progress
-          settings_notice = L["New raid progress"]
+        if (progress and progress ~= SimpleSharedEPGPCharacterConfig.progress) then
+          SimpleSharedEPGPCharacterConfig.progress = progress;
+          settings_notice = L["New raid progress"];
         end
         if discount and discount ~= sepgp_discount then
           sepgp_discount = discount
@@ -1186,7 +1186,7 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
           local sender_rank = string.format("%s",C:Colorize(BC:GetHexColor(class), sender));
           settings_notice = settings_notice..string.format(L[" settings accepted from %s"], sender_rank);
           self:defaultPrint(settings_notice);
-          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], sepgp_progress);
+          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], SimpleSharedEPGPCharacterConfig.progress);
           self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], sepgp_discount * 100);
           self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleSharedEPGPCharacterConfig.minep);
         end
@@ -1211,7 +1211,7 @@ function SimpleShareEPGP:shareSettings(force)
   -- local now = GetTime()
   -- if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
   --   self._lastSettingsShare = now
-  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1",sepgp_progress,sepgp_discount,SimpleSharedEPGPCharacterConfig.decay,SimpleSharedEPGPCharacterConfig.minep)
+  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1", SimpleSharedEPGPCharacterConfig.progress,sepgp_discount,SimpleSharedEPGPCharacterConfig.decay,SimpleSharedEPGPCharacterConfig.minep)
   --   self:anounceAddonMessage(addonMsg);
   -- end
 end
@@ -1960,7 +1960,7 @@ function SimpleShareEPGP:tradeLoot(playerState,targetState)
     if (itemLink) then
       local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
       if (link_found) then
-        local price = sepgp_prices:GetPrice(itemString,sepgp_progress)
+        local price = sepgp_prices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
         if not (price) or price == 0 then
           return
         end
@@ -2101,7 +2101,7 @@ function SimpleShareEPGP:processLoot(player, itemLink, source)
       return
     end
 
-    local price = sepgp_prices:GetPrice(itemString, sepgp_progress);
+    local price = sepgp_prices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
     if (not (price)) or (price == 0) then
       return
     end
@@ -2222,14 +2222,14 @@ function SimpleShareEPGP:suggestedAwardEP()
     end
   end
   if not currentTier then 
-    return SimpleShareEPGP.VARS.baseaward_ep
+    return SimpleShareEPGP.VARS.baseaward_ep;
   else
-    multiplier = zone_multipliers[sepgp_progress][currentTier]
+    multiplier = zone_multipliers[SimpleSharedEPGPCharacterConfig.progress][currentTier];
   end
   if (multiplier) then
-    return multiplier*SimpleShareEPGP.VARS.baseaward_ep
+    return multiplier*SimpleShareEPGP.VARS.baseaward_ep;
   else
-    return SimpleShareEPGP.VARS.baseaward_ep
+    return SimpleShareEPGP.VARS.baseaward_ep;
   end
 end
 
@@ -2423,5 +2423,5 @@ function SimpleShareEPGP:EasyMenu(menuList, menuFrame, anchor, x, y, displayMode
   ToggleDropDownMenu(1, nil, menuFrame, anchor, x, y)
 end
 
--- GLOBALS: sepgp_progress,sepgp_discount
+-- GLOBALS: sepgp_discount
 -- GLOBALS: sepgp_prices,sepgp_standings,sepgp_bids
