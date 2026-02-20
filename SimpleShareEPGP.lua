@@ -894,7 +894,7 @@ function SimpleShareEPGP:OnUpdate(elapsed)
 end
 
 function SimpleShareEPGP:SetItemRef(link, name, button)
-  if string.sub(link,1,9) == "simpleshareepgpbid" then
+  if (string.sub(link,1,18) == "simpleshareepgpbid") then
     local _,_,bid,masterlooter = string.find(link,"simpleshareepgpbid:(%d+):(%w+)")
     if bid == "1" then
       bid = "+"
@@ -1151,47 +1151,49 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
         self:shareSettings()
       end
     elseif who == "SETTINGS" then
-      for progress,discount,decay,minep in string.gfind(what, "([^:]+):([^:]+):([^:]+):([^:]+)") do
-        discount = tonumber(discount)
-        decay = tonumber(decay)
-        minep = tonumber(minep)
-        local settings_notice
-        if (progress and progress ~= SimpleShareEPGPCharacterConfig.progress) then
-          SimpleShareEPGPCharacterConfig.progress = progress;
-          settings_notice = L["New raid progress"];
-        end
-        if (discount and discount ~= SimpleShareEPGPCharacterConfig.discount) then
-          SimpleShareEPGPCharacterConfig.discount = discount
-          if (settings_notice) then
-            settings_notice = settings_notice..L[", offspec price %"]
-          else
-            settings_notice = L["New offspec price %"]
-          end
-        end
-        if (minep and minep ~= SimpleShareEPGPCharacterConfig.minep) then
-          SimpleShareEPGPCharacterConfig.minep = minep;
-          settings_notice = L["New Minimum EP"];
-          SimpleShareEPGP:refreshPRTablets();
-        end
-        if decay and decay ~= SimpleShareEPGPCharacterConfig.decay then
-          SimpleShareEPGPCharacterConfig.decay = decay;
-          if (SimpleShareEPGP.isAdminUnit()) then
-            if (settings_notice) then
-              settings_notice = settings_notice..L[", decay %"]
-            else
-              settings_notice = L["New decay %"]
-            end
-          end
-        end
-        if (settings_notice) and settings_notice ~= "" then
-          local sender_rank = string.format("%s",C:Colorize(BC:GetHexColor(class), sender));
-          settings_notice = settings_notice..string.format(L[" settings accepted from %s"], sender_rank);
-          self:defaultPrint(settings_notice);
-          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], SimpleShareEPGPCharacterConfig.progress);
-          self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], SimpleShareEPGPCharacterConfig.discount * 100);
-          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep);
-        end
-      end
+      -- TODL: need smart sync data. may be later ???)
+
+      -- for progress,discount,decay,minep in string.gfind(what, "([^:]+):([^:]+):([^:]+):([^:]+)") do
+      --   discount = tonumber(discount)
+      --   decay = tonumber(decay)
+      --   minep = tonumber(minep)
+      --   local settings_notice
+      --   if (progress and progress ~= SimpleShareEPGPCharacterConfig.progress) then
+      --     SimpleShareEPGPCharacterConfig.progress = progress;
+      --     settings_notice = L["New raid progress"];
+      --   end
+      --   if (discount and discount ~= SimpleShareEPGPCharacterConfig.discount) then
+      --     SimpleShareEPGPCharacterConfig.discount = discount
+      --     if (settings_notice) then
+      --       settings_notice = settings_notice..L[", offspec price %"]
+      --     else
+      --       settings_notice = L["New offspec price %"]
+      --     end
+      --   end
+      --   if (minep and minep ~= SimpleShareEPGPCharacterConfig.minep) then
+      --     SimpleShareEPGPCharacterConfig.minep = minep;
+      --     settings_notice = L["New Minimum EP"];
+      --     SimpleShareEPGP:refreshPRTablets();
+      --   end
+      --   if decay and decay ~= SimpleShareEPGPCharacterConfig.decay then
+      --     SimpleShareEPGPCharacterConfig.decay = decay;
+      --     if (SimpleShareEPGP.isAdminUnit()) then
+      --       if (settings_notice) then
+      --         settings_notice = settings_notice..L[", decay %"]
+      --       else
+      --         settings_notice = L["New decay %"]
+      --       end
+      --     end
+      --   end
+      --   if (settings_notice) and settings_notice ~= "" then
+      --     local sender_rank = string.format("%s",C:Colorize(BC:GetHexColor(class), sender));
+      --     settings_notice = settings_notice..string.format(L[" settings accepted from %s"], sender_rank);
+      --     self:defaultPrint(settings_notice);
+      --     self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], SimpleShareEPGPCharacterConfig.progress);
+      --     self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], SimpleShareEPGPCharacterConfig.discount * 100);
+      --     self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep);
+      --   end
+      -- end
     end
     if msg and msg~="" then
       self:defaultPrint(msg)
@@ -1779,13 +1781,15 @@ function SimpleShareEPGP:captureLootCall(text, sender)
 
   if (whisperkw_found) or (mskw_found) or (oskw_found) then
     _,_,itemLink = string.find(text,"(|c%x+|H[eimt:%d]+|h%[[%w%s',%-]+%]|h|r)")
+    -- _,_,itemLink = string.find(text,"(|c%x+|H[eimt:%d]+|h%[[%w%s',:%-]+%]|h|r)") -- for receipts
     if (itemLink) and (itemLink ~= "") then
       link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
     end
     if (link_found) then
       local quality = hexColorQuality[itemColor] or -1;
       if (quality >= SimpleShareEPGP.VARS.minimalItemLootQualiti) then
-        if (IsRaidLeader() or self:lootMaster()) and (sender == self._playerName) then
+        -- if (IsRaidLeader() or self:lootMaster()) and (sender == self._playerName) then
+        if (self:lootMaster() and sender == self._playerName) then
           self:clearBids(true)
           SimpleShareEPGP.bid_item.link = itemString
           SimpleShareEPGP.bid_item.linkFull = itemLink
@@ -1809,7 +1813,8 @@ function SimpleShareEPGP:captureBid(text, sender)
     return;
   end
 
-  if not (IsRaidLeader() or self:lootMaster()) then
+  if (not self:lootMaster()) then
+  -- if not (IsRaidLeader() or self:lootMaster()) then
     return;
   end
 
@@ -2173,12 +2178,11 @@ function SimpleShareEPGP:inRaid(name)
 end
 
 function SimpleShareEPGP:lootMaster()
-  local method, lootmasterID = GetLootMethod()
-  if method == "master" and lootmasterID == 0 then
-    return true
-  else
-    return false
+  local method, lootmasterID = GetLootMethod();
+  if (method == "master" and lootmasterID == 0) then
+    return true;
   end
+  return false;
 end
 
 function SimpleShareEPGP:make_escable(framename,operation)

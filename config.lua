@@ -1,6 +1,6 @@
-CUSTOM_SEPGP_UKNOWN_GUILD_NAME = "CUSTOM_SEPGP_UKNOWN_GUILD_NAME";
+SIMPLE_SHARE_EPGP_UKNOWN_GUILD_NAME = "SIMPLE_SHARE_EPGP_UKNOWN_GUILD_NAME";
 
-sepgp_config = {
+simple_share_epgp_config = {
   -- Who can edit table; Кто может редактировать таблицу.
   -- isAdmin
   canEditDB = {
@@ -27,6 +27,6 @@ sepgp_config = {
     [id] = {price},
   }
 ]]
-sepgp_custom_prices = {
+simple_share_epgp_custom_prices = {
 
 };
