@@ -894,8 +894,8 @@ function SimpleShareEPGP:OnUpdate(elapsed)
 end
 
 function SimpleShareEPGP:SetItemRef(link, name, button)
-  if string.sub(link,1,9) == "shootybid" then
-    local _,_,bid,masterlooter = string.find(link,"shootybid:(%d+):(%w+)")
+  if string.sub(link,1,9) == "simpleshareepgpbid" then
+    local _,_,bid,masterlooter = string.find(link,"simpleshareepgpbid:(%d+):(%w+)")
     if bid == "1" then
       bid = "+"
     elseif bid == "2" then

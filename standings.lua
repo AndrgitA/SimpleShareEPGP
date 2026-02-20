@@ -48,64 +48,64 @@ local role_text = {
   [CASTER] = L["CASTER"],
   [DPS] = L["PHYS DPS"],
 }
-local shooty_export = CreateFrame("Frame", "shooty_exportframe", UIParent)
-shooty_export:SetWidth(250)
-shooty_export:SetHeight(150)
-shooty_export:SetPoint('TOP', UIParent, 'TOP', 0,-80)
-shooty_export:SetFrameStrata('DIALOG')
-shooty_export:Hide()
-shooty_export:SetBackdrop({
+local SimpleShareEPGPExport = CreateFrame("Frame", "SimpleShareEPGPExportFrame", UIParent)
+SimpleShareEPGPExport:SetWidth(250)
+SimpleShareEPGPExport:SetHeight(150)
+SimpleShareEPGPExport:SetPoint('TOP', UIParent, 'TOP', 0,-80)
+SimpleShareEPGPExport:SetFrameStrata('DIALOG')
+SimpleShareEPGPExport:Hide()
+SimpleShareEPGPExport:SetBackdrop({
   bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
   edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
   tile = true,
   tileSize = 16,
   edgeSize = 16,
   insets = {left = 5, right = 5, top = 5, bottom = 5}
-  })
-shooty_export:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b)
-shooty_export:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b)
-shooty_export.action = CreateFrame("Button","shooty_exportaction", shooty_export, "UIPanelButtonTemplate")
-shooty_export.action:SetWidth(100)
-shooty_export.action:SetHeight(22)
-shooty_export.action:SetPoint("BOTTOM",0,-20)
-shooty_export.action:SetText("Import")
-shooty_export.action:Hide()
-shooty_export.action:SetScript("OnClick",function() SimpleShareEPGPStandings.import() end)
-shooty_export.title = shooty_export:CreateFontString(nil,"OVERLAY")
-shooty_export.title:SetPoint("TOP",0,-5)
-shooty_export.title:SetFont("Fonts\\ARIALN.TTF", 12)
-shooty_export.title:SetWidth(200)
-shooty_export.title:SetJustifyH("LEFT")
-shooty_export.title:SetJustifyV("CENTER")
-shooty_export.title:SetShadowOffset(1, -1)
-shooty_export.edit = CreateFrame("EditBox", "shooty_exportedit", shooty_export)
-shooty_export.edit:SetMultiLine(true)
-shooty_export.edit:SetAutoFocus(true)
-shooty_export.edit:EnableMouse(true)
-shooty_export.edit:SetMaxLetters(0)
-shooty_export.edit:SetHistoryLines(1)
-shooty_export.edit:SetFont('Fonts\\ARIALN.ttf', 12, 'THINOUTLINE')
-shooty_export.edit:SetWidth(290)
-shooty_export.edit:SetHeight(190)
-shooty_export.edit:SetScript("OnEscapePressed", function() 
-    shooty_export.edit:SetText("")
-    shooty_export:Hide() 
-  end)
-shooty_export.edit:SetScript("OnEditFocusGained", function()
-  shooty_export.edit:HighlightText()
+})
+SimpleShareEPGPExport:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b)
+SimpleShareEPGPExport:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b)
+SimpleShareEPGPExport.action = CreateFrame("Button","SimpleShareEPGPExportAction", SimpleShareEPGPExport, "UIPanelButtonTemplate")
+SimpleShareEPGPExport.action:SetWidth(100)
+SimpleShareEPGPExport.action:SetHeight(22)
+SimpleShareEPGPExport.action:SetPoint("BOTTOM",0,-20)
+SimpleShareEPGPExport.action:SetText("Import")
+SimpleShareEPGPExport.action:Hide()
+SimpleShareEPGPExport.action:SetScript("OnClick",function() SimpleShareEPGPStandings.import() end)
+SimpleShareEPGPExport.title = SimpleShareEPGPExport:CreateFontString(nil,"OVERLAY")
+SimpleShareEPGPExport.title:SetPoint("TOP",0,-5)
+SimpleShareEPGPExport.title:SetFont("Fonts\\ARIALN.TTF", 12)
+SimpleShareEPGPExport.title:SetWidth(200)
+SimpleShareEPGPExport.title:SetJustifyH("LEFT")
+SimpleShareEPGPExport.title:SetJustifyV("CENTER")
+SimpleShareEPGPExport.title:SetShadowOffset(1, -1)
+SimpleShareEPGPExport.edit = CreateFrame("EditBox", "SimpleShareEPGPExportEdit", SimpleShareEPGPExport)
+SimpleShareEPGPExport.edit:SetMultiLine(true)
+SimpleShareEPGPExport.edit:SetAutoFocus(true)
+SimpleShareEPGPExport.edit:EnableMouse(true)
+SimpleShareEPGPExport.edit:SetMaxLetters(0)
+SimpleShareEPGPExport.edit:SetHistoryLines(1)
+SimpleShareEPGPExport.edit:SetFont('Fonts\\ARIALN.ttf', 12, 'THINOUTLINE')
+SimpleShareEPGPExport.edit:SetWidth(290)
+SimpleShareEPGPExport.edit:SetHeight(190)
+SimpleShareEPGPExport.edit:SetScript("OnEscapePressed", function() 
+  SimpleShareEPGPExport.edit:SetText("")
+  SimpleShareEPGPExport:Hide() 
 end)
-shooty_export.edit:SetScript("OnCursorChanged", function() 
-  shooty_export.edit:HighlightText()
+SimpleShareEPGPExport.edit:SetScript("OnEditFocusGained", function()
+  SimpleShareEPGPExport.edit:HighlightText()
 end)
-shooty_export.AddSelectText = function(txt)
-  shooty_export.edit:SetText(txt)
-  shooty_export.edit:HighlightText()
+SimpleShareEPGPExport.edit:SetScript("OnCursorChanged", function() 
+  SimpleShareEPGPExport.edit:HighlightText()
+end)
+SimpleShareEPGPExport.AddSelectText = function(txt)
+  SimpleShareEPGPExport.edit:SetText(txt)
+  SimpleShareEPGPExport.edit:HighlightText()
 end
-shooty_export.scroll = CreateFrame("ScrollFrame", "shooty_exportscroll", shooty_export, 'UIPanelScrollFrameTemplate')
-shooty_export.scroll:SetPoint('TOPLEFT', shooty_export, 'TOPLEFT', 8, -30)
-shooty_export.scroll:SetPoint('BOTTOMRIGHT', shooty_export, 'BOTTOMRIGHT', -30, 8)
-shooty_export.scroll:SetScrollChild(shooty_export.edit)
-SimpleShareEPGP:make_escable("shooty_exportframe","add")
+SimpleShareEPGPExport.scroll = CreateFrame("ScrollFrame", "SimpleShareEPGPExportScroll", SimpleShareEPGPExport, 'UIPanelScrollFrameTemplate')
+SimpleShareEPGPExport.scroll:SetPoint('TOPLEFT', SimpleShareEPGPExport, 'TOPLEFT', 8, -30)
+SimpleShareEPGPExport.scroll:SetPoint('BOTTOMRIGHT', SimpleShareEPGPExport, 'BOTTOMRIGHT', -30, 8)
+SimpleShareEPGPExport.scroll:SetScrollChild(SimpleShareEPGPExport.edit)
+SimpleShareEPGP:make_escable("SimpleShareEPGPExportFrame","add")
 
 function SimpleShareEPGPStandings:GetExportData()
   local t = {};
@@ -134,13 +134,13 @@ function SimpleShareEPGPStandings:GetExportData()
 end
 
 function SimpleShareEPGPStandings:Export()
-  shooty_export.action:Hide();
-  shooty_export.title:SetText(C:Gold(L["Ctrl-C to copy. Esc to close."]));
+  SimpleShareEPGPExport.action:Hide();
+  SimpleShareEPGPExport.title:SetText(C:Gold(L["Ctrl-C to copy. Esc to close."]));
   
-  shooty_export:Show();
+  SimpleShareEPGPExport:Show();
   
   local txt = SimpleShareEPGPStandings:GetExportData();
-  shooty_export.AddSelectText(txt);
+  SimpleShareEPGPExport.AddSelectText(txt);
 end
 
 function sepgp_export_superwow()  
@@ -157,15 +157,15 @@ end
 
 function SimpleShareEPGPStandings:Import()
   if (not SimpleShareEPGP.isAdminUnit()) then return end
-  shooty_export.action:Show()
-  shooty_export.title:SetText(C:Red("Ctrl-V to paste data. Esc to close."))
-  shooty_export.AddSelectText(L.IMPORT_WARNING)
-  shooty_export:Show()
+  SimpleShareEPGPExport.action:Show()
+  SimpleShareEPGPExport.title:SetText(C:Red("Ctrl-V to paste data. Esc to close."))
+  SimpleShareEPGPExport.AddSelectText(L.IMPORT_WARNING)
+  SimpleShareEPGPExport:Show()
 end
 
 function SimpleShareEPGPStandings.import()
   if (not SimpleShareEPGP.isAdminUnit()) then return end
-  local text = shooty_export.edit:GetText()
+  local text = SimpleShareEPGPExport.edit:GetText()
   local importFaildString = L["Failed to import:\n"];
   local errorFlag = false;
 
@@ -182,7 +182,7 @@ function SimpleShareEPGPStandings.import()
   end
 
   if (errorFlag) then
-    shooty_export.edit:SetText(importFaildString);
+    SimpleShareEPGPExport.edit:SetText(importFaildString);
     SimpleShareEPGP:defaultPrint(L["Import cancelled due to invalid data"]);
   else
     SimpleShareEPGP:clean_table_db();
@@ -198,7 +198,7 @@ function SimpleShareEPGPStandings.import()
     end
     SimpleShareEPGP:ClearLogs();
 
-    shooty_export.edit:SetText(L["Import finished"]);
+    SimpleShareEPGPExport.edit:SetText(L["Import finished"]);
     SimpleShareEPGP:defaultPrint(string.format(L["Imported %d members."], table.getn(tmpTable)));
   end
   SimpleShareEPGP:refreshPRTablets();
