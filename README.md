@@ -1,44 +1,70 @@
-# shootyepgp
-Guild Helper addon for EPGP loot system in WoW (1.12)
+# Simple Share EPGP
 
-## setup
-shootyepgp requires some modifications to guild permissions for officer notes by the guild leader.  
+## 👑 Interface and Permissions 👥
+Different interface depending on the switch
 
-### Version 3.x (current)
-- officer notes must be set to visible by all and editable **only** by the EPGP admins (eg. officer rank+)
-- public notes are not in use by the addon
+- 👑 For Master Looter (Admin)
+- 👥 For Raid Member (Simple mode)
 
-#### _Version 2.x (deprecated)_ 
-- _public and officer notes must be set to visible by all._
-- _both public and officer notes **must** be editable **only** by the EPGP admins (eg. officer rank+)_
+---
+## 🚀 Main functionality
 
-## tips
-Create a new chatframe (right-click > create new window on chat tab) and name it `debug` (capitalization doesn't matter)  
-Most of the information messages will now print on that frame and not clutter your default chatframe.
+- 👑 - **✏️ Working with points** Add and subtract EP/GP for members
+- 👑 - **😈 Decay:** Set % and apply decay for all points.
+- 👑 - **📊 Offspec Price:** Set % value for offspec items.
+- 👑 - **📦 Members:** Add, Remove, Set Class for member
+- 👑 - **📥 Data Exchange (Import/Export):** A full GUI for moving your EPGP database via CSV strings (`Name;EP;GP;PR;Class`). Perfect for Google Sheets or Excel backups.
+- 👑 - **✂️ Toggle filters:** `Raid Only`.
+- 👥 - **🎲 Smart Bidding:** Players can bid using `+` (MainSpec) or `-` (OffSpec) in raid chat. The addon parses these in real-time, building a priority-sorted table.
+- 👥 - **⚡ Interface mode:** Can switch interface mode for ML/Simple using.
 
-## usage
-Right-click on minimap or FuBar shootyepgp icon will show all available settings.  
-Left-click shows the standings window with everyone's EP, GP and PR values. 
-The standings window can also be toggled with **/shooty show** chat command. 
+---
 
-## features
-- EPGP standings list (all)
-- Simple chatlink click to bid on items (all)
-- Item Bids list (admin/ML)
-- Item GP prices on item tooltips (all)
-- Export standings to csv (all)
-- Configurable EPGP Decay (admin)
-- Configurable Offspec discount (admin)
-- Guild Progression multiplier (admin)
+## ⌨️ Chat Commands
+`/sepgp` or `/simpleshareepgp`
 
-Addon has been designed so that basic member functionality is usable even without the addon. 
-- `/w <masterlooter name> +` (for main spec) or `/w <masterlooter name> -` (for off spec) after the loot officer links a piece of loot and asks for bids in raid chat.  
-- Type `/x +` (where x is the number of the custom channel) or `/x +MainName` if on an alt to respond to a standby list afk check.  
-Having the addon makes everything more convenient, but is not mandatory.
+| Command | Arguments | Description | Access |
+| :--- | :--- | :--- | :---: |
+| `/sepgp show` | `none` | Toggle the interactive Standings table | 👑 |
+| `/sepgp bids` | `none` | Monitor active raid bids | 👑 |
+| `/sepgp clearloot` | `none` | Clear loot data | 👑 |
+| `/sepgp clearlogs` | `none` | Clear logs data | 👑 |
+| `/sepgp offspec` | `none` | Change offspec % for price | 👑 |
+| `/sepgp decay` | `none` | Apply the global decay percentage | 👑 |
+| `/sepgp export_super_wow` | `none` | Export data to folder `Imports` | 👑 |
+| `/sepgp restart` | `none` | Restart addon if having startup problems | 👥 / 👑 |
 
-## epgp basics and help
-[shootyepgp wiki](https://github.com/Road-block/shootyepgp/wiki)
+---
+## 💾 SuperWoW Integration
 
-## download
-- Release version: Download shootyepgp-x.y-11200.zip file from [latest](https://github.com/Road-block/shootyepgp/releases/latest) and extract to AddOns folder.
-- *Alpha version: Download shootyepgp-master.zip from [here](https://github.com/Road-block/shootyepgp/archive/master.zip) extract to AddOns folder and **remove** the -master suffix from the folder so it's just `shootyepgp`.*
+If the **SuperWoW** mod is detected, SEPGP unlocks advanced logging:
+*   **File Export:** Use `/sepgp export_super_wow` to instantly save your entire database into a `.txt` file inside your WoW folder with a timestamped filename.
+---
+
+## 📊 Data Management (Standings)
+
+The addon supports deep customization of the rating display via the **Tablet-2.0**:
+
+
+| Grouping Mode | Description |
+| :--- | :--- |
+| **Class** | Standard sorting by raid class. |
+| **Armor** | Grouping by armor type (Cloth, Leather, Mail, Plate). |
+| **Role** | Role division: Tank, Healer, Caster, Physics DPS. |
+
+---
+## 🛠️ Installation
+1. Download the repository.
+2. Extract the folder into your `Interface\AddOns\` directory.
+3. **Important:** Ensure the folder is named exactly `SimpleShareEPGP` (remove any `-master` suffixes).
+4. Optional: If u need u can also installing [`SimpleShareEPGPOptions`](https://github.com/AndrgitA/SimpleShareEPGPOptions). This mini addon for modify your prices, helping not loss price data if update main addon in next time.
+5. Restart the game or reload the UI.
+
+---
+## 📜 Credits & Acknowledgements
+
+*   **Original Repository:** This addon is a modification (**fork**) of the original **[shootyepgp](https://github.com/Road-block/shootyepgp)** addon. 
+*   **License:** This project is distributed under the terms of the original project's license (where applicable). Please refer to the original repository for primary licensing details.
+
+---
+*Developed for the Vanilla 1.12+ community.*
