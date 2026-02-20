@@ -835,8 +835,8 @@ function SimpleShareEPGP:delayedInit()
   self:defaultPrint(string.format(L["v%s Loaded."],SimpleShareEPGP._versionString))
   
   -- update prices from config.lua
-  if (SimpleShareEPGPPrices and simple_share_epgp_custom_prices) then
-    SimpleShareEPGPPrices:UpdatePrices(simple_share_epgp_custom_prices);
+  if (SimpleShareEPGPPrices and SimpleShareEPGPOptions_Prices) then
+    SimpleShareEPGPPrices:UpdatePrices(SimpleShareEPGPOptions_Prices);
   end
 end
 

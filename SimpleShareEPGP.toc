@@ -4,9 +4,9 @@
 ## Author: Andrgit
 ## X-Website: https://github.com/AndrgitA/SimpleShareEPGP
 ## X-Credits: shooty, Qcat(zhCN), Andrgit
-## Version: 1.8
+## Version: 1.9
 ## X-Alpha: 
-## OptionalDeps: Ace2
+## OptionalDeps: Ace2, SimpleShareEPGPOptions
 ## SavedVariables: SimpleShareEPGPConfig, simple_share_epgp_fubar
 ## SavedVariablesPerCharacter: SimpleShareEPGPCharacterConfig, SimpleShareEPGPLog, SimpleShareEPGPLooted, SimpleShareEPGP_DB
 
