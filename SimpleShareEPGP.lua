@@ -60,6 +60,7 @@ SimpleShareEPGPConfigDefault = {
   groupbyrole = false,
   raidonly = false,
   debug = {},
+  isSimpleModeInterface = true,
 };
 
 SimpleShareEPGPCharacterConfig = {};
@@ -106,45 +107,45 @@ end
 ]]
 function SimpleShareEPGP.isRootUnit()
   --  temporary solution
-  if (SimpleShareEPGP:lootMaster()) then
-    return true;
-  else 
-    return false;
-  end
+  -- if (SimpleShareEPGP:lootMaster()) then
+  --   return true;
+  -- else 
+  --   return false;
+  -- end
 
-  if (SimpleShareEPGP.isRoot) then
-    return true;
-  end
+  -- if (SimpleShareEPGP.isRoot) then
+  --   return true;
+  -- end
 
-  if (not simple_share_epgp_config) then
-    return false;
-  end
+  -- if (not simple_share_epgp_config) then
+  --   return false;
+  -- end
 
-  local canChangeAll = simple_share_epgp_config.canChangeAll;
-  if (not canChangeAll) then
-    return false;
-  end
+  -- local canChangeAll = simple_share_epgp_config.canChangeAll;
+  -- if (not canChangeAll) then
+  --   return false;
+  -- end
 
-  local playerName = SimpleShareEPGP._playerName;
-  local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
+  -- local playerName = SimpleShareEPGP._playerName;
+  -- local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
   
-  if (not playerGuildName) then
-    playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
-  end
+  -- if (not playerGuildName) then
+  --   playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
+  -- end
 
-  for gName, gData in pairs(canChangeAll) do
-    if (gName == playerGuildName and type(gData) == "table") then
-      for i = 1, table.getn(gData) do
-        if (
-          gData[i].rank == playerGuildName or
-          gData[i].name == playerName
-        ) then
-          SimpleShareEPGP.isRoot = true;
-          return true;
-        end
-      end
-    end
-  end
+  -- for gName, gData in pairs(canChangeAll) do
+  --   if (gName == playerGuildName and type(gData) == "table") then
+  --     for i = 1, table.getn(gData) do
+  --       if (
+  --         gData[i].rank == playerGuildName or
+  --         gData[i].name == playerName
+  --       ) then
+  --         SimpleShareEPGP.isRoot = true;
+  --         return true;
+  --       end
+  --     end
+  --   end
+  -- end
 
   return false;
 end
@@ -171,48 +172,50 @@ end
 ]]
 function SimpleShareEPGP.isAdminUnit()
   --  temporary solution
-  if (SimpleShareEPGP:lootMaster()) then
-    return true;
-  else 
-    return false;
-  end
+  return not SimpleShareEPGPConfig.isSimpleModeInterface;
+  -- if (SimpleShareEPGP:lootMaster()) then
+  --   return true;
+  -- else 
+  --   return false;
+  -- end
 
 
-  if (SimpleShareEPGP.isAdmin) then
-    return true;
-  end
 
-  if (not simple_share_epgp_config) then
-    return false;
-  end
+  -- if (SimpleShareEPGP.isAdmin) then
+  --   return true;
+  -- end
 
-  local canEditDB = simple_share_epgp_config.canEditDB;
-  if (not canEditDB) then
-    return false;
-  end
+  -- if (not simple_share_epgp_config) then
+  --   return false;
+  -- end
 
-  local playerName = SimpleShareEPGP._playerName;
-  local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
+  -- local canEditDB = simple_share_epgp_config.canEditDB;
+  -- if (not canEditDB) then
+  --   return false;
+  -- end
 
-  if (not playerGuildName) then
-    playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
-  end
+  -- local playerName = SimpleShareEPGP._playerName;
+  -- local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
 
-  for gName, gData in pairs(canEditDB) do
-    if (gName == playerGuildName and type(gData) == "table") then
-      for i = 1, table.getn(gData) do
-        if (
-          gData[i].rank == playerGuildName or
-          gData[i].name == playerName
-        ) then
-          SimpleShareEPGP.isAdmin = true;
-          return true;
-        end
-      end
-    end
-  end
+  -- if (not playerGuildName) then
+  --   playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
+  -- end
 
-  return false;
+  -- for gName, gData in pairs(canEditDB) do
+  --   if (gName == playerGuildName and type(gData) == "table") then
+  --     for i = 1, table.getn(gData) do
+  --       if (
+  --         gData[i].rank == playerGuildName or
+  --         gData[i].name == playerName
+  --       ) then
+  --         SimpleShareEPGP.isAdmin = true;
+  --         return true;
+  --       end
+  --     end
+  --   end
+  -- end
+
+  -- return false;
 end
 
 local admincmd, membercmd = {
@@ -471,6 +474,16 @@ function SimpleShareEPGP:buildMenu()
         return not SimpleShareEPGP.isAdminUnit();
       end
     }
+    options.args["simple_mode"] = {
+      type = "toggle",
+      name = L["Simple mode"],
+      desc = L["Show all or simple mode interface."],
+      order = 81,
+      get = function() return SimpleShareEPGPConfig.isSimpleModeInterface; end,
+      set = function(v) 
+        SimpleShareEPGPConfig.isSimpleModeInterface = not SimpleShareEPGPConfig.isSimpleModeInterface;
+      end,
+    }
     options.args["progress_tier_header"] = {
       type = "header",
       name = string.format(L["Progress Setting: %s"], SimpleShareEPGPCharacterConfig.progress),
@@ -498,18 +511,18 @@ function SimpleShareEPGP:buildMenu()
       end,
       validate = { ["T3"]=L["4.Naxxramas"], ["T2.5"]=L["3.Temple of Ahn\'Qiraj"], ["T2"]=L["2.Blackwing Lair"], ["T1"]=L["1.Molten Core"]},
     }
-    options.args["report_channel"] = {
-      type = "text",
-      name = L["Reporting channel"],
-      desc = L["Channel used by reporting functions."],
-      order = 95,
-      hidden = function()
-        return not SimpleShareEPGP.isAdminUnit();
-      end,
-      get = function() return SimpleShareEPGPConfig.sayChannel end,
-      set = function(v) SimpleShareEPGPConfig.sayChannel = v end,
-      validate = { "PARTY", "RAID", "GUILD", "OFFICER" },
-    }    
+    -- options.args["report_channel"] = {
+    --   type = "text",
+    --   name = L["Reporting channel"],
+    --   desc = L["Channel used by reporting functions."],
+    --   order = 95,
+    --   hidden = function()
+    --     return not SimpleShareEPGP.isAdminUnit();
+    --   end,
+    --   get = function() return SimpleShareEPGPConfig.sayChannel end,
+    --   set = function(v) SimpleShareEPGPConfig.sayChannel = v end,
+    --   validate = { "PARTY", "RAID", "GUILD", "OFFICER" },
+    -- }    
     options.args["decay"] = {
       type = "execute",
       name = L["Decay EPGP"],

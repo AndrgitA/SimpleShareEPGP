@@ -11,6 +11,8 @@ L:RegisterTranslations("enUS", function() return {
   ["Name"] = true,
   ["Raid Only"] = true,
   ["Only show members in raid."] = true,
+  ["Simple mode"] = true,
+  ["Show all or simple mode interface."] = true,
   ["Restarted"] = true,
   ["Progress"] = true,
   ["Print Progress Multiplier."] = true,
