@@ -18,7 +18,7 @@ SimpleShareEPGP.VARS = {
   decay = 0.9,
   max = 1000,
   maxloglines = 500,
-  prefix = "SEPGP_ANDRGIT_MOD",
+  prefix = "SIMPLE_SHARE_EPGP",
   bop = C:Red("BoP"),
   boe = C:Yellow("BoE"),
   nobind = C:White("NoBind"),
@@ -28,7 +28,7 @@ SimpleShareEPGP.VARS = {
   reminder = C:Red("Unassigned"),
   undefinedClass = "UNDEFINED_CLASS",
   defaultSayChannel = "RAID",
-  unknownGuildName = CUSTOM_SEPGP_UKNOWN_GUILD_NAME or "CUSTOM_SEPGP_UKNOWN_GUILD_NAME",
+  unknownGuildName = SIMPLE_SHARE_EPGP_UKNOWN_GUILD_NAME or "SIMPLE_SHARE_EPGP_UKNOWN_GUILD_NAME",
   minimalItemLootQualiti = 3,
 }
 
@@ -116,11 +116,11 @@ function SimpleShareEPGP.isRootUnit()
     return true;
   end
 
-  if (not sepgp_config) then
+  if (not simple_share_epgp_config) then
     return false;
   end
 
-  local canChangeAll = sepgp_config.canChangeAll;
+  local canChangeAll = simple_share_epgp_config.canChangeAll;
   if (not canChangeAll) then
     return false;
   end
@@ -182,11 +182,11 @@ function SimpleShareEPGP.isAdminUnit()
     return true;
   end
 
-  if (not sepgp_config) then
+  if (not simple_share_epgp_config) then
     return false;
   end
 
-  local canEditDB = sepgp_config.canEditDB;
+  local canEditDB = simple_share_epgp_config.canEditDB;
   if (not canEditDB) then
     return false;
   end
@@ -288,7 +288,7 @@ local admincmd, membercmd = {
       name = L["ExportFile (SuperWoW)"],
       desc = L["Export standings with SuperWoW function to csv"],
       func = function()
-        sepgp_export_superwow();  
+        SimpleShareEPGPExportSuperWoW();  
       end,
       order = 8,
     },
@@ -518,7 +518,7 @@ function SimpleShareEPGP:buildMenu()
       hidden = function()
         return not SimpleShareEPGP.isAdminUnit();
       end,      
-      func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_DECAY") end
+      func = function() StaticPopup_Show("SIMPLE_SHARE_EPGP_CONFIRM_DECAY") end
     }    
     options.args["set_decay"] = {
       type = "range",
@@ -609,7 +609,7 @@ function SimpleShareEPGP:buildMenu()
       hidden = function()
         return not SimpleShareEPGP.isAdminUnit();
       end,
-      func = function() StaticPopup_Show("SHOOTY_EPGP_CONFIRM_RESET") end
+      func = function() StaticPopup_Show("SIMPLE_SHARE_EPGP_CONFIRM_RESET") end
     }
   end
   if (needInit) or (needRefresh) then
@@ -822,8 +822,8 @@ function SimpleShareEPGP:delayedInit()
   self:defaultPrint(string.format(L["v%s Loaded."],SimpleShareEPGP._versionString))
   
   -- update prices from config.lua
-  if (SimpleShareEPGPPrices and sepgp_custom_prices) then
-    SimpleShareEPGPPrices:UpdatePrices(sepgp_custom_prices);
+  if (SimpleShareEPGPPrices and simple_share_epgp_custom_prices) then
+    SimpleShareEPGPPrices:UpdatePrices(simple_share_epgp_custom_prices);
   end
 end
 
@@ -1978,7 +1978,7 @@ function SimpleShareEPGP:tradeLoot(playerState,targetState)
             data[self.loot_index.player] = tradeTarget
             data[self.loot_index.player_c] = target_color
             data[self.loot_index.update] = 1
-            local dialog = StaticPopup_Show("SHOOTY_EPGP_AUTO_GEARPOINTS", data[self.loot_index.player_c], data[self.loot_index.item], data)
+            local dialog = StaticPopup_Show("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS", data[self.loot_index.player_c], data[self.loot_index.item], data)
             if (dialog) then
               dialog.data = data
             end
@@ -2028,9 +2028,9 @@ function SimpleShareEPGP:testLootPrompt()
   end
   if (raidStatus == false) and (lastRaidStatus == true) then
     local hasLoot = table.getn(SimpleShareEPGPLooted)
-    local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_CLEAR_LOOT")
+    local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_CLEAR_LOOT")
     if (not (dialog)) and (hasLoot > 0) then
-      StaticPopup_Show("SHOOTY_EPGP_CLEAR_LOOT",hasLoot)
+      StaticPopup_Show("SIMPLE_SHARE_EPGP_CLEAR_LOOT",hasLoot)
     end
   end
   lastRaidStatus = raidStatus
@@ -2125,7 +2125,7 @@ function SimpleShareEPGP:processLoot(player, itemLink, source)
       [self.loot_index.price] = price,
       [self.loot_index.off_price] = off_price,
     };
-    local dialog = StaticPopup_Show("SHOOTY_EPGP_AUTO_GEARPOINTS", data[self.loot_index.player_c], data[self.loot_index.item], data);
+    local dialog = StaticPopup_Show("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS", data[self.loot_index.player_c], data[self.loot_index.item], data);
     if (dialog) then
       dialog.data = data
     end
@@ -2283,7 +2283,7 @@ end
 -------------
 -- Dialogs
 -------------
-StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
+StaticPopupDialogs["SIMPLE_SHARE_EPGP_CLEAR_LOOT"] = {
   text = L["There are %d loot drops stored. It is recommended to clear loot info before a new raid. Do you want to clear it now?"],
   button1 = TEXT(YES),
   button2 = L["Show me"],
@@ -2302,7 +2302,7 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   hideOnEscape = 1
 }
 
-StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_RESET"] = {
+StaticPopupDialogs["SIMPLE_SHARE_EPGP_CONFIRM_RESET"] = {
   text = L["|cffff0000Are you sure you want to Reset ALL EPGP?|r"],
   button1 = TEXT(OKAY),
   button2 = TEXT(CANCEL),
@@ -2317,7 +2317,7 @@ StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_RESET"] = {
   hideOnEscape = 1
 }
 
-StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_DECAY"] = {
+StaticPopupDialogs["SIMPLE_SHARE_EPGP_CONFIRM_DECAY"] = {
   text = L["|cffff0000Are you sure you want to Decay EPGP?|r"],
   button1 = TEXT(OKAY),
   button2 = TEXT(CANCEL),
@@ -2332,10 +2332,10 @@ StaticPopupDialogs["SHOOTY_EPGP_CONFIRM_DECAY"] = {
   hideOnEscape = 1
 }
 
-local sepgp_auto_gp_menu = {
+local SimpleShareEPGPAutoGPMenu = {
   --{text = "Choose an Action", isTitle = true},
   {text = L["Add MainSpec GP"], func = function()
-    local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_AUTO_GEARPOINTS")
+    local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
     if (dialog) then
       local data = dialog.data
       local player, price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.price]
@@ -2344,12 +2344,12 @@ local sepgp_auto_gp_menu = {
       data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.msgp
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
+      StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
       SimpleShareEPGPLoot:Refresh()
     end
   end},
   {text = L["Add OffSpec GP"], func = function()
-    local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_AUTO_GEARPOINTS")
+    local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
     if (dialog) then
       local data = dialog.data
       local player, off_price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.off_price]
@@ -2358,28 +2358,28 @@ local sepgp_auto_gp_menu = {
       data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.osgp
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
+      StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
       SimpleShareEPGPLoot:Refresh()
     end
   end},
   {text = L["Bank or D/E"], func = function()
-    local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_AUTO_GEARPOINTS")
+    local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
     if (dialog) then
       local data = dialog.data
       data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.bankde
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
+      StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
       SimpleShareEPGPLoot:Refresh()
     end
   end}
 }
-StaticPopupDialogs["SHOOTY_EPGP_AUTO_GEARPOINTS"] = {
+StaticPopupDialogs["SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS"] = {
   text = L["%s looted %s. What do you want to do?"],
   button1 = L["GP Actions"],
   button2 = L["Remind me Later"],
   OnAccept = function()
-    SimpleShareEPGP:EasyMenu(sepgp_auto_gp_menu, SimpleShareEPGP._menuFrame, this, 0, 0, "MENU", 1)
+    SimpleShareEPGP:EasyMenu(SimpleShareEPGPAutoGPMenu, SimpleShareEPGP._menuFrame, this, 0, 0, "MENU", 1)
     return true
   end,
   OnCancel = function(data,reason)
@@ -2394,7 +2394,7 @@ StaticPopupDialogs["SHOOTY_EPGP_AUTO_GEARPOINTS"] = {
     end
   end,
   OnShow = function()
-    SimpleShareEPGP._menuFrame = SimpleShareEPGP._menuFrame or CreateFrame("Frame", "sepgp_auto_gp_menuframe", UIParent, "UIDropDownMenuTemplate")
+    SimpleShareEPGP._menuFrame = SimpleShareEPGP._menuFrame or CreateFrame("Frame", "SimpleShareEPGPAutoGPMenuFrame", UIParent, "UIDropDownMenuTemplate")
   end,
   OnHide = function()
     CloseDropDownMenus()

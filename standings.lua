@@ -143,7 +143,7 @@ function SimpleShareEPGPStandings:Export()
   SimpleShareEPGPExport.AddSelectText(txt);
 end
 
-function sepgp_export_superwow()  
+function SimpleShareEPGPExportSuperWoW()  
   if (not SimpleShareEPGP.SUPER_WOW) then
     return;
   end
@@ -289,7 +289,7 @@ function SimpleShareEPGPStandings:OnEnable()
           D:AddLine(
             "text", L["ExportFile (SuperWoW)"],
             "tooltipText", L["Export standings with SuperWoW function to csv"],
-            "func", function() sepgp_export_superwow() end
+            "func", function() SimpleShareEPGPExportSuperWoW() end
           );
         end
 
