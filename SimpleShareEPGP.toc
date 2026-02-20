@@ -4,7 +4,7 @@
 ## Author: Andrgit
 ## X-Website: https://github.com/AndrgitA/SimpleShareEPGP
 ## X-Credits: shooty, Qcat(zhCN), Andrgit
-## Version: 1.10
+## Version: 1.11
 ## X-Alpha: 
 ## OptionalDeps: Ace2, SimpleShareEPGPOptions
 ## SavedVariables: SimpleShareEPGPConfig, simple_share_epgp_fubar

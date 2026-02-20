@@ -1352,7 +1352,9 @@ function SimpleShareEPGP:give_ep_value(name, ep)
   
   local newep = ep + (self:get_ep_value(name) or 0);
   self:set_ep_value(name, newep);
-  self:debugPrint(string.format(L["Giving %d ep to %s."], ep, name));
+  local epMessage = string.format(L["Giving %d ep to %s."], ep, name);
+  self:debugPrint(epMessage);
+  self:addToLog(epMessage);
   if ep < 0 then -- inform admins and victim of penalties
     local msg = string.format(L["%s EP Penalty to %s."],ep,name);
     self:adminSay(msg);
