@@ -3,15 +3,15 @@ local D = AceLibrary("Dewdrop-2.0")
 local C = AceLibrary("Crayon-2.0")
 
 local BC = AceLibrary("Babble-Class-2.2")
-local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
-sepgp_loot = sepgp:NewModule("sepgp_loot", "AceDB-2.0")
+SimpleShareEPGPLoot = SimpleShareEPGP:NewModule("SimpleShareEPGPLoot", "AceDB-2.0")
 
-function sepgp_loot:OnEnable()
-  if not T:IsRegistered("sepgp_loot") then
-    T:Register("sepgp_loot",
+function SimpleShareEPGPLoot:OnEnable()
+  if not T:IsRegistered("SimpleShareEPGPLoot") then
+    T:Register("SimpleShareEPGPLoot",
       "children", function()
-        T:SetTitle(L["shootyepgp loot info"])
+        T:SetTitle(L["loot info"])
         self:OnTooltipUpdate()
       end,
       "showTitleWhenDetached", true,
@@ -21,39 +21,39 @@ function sepgp_loot:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() sepgp_loot:Refresh() end
+          "func", function() SimpleShareEPGPLoot:Refresh() end
         )
         D:AddLine(
           "text", L["Clear"],
           "tooltipText", L["Clear Loot."],
-          "func", function() sepgp_looted = {} sepgp_loot:Refresh() end
+          "func", function() SimpleShareEPGP:ClearLoot() end
         )        
       end      
     )
   end
-  if not T:IsAttached("sepgp_loot") then
-    T:Open("sepgp_loot")
+  if not T:IsAttached("SimpleShareEPGPLoot") then
+    T:Open("SimpleShareEPGPLoot")
   end
 end
 
-function sepgp_loot:OnDisable()
-  T:Close("sepgp_loot")
+function SimpleShareEPGPLoot:OnDisable()
+  T:Close("SimpleShareEPGPLoot")
 end
 
-function sepgp_loot:Refresh()
-  T:Refresh("sepgp_loot")
+function SimpleShareEPGPLoot:Refresh()
+  T:Refresh("SimpleShareEPGPLoot")
 end
 
-function sepgp_loot:setHideScript()
+function SimpleShareEPGPLoot:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "sepgp_loot" then
-      sepgp:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
+    if tablet.owner ~= nil and tablet.owner == "SimpleShareEPGPLoot" then
+      SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("sepgp_loot") then
-            T:Attach("sepgp_loot")
+          if not T:IsAttached("SimpleShareEPGPLoot") then
+            T:Attach("SimpleShareEPGPLoot")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -64,42 +64,42 @@ function sepgp_loot:setHideScript()
   end  
 end
 
-function sepgp_loot:Top()
-  if T:IsRegistered("sepgp_loot") and (T.registry.sepgp_loot.tooltip) then
-    T.registry.sepgp_loot.tooltip.scroll=0
+function SimpleShareEPGPLoot:Top()
+  if T:IsRegistered("SimpleShareEPGPLoot") and (T.registry.SimpleShareEPGPLoot.tooltip) then
+    T.registry.SimpleShareEPGPLoot.tooltip.scroll=0
   end  
 end
 
-function sepgp_loot:Toggle(forceShow)
+function SimpleShareEPGPLoot:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("sepgp_loot") then
-    T:Detach("sepgp_loot") -- show
-    if (T:IsLocked("sepgp_loot")) then
-      T:ToggleLocked("sepgp_loot")
+  if T:IsAttached("SimpleShareEPGPLoot") then
+    T:Detach("SimpleShareEPGPLoot") -- show
+    if (T:IsLocked("SimpleShareEPGPLoot")) then
+      T:ToggleLocked("SimpleShareEPGPLoot")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      sepgp_loot:Refresh()
+      SimpleShareEPGPLoot:Refresh()
     else
-      T:Attach("sepgp_loot") -- hide
+      T:Attach("SimpleShareEPGPLoot") -- hide
     end
   end  
 end
 
-function sepgp_loot:BuildLootTable()
-  table.sort(sepgp_looted, function(a,b)
+function SimpleShareEPGPLoot:BuildLootTable()
+  table.sort(SimpleShareEPGPLooted, function(a,b)
     if (a[1] ~= b[1]) then return a[1] > b[1]
     else return a[2] > b[2] end
   end)
-  return sepgp_looted
+  return SimpleShareEPGPLooted;
 end
 
-function sepgp_loot:OnClickItem(data)
+function SimpleShareEPGPLoot:OnClickItem(data)
 
 end
 
-function sepgp_loot:OnTooltipUpdate()
+function SimpleShareEPGPLoot:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 5,
       "text",  C:Orange(L["Time"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
@@ -121,6 +121,3 @@ function sepgp_loot:OnTooltipUpdate()
     )
   end
 end
-
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_main,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_alts,sepgp_logs

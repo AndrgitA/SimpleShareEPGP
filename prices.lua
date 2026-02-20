@@ -675,7 +675,6 @@ local prices = {
   [18832] = {24,"T1"}; --Brutality Blade
   [18842] = {24,"T1"}; --Staff of Dominance
   [18861] = {4,"T1"}; --Flamewalker Legplates
-  [18861] = {4,"T1"}; --Flamewalker Legplates
   [18870] = {8,"T1"}; --Helm of the Lifegiver
   [18872] = {8,"T1"}; --Manastorm Leggings
   [18875] = {42,"T1"}; --Salamander Scale Pants
@@ -764,14 +763,7 @@ local prices = {
   [20639] = {12,"T1.5"}; --Strangely Glyphed Legplates
   [20644] = {4,"T1.5"}; --Nightmare Engulfed Object
 }
-sepgp.gp_prices = prices
---[[local price_scaling = {
-  ["T1"] = 1,
-  ["T1.5"] = 1.5,
-  ["T2"] = 3,
-  ["T2.5"] = 6,
-  ["T3"] = 9
-}]]
+SimpleShareEPGP.gp_prices = prices;
 local progress_scaling = {
   ["T3"] =   {["T3"]=1,  ["T2.5"]=1,  ["T2"]=1,  ["T1.5"]=1,["T1"]=1},
   ["T2.5"] = {["T3"]=1.5,["T2.5"]=1.5,["T2"]=2,  ["T1.5"]=2,["T1"]=2},
@@ -784,9 +776,9 @@ local function get_adjusted_price(price,tier,progress)
   return math.floor(progress_scaling[progress][tier] * price)
 end
 
-sepgp_prices = sepgp:NewModule("sepgp_prices", "AceDB-2.0")
+SimpleShareEPGPPrices = SimpleShareEPGP:NewModule("SimpleShareEPGPPrices", "AceDB-2.0");
 
-function sepgp_prices:GetPrice(item,progress)
+function SimpleShareEPGPPrices:GetPrice(item, progress)
   if not progress then progress = "T3" end
   local itemID,found,_,itemString,data,tier,is,il
   local price
@@ -804,17 +796,37 @@ function sepgp_prices:GetPrice(item,progress)
       end
     end
   end
+
   if (itemID) then
     data = prices[itemID]
     if (data) then
-      price, tier = data[1], data[2]
-      price = get_adjusted_price(price,tier,progress)
+      price = data[1];
+      -- price, tier = data[1], data[2]
+      -- price = get_adjusted_price(price, tier, progress)
     else
       return
     end
   end
+  
   return price
 end
 
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_main,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_alts,sepgp_logs
+function SimpleShareEPGPPrices:UpdatePrices(modify)
+  if (type(modify) ~= "table") then
+    return;
+  end
+
+  local _price, _tier;
+  for i, v in pairs(modify) do
+    if (type(v) == "table" and v[1]) then
+      _price, _tier = prices[i] and prices[i][1] or 0, prices[i] and prices[i][2] or nil;
+
+      prices[i] = {
+        v[1] or _price,
+        v[2] or _tier,
+      };
+    end
+  end
+
+  SimpleShareEPGP:debugPrint(L["Items price updated"]);
+end

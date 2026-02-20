@@ -2,16 +2,16 @@ local T = AceLibrary("Tablet-2.0")
 local D = AceLibrary("Dewdrop-2.0")
 local C = AceLibrary("Crayon-2.0")
 local CP = AceLibrary("Compost-2.0")
-local L = AceLibrary("AceLocale-2.2"):new("shootyepgp")
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
-sepgp_logs = sepgp:NewModule("sepgp_logs", "AceDB-2.0")
-sepgp_logs.tmp = CP:Acquire()
+SimpleShareEPGPLogs = SimpleShareEPGP:NewModule("SimpleShareEPGPLogs", "AceDB-2.0")
+SimpleShareEPGPLogs.tmp = CP:Acquire()
 
-function sepgp_logs:OnEnable()
-  if not T:IsRegistered("sepgp_logs") then
-    T:Register("sepgp_logs",
+function SimpleShareEPGPLogs:OnEnable()
+  if not T:IsRegistered("SimpleShareEPGPLogs") then
+    T:Register("SimpleShareEPGPLogs",
       "children", function()
-        T:SetTitle(L["shootyepgp logs"])
+        T:SetTitle(L["logs"])
         self:OnTooltipUpdate()
       end,
       "showTitleWhenDetached", true,
@@ -21,39 +21,41 @@ function sepgp_logs:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() sepgp_logs:Refresh() end
+          "func", function() SimpleShareEPGPLogs:Refresh() end
         )
         D:AddLine(
           "text", L["Clear"],
           "tooltipText", L["Clear Logs."],
-          "func", function() sepgp_log = {} sepgp_logs:Refresh() end
+          "func", function()
+            SimpleShareEPGP:ClearLogs();
+          end
         )
       end      
     )
   end
-  if not T:IsAttached("sepgp_logs") then
-    T:Open("sepgp_logs")
+  if not T:IsAttached("SimpleShareEPGPLogs") then
+    T:Open("SimpleShareEPGPLogs")
   end
 end
 
-function sepgp_logs:OnDisable()
-  T:Close("sepgp_logs")
+function SimpleShareEPGPLogs:OnDisable()
+  T:Close("SimpleShareEPGPLogs")
 end
 
-function sepgp_logs:Refresh()
-  T:Refresh("sepgp_logs")
+function SimpleShareEPGPLogs:Refresh()
+  T:Refresh("SimpleShareEPGPLogs")
 end
 
-function sepgp_logs:setHideScript()
+function SimpleShareEPGPLogs:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "sepgp_logs" then
-      sepgp:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
+    if tablet.owner ~= nil and tablet.owner == "SimpleShareEPGPLogs" then
+      SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("sepgp_logs") then
-            T:Attach("sepgp_logs")
+          if not T:IsAttached("SimpleShareEPGPLogs") then
+            T:Attach("SimpleShareEPGPLogs")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -64,55 +66,55 @@ function sepgp_logs:setHideScript()
   end  
 end
 
-function sepgp_logs:Top()
-  if T:IsRegistered("sepgp_logs") and (T.registry.sepgp_logs.tooltip) then
-    T.registry.sepgp_logs.tooltip.scroll=0
+function SimpleShareEPGPLogs:Top()
+  if T:IsRegistered("SimpleShareEPGPLogs") and (T.registry.SimpleShareEPGPLogs.tooltip) then
+    T.registry.SimpleShareEPGPLogs.tooltip.scroll=0
   end  
 end
 
-function sepgp_logs:Toggle(forceShow)
+function SimpleShareEPGPLogs:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("sepgp_logs") then
-    T:Detach("sepgp_logs") -- show
-    if (T:IsLocked("sepgp_logs")) then
-      T:ToggleLocked("sepgp_logs")
+  if T:IsAttached("SimpleShareEPGPLogs") then
+    T:Detach("SimpleShareEPGPLogs") -- show
+    if (T:IsLocked("SimpleShareEPGPLogs")) then
+      T:ToggleLocked("SimpleShareEPGPLogs")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      sepgp_logs:Refresh()
+      SimpleShareEPGPLogs:Refresh()
     else
-      T:Attach("sepgp_logs") -- hide
+      T:Attach("SimpleShareEPGPLogs") -- hide
     end
   end  
 end
 
-function sepgp_logs:reverse(arr)
-  CP:Recycle(sepgp_logs.tmp)
+function SimpleShareEPGPLogs:reverse(arr)
+  CP:Recycle(SimpleShareEPGPLogs.tmp)
   for _,val in ipairs(arr) do
-    table.insert(sepgp_logs.tmp,val)
+    table.insert(SimpleShareEPGPLogs.tmp,val)
   end
-  local i, j = 1, table.getn(sepgp_logs.tmp)
+  local i, j = 1, table.getn(SimpleShareEPGPLogs.tmp)
   while i < j do
-    sepgp_logs.tmp[i], sepgp_logs.tmp[j] = sepgp_logs.tmp[j], sepgp_logs.tmp[i]
+    SimpleShareEPGPLogs.tmp[i], SimpleShareEPGPLogs.tmp[j] = SimpleShareEPGPLogs.tmp[j], SimpleShareEPGPLogs.tmp[i]
     i = i + 1
     j = j - 1
   end
-  return sepgp_logs.tmp
+  return SimpleShareEPGPLogs.tmp
 end
 
-function sepgp_logs:BuildLogsTable()
+function SimpleShareEPGPLogs:BuildLogsTable()
   -- {timestamp,line}
-  return self:reverse(sepgp_log)
+  return self:reverse(SimpleShareEPGPLog)
 end
 
-function sepgp_logs:OnTooltipUpdate()
+function SimpleShareEPGPLogs:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 2,
       "text",  C:Orange(L["Time"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
       "text2", C:Orange(L["Action"]),     "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "child_justify2", "RIGHT"
     )
-  local t = sepgp_logs:BuildLogsTable()
+  local t = SimpleShareEPGPLogs:BuildLogsTable()
   for i = 1, table.getn(t) do
     local timestamp, line = unpack(t[i])
     cat:AddLine(
@@ -121,6 +123,3 @@ function sepgp_logs:OnTooltipUpdate()
     )
   end  
 end
-
--- GLOBALS: sepgp_saychannel,sepgp_groupbyclass,sepgp_groupbyarmor,sepgp_groupbyrole,sepgp_raidonly,sepgp_decay,sepgp_minep,sepgp_reservechannel,sepgp_main,sepgp_progress,sepgp_discount,sepgp_log,sepgp_dbver,sepgp_looted
--- GLOBALS: sepgp,sepgp_prices,sepgp_standings,sepgp_bids,sepgp_loot,sepgp_reserves,sepgp_alts,sepgp_logs
