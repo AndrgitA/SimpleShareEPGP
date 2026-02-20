@@ -62,15 +62,15 @@ SimpleShareEPGPConfigDefault = {
   debug = {},
 };
 
-SimpleSharedEPGPCharacterConfig = {};
-SimpleSharedEPGPCharacterConfigDefault = {
+SimpleShareEPGPCharacterConfig = {};
+SimpleShareEPGPCharacterConfigDefault = {
   decay = SimpleShareEPGP.VARS.decay,
   minep = SimpleShareEPGP.VARS.minep,
   progress = "T1",
   discount = 0.25,
 };
 
-SimpleSharedEPGP_DB = {};
+SimpleShareEPGP_DB = {};
 
 local out = "|cff9664c8" .. L["AddonName"] .. ":|r %s";
 local tooltipAddonString = "|cff9664c8" .. L["AddonName"] .. "|r";
@@ -260,7 +260,7 @@ local admincmd, membercmd = {
       name = L["Progress"],
       desc = L["Print Progress Multiplier."],
       func = function()
-        SimpleShareEPGP:defaultPrint(SimpleSharedEPGPCharacterConfig.progress);
+        SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
       end,
       order = 5,
     },
@@ -269,7 +269,7 @@ local admincmd, membercmd = {
       name = L["Offspec"],
       desc = L["Print Offspec Price."],
       func = function()
-        SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleSharedEPGPCharacterConfig.discount * 100));
+        SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
       end,
       order = 6,
     },    
@@ -311,7 +311,7 @@ local admincmd, membercmd = {
     --   name = L["Progress"],
     --   desc = L["Print Progress Multiplier."],
     --   func = function()
-    --     SimpleShareEPGP:defaultPrint(SimpleSharedEPGPCharacterConfig.progress);
+    --     SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
     --   end,
     --   order = 2,
     -- },
@@ -320,7 +320,7 @@ local admincmd, membercmd = {
     --   name = L["Offspec"],
     --   desc = L["Print Offspec Price."],
     --   func = function()
-    --     SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleSharedEPGPCharacterConfig.discount * 100));
+    --     SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
     --   end,
     --   order = 3,
     -- },
@@ -369,22 +369,22 @@ function SimpleShareEPGP:InitAddonVariables()
     end
   end
 
-  if (not SimpleSharedEPGPCharacterConfig) then
-    SimpleSharedEPGPCharacterConfig = {};
+  if (not SimpleShareEPGPCharacterConfig) then
+    SimpleShareEPGPCharacterConfig = {};
   end
 
-  for i, v in pairs(SimpleSharedEPGPCharacterConfigDefault) do
-    if (SimpleSharedEPGPCharacterConfig[i] == nil) then
-      SimpleSharedEPGPCharacterConfig[i] = v;
+  for i, v in pairs(SimpleShareEPGPCharacterConfigDefault) do
+    if (SimpleShareEPGPCharacterConfig[i] == nil) then
+      SimpleShareEPGPCharacterConfig[i] = v;
     end
   end
 
-  if (not SimpleSharedEPGPLog) then
-    SimpleSharedEPGPLog = {};
+  if (not SimpleShareEPGPLog) then
+    SimpleShareEPGPLog = {};
   end
 
-  if (not SimpleSharedEPGPLooted) then
-    SimpleSharedEPGPLooted = {};
+  if (not SimpleShareEPGPLooted) then
+    SimpleShareEPGPLooted = {};
   end
 end
 
@@ -473,7 +473,7 @@ function SimpleShareEPGP:buildMenu()
     }
     options.args["progress_tier_header"] = {
       type = "header",
-      name = string.format(L["Progress Setting: %s"], SimpleSharedEPGPCharacterConfig.progress),
+      name = string.format(L["Progress Setting: %s"], SimpleShareEPGPCharacterConfig.progress),
       order = 85,
       hidden = function()
         return SimpleShareEPGP.isAdminUnit();
@@ -488,9 +488,9 @@ function SimpleShareEPGP:buildMenu()
         return true;
         -- return not SimpleShareEPGP.isAdminUnit();
       end,
-      get = function() return SimpleSharedEPGPCharacterConfig.progress end,
+      get = function() return SimpleShareEPGPCharacterConfig.progress end,
       set = function(v) 
-        SimpleSharedEPGPCharacterConfig.progress = v;
+        SimpleShareEPGPCharacterConfig.progress = v;
         SimpleShareEPGP:refreshPRTablets()
         if (SimpleShareEPGP.isRootUnit()) then
           SimpleShareEPGP:shareSettings(true)
@@ -513,7 +513,7 @@ function SimpleShareEPGP:buildMenu()
     options.args["decay"] = {
       type = "execute",
       name = L["Decay EPGP"],
-      desc = string.format(L["Decays all EPGP by %s%%"],(1-(SimpleSharedEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay))*100),
+      desc = string.format(L["Decays all EPGP by %s%%"],(1-(SimpleShareEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay))*100),
       order = 100,
       hidden = function()
         return not SimpleShareEPGP.isAdminUnit();
@@ -526,10 +526,10 @@ function SimpleShareEPGP:buildMenu()
       desc = L["Set Decay percentage (Admin only)."],
       order = 110,
       usage = "<Decay>",
-      get = function() return (1.0 - SimpleSharedEPGPCharacterConfig.decay) end,
+      get = function() return (1.0 - SimpleShareEPGPCharacterConfig.decay) end,
       set = function(v) 
-        SimpleSharedEPGPCharacterConfig.decay = (1 - v);
-        options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"], (1 - SimpleSharedEPGPCharacterConfig.decay) * 100)
+        SimpleShareEPGPCharacterConfig.decay = (1 - v);
+        options.args["decay"].desc = string.format(L["Decays all EPGP by %s%%"], (1 - SimpleShareEPGPCharacterConfig.decay) * 100)
         if (SimpleShareEPGP.isRootUnit()) then
           SimpleShareEPGP:shareSettings(true)
         end
@@ -545,7 +545,7 @@ function SimpleShareEPGP:buildMenu()
     }
     options.args["set_discount_header"] = {
       type = "header",
-      name = string.format(L["Offspec Price: %s%%"], SimpleSharedEPGPCharacterConfig.discount * 100),
+      name = string.format(L["Offspec Price: %s%%"], SimpleShareEPGPCharacterConfig.discount * 100),
       order = 111,
       hidden = function()
         return SimpleShareEPGP.isAdminUnit();
@@ -559,9 +559,9 @@ function SimpleShareEPGP:buildMenu()
       hidden = function()
         return not SimpleShareEPGP.isAdminUnit();
       end,
-      get = function() return SimpleSharedEPGPCharacterConfig.discount end,
+      get = function() return SimpleShareEPGPCharacterConfig.discount end,
       set = function(v) 
-        SimpleSharedEPGPCharacterConfig.discount = v;
+        SimpleShareEPGPCharacterConfig.discount = v;
         if (SimpleShareEPGP.isRootUnit()) then
           SimpleShareEPGP:shareSettings(true);
         end
@@ -573,7 +573,7 @@ function SimpleShareEPGP:buildMenu()
     }
     options.args["set_min_ep_header"] = {
       type = "header",
-      name = string.format(L["Minimum EP: %s"], SimpleSharedEPGPCharacterConfig.minep),
+      name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep),
       order = 117,
       hidden = function()
         return SimpleShareEPGP.isAdminUnit();
@@ -585,9 +585,9 @@ function SimpleShareEPGP:buildMenu()
       desc = L["Set Minimum EP"],
       usage = "<minep>",
       order = 118,
-      get = function() return SimpleSharedEPGPCharacterConfig.minep end,
+      get = function() return SimpleShareEPGPCharacterConfig.minep end,
       set = function(v) 
-        SimpleSharedEPGPCharacterConfig.minep = tonumber(v);
+        SimpleShareEPGPCharacterConfig.minep = tonumber(v);
         SimpleShareEPGP:refreshPRTablets();
         if (SimpleShareEPGP.isRootUnit()) then
           SimpleShareEPGP:shareSettings(true)
@@ -807,7 +807,7 @@ function SimpleShareEPGP:delayedInit()
   self:parseVersion(SimpleShareEPGP._versionString)
   local major_ver = self._version.major
 
-  SimpleSharedEPGP_DB = SimpleShareEPGP:init_table_db();
+  SimpleShareEPGP_DB = SimpleShareEPGP:init_table_db();
 
   -- init options and comms
   self._options = self:buildMenu()
@@ -830,9 +830,9 @@ end
 function SimpleShareEPGP:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
   local price
   if (itemstring) then
-    price = SimpleShareEPGPPrices:GetPrice(itemstring, SimpleSharedEPGPCharacterConfig.progress);
+    price = SimpleShareEPGPPrices:GetPrice(itemstring, SimpleShareEPGPCharacterConfig.progress);
   elseif (itemlink) then
-    price = SimpleShareEPGPPrices:GetPrice(itemlink, SimpleSharedEPGPCharacterConfig.progress);
+    price = SimpleShareEPGPPrices:GetPrice(itemlink, SimpleShareEPGPCharacterConfig.progress);
   end
   if not price then return end
   local line_limit, left1,right1
@@ -843,7 +843,7 @@ function SimpleShareEPGP:AddDataToTooltip(tooltip,itemlink,itemstring,is_master)
     line_limit = 28 
   end
   local ep,gp = (self:get_ep_value(self._playerName) or 0), (self:get_gp_value(self._playerName) or SimpleShareEPGP.VARS.basegp)
-  local off_price = math.floor(price * SimpleSharedEPGPCharacterConfig.discount)
+  local off_price = math.floor(price * SimpleShareEPGPCharacterConfig.discount)
   local pr,new_pr,new_pr_off = ep/gp, ep/(gp+price), ep/(gp+off_price)
   local pr_delta = new_pr - pr
   local pr_delta_off = new_pr_off - pr
@@ -1156,25 +1156,25 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
         decay = tonumber(decay)
         minep = tonumber(minep)
         local settings_notice
-        if (progress and progress ~= SimpleSharedEPGPCharacterConfig.progress) then
-          SimpleSharedEPGPCharacterConfig.progress = progress;
+        if (progress and progress ~= SimpleShareEPGPCharacterConfig.progress) then
+          SimpleShareEPGPCharacterConfig.progress = progress;
           settings_notice = L["New raid progress"];
         end
-        if (discount and discount ~= SimpleSharedEPGPCharacterConfig.discount) then
-          SimpleSharedEPGPCharacterConfig.discount = discount
+        if (discount and discount ~= SimpleShareEPGPCharacterConfig.discount) then
+          SimpleShareEPGPCharacterConfig.discount = discount
           if (settings_notice) then
             settings_notice = settings_notice..L[", offspec price %"]
           else
             settings_notice = L["New offspec price %"]
           end
         end
-        if (minep and minep ~= SimpleSharedEPGPCharacterConfig.minep) then
-          SimpleSharedEPGPCharacterConfig.minep = minep;
+        if (minep and minep ~= SimpleShareEPGPCharacterConfig.minep) then
+          SimpleShareEPGPCharacterConfig.minep = minep;
           settings_notice = L["New Minimum EP"];
           SimpleShareEPGP:refreshPRTablets();
         end
-        if decay and decay ~= SimpleSharedEPGPCharacterConfig.decay then
-          SimpleSharedEPGPCharacterConfig.decay = decay;
+        if decay and decay ~= SimpleShareEPGPCharacterConfig.decay then
+          SimpleShareEPGPCharacterConfig.decay = decay;
           if (SimpleShareEPGP.isAdminUnit()) then
             if (settings_notice) then
               settings_notice = settings_notice..L[", decay %"]
@@ -1187,9 +1187,9 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
           local sender_rank = string.format("%s",C:Colorize(BC:GetHexColor(class), sender));
           settings_notice = settings_notice..string.format(L[" settings accepted from %s"], sender_rank);
           self:defaultPrint(settings_notice);
-          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], SimpleSharedEPGPCharacterConfig.progress);
-          self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], SimpleSharedEPGPCharacterConfig.discount * 100);
-          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleSharedEPGPCharacterConfig.minep);
+          self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], SimpleShareEPGPCharacterConfig.progress);
+          self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], SimpleShareEPGPCharacterConfig.discount * 100);
+          self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep);
         end
       end
     end
@@ -1212,7 +1212,7 @@ function SimpleShareEPGP:shareSettings(force)
   -- local now = GetTime()
   -- if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
   --   self._lastSettingsShare = now
-  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1", SimpleSharedEPGPCharacterConfig.progress,SimpleSharedEPGPCharacterConfig.discount,SimpleSharedEPGPCharacterConfig.decay,SimpleSharedEPGPCharacterConfig.minep)
+  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1", SimpleShareEPGPCharacterConfig.progress,SimpleShareEPGPCharacterConfig.discount,SimpleShareEPGPCharacterConfig.decay,SimpleShareEPGPCharacterConfig.minep)
   --   self:anounceAddonMessage(addonMsg);
   -- end
 end
@@ -1375,15 +1375,15 @@ function SimpleShareEPGP:decay_epgp_value()
     local ep, gp = v.ep, v.gp;
 
     if (ep and gp) then
-      self:set_ep_value(name, self:num_round(ep * SimpleSharedEPGPCharacterConfig.decay));
-      self:set_gp_value(name, self:num_round(gp * SimpleSharedEPGPCharacterConfig.decay));
+      self:set_ep_value(name, self:num_round(ep * SimpleShareEPGPCharacterConfig.decay));
+      self:set_gp_value(name, self:num_round(gp * SimpleShareEPGPCharacterConfig.decay));
     end
   end
 
-  local msg = string.format(L["All EP and GP decayed by %s%%"],(1 - SimpleSharedEPGPCharacterConfig.decay) * 100)
+  local msg = string.format(L["All EP and GP decayed by %s%%"],(1 - SimpleShareEPGPCharacterConfig.decay) * 100)
   self:simpleSay(msg)
   self:adminSay(msg)
-  local addonMsg = string.format("ALL;DECAY;%s", (1 - (SimpleSharedEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay)) *100)
+  local addonMsg = string.format("ALL;DECAY;%s", (1 - (SimpleShareEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay)) *100)
   self:anounceAddonMessage(addonMsg)
   self:addToLog(msg)
   self:refreshPRTablets() 
@@ -1411,8 +1411,8 @@ end
 function SimpleShareEPGP:capcalc(ep,gp,gain)
   -- CAP_EP = EP_GAIN*DECAY/(1-DECAY) CAP_PR = CAP_EP/base_gp
   local pr = ep/gp
-  local ep_decayed = self:num_round(ep * SimpleSharedEPGPCharacterConfig.decay)
-  local gp_decayed = math.max(SimpleShareEPGP.VARS.basegp,self:num_round(gp * SimpleSharedEPGPCharacterConfig.decay))
+  local ep_decayed = self:num_round(ep * SimpleShareEPGPCharacterConfig.decay)
+  local gp_decayed = math.max(SimpleShareEPGP.VARS.basegp,self:num_round(gp * SimpleShareEPGPCharacterConfig.decay))
   local pr_decay = tonumber(string.format("%.03f",pr))-tonumber(string.format("%.03f",ep_decayed/gp_decayed))
   if (pr_decay < 0.5) then 
     pr_decay = 0 
@@ -1422,7 +1422,7 @@ function SimpleShareEPGP:capcalc(ep,gp,gain)
   local cycle_gain = tonumber(gain)
   local cap_ep, cap_pr
   if (cycle_gain) then
-    cap_ep = self:num_round(cycle_gain * SimpleSharedEPGPCharacterConfig.decay / (1 - SimpleSharedEPGPCharacterConfig.decay))
+    cap_ep = self:num_round(cycle_gain * SimpleShareEPGPCharacterConfig.decay / (1 - SimpleShareEPGPCharacterConfig.decay))
     cap_pr = tonumber(string.format("%.03f",cap_ep/SimpleShareEPGP.VARS.basegp))
   end
   return pr_decay, cap_ep, cap_pr
@@ -1474,9 +1474,9 @@ function SimpleShareEPGP:OnClick()
   end
 
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
-    SimpleSharedEPGPLogs:Toggle();
+    SimpleShareEPGPLogs:Toggle();
   elseif (IsShiftKeyDown() and is_admin) then
-    SimpleSharedEPGPLoot:Toggle();
+    SimpleShareEPGPLoot:Toggle();
   elseif (IsAltKeyDown() and is_admin) then
     SimpleShareEPGPBids:Toggle();
   else
@@ -1492,28 +1492,28 @@ function SimpleShareEPGP:SetRefresh(flag)
 end
 
 function SimpleShareEPGP:ClearLogs()
-  SimpleSharedEPGPLog = {};
-  SimpleSharedEPGPLogs:Refresh();
+  SimpleShareEPGPLog = {};
+  SimpleShareEPGPLogs:Refresh();
   SimpleShareEPGP:defaultPrint(L["Logs cleared"]);
 end
 
 function SimpleShareEPGP:ClearLoot()
-  SimpleSharedEPGPLooted = {};
-  SimpleSharedEPGPLoot:Refresh();
+  SimpleShareEPGPLooted = {};
+  SimpleShareEPGPLoot:Refresh();
   SimpleShareEPGP:defaultPrint(L["Loot info cleared"]);
 end
 
 function SimpleShareEPGP:clean_table_db()
-  SimpleSharedEPGP_DB = {};
-  return SimpleSharedEPGP_DB;
+  SimpleShareEPGP_DB = {};
+  return SimpleShareEPGP_DB;
 end
 
 function SimpleShareEPGP:init_table_db()
-  if (not SimpleSharedEPGP_DB) then
-    SimpleSharedEPGP_DB = {};
+  if (not SimpleShareEPGP_DB) then
+    SimpleShareEPGP_DB = {};
   end
 
-  return SimpleSharedEPGP_DB;
+  return SimpleShareEPGP_DB;
 end
 
 function SimpleShareEPGP:updateRaidRosterInfo()
@@ -1934,7 +1934,7 @@ function SimpleShareEPGP:GiveMasterLoot(slot, index)
 end
 
 function SimpleShareEPGP:findLootReminder(itemLink)
-  for i,data in ipairs(SimpleSharedEPGPLooted) do
+  for i,data in ipairs(SimpleShareEPGPLooted) do
     if data[self.loot_index.item] == itemLink and data[self.loot_index.action] == self.VARS.reminder then
       return data;
     end
@@ -1957,7 +1957,7 @@ function SimpleShareEPGP:tradeLoot(playerState,targetState)
     if (itemLink) then
       local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
       if (link_found) then
-        local price = SimpleShareEPGPPrices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
+        local price = SimpleShareEPGPPrices:GetPrice(itemString, SimpleShareEPGPCharacterConfig.progress);
         if not (price) or price == 0 then
           return
         end
@@ -2017,7 +2017,7 @@ end
 
 function SimpleShareEPGP:addOrUpdateLoot(data,update)
   if not (update) then
-    table.insert(SimpleSharedEPGPLooted, data)
+    table.insert(SimpleShareEPGPLooted, data)
   end
 end
 
@@ -2027,7 +2027,7 @@ function SimpleShareEPGP:testLootPrompt()
     lastRaidStatus = raidStatus
   end
   if (raidStatus == false) and (lastRaidStatus == true) then
-    local hasLoot = table.getn(SimpleSharedEPGPLooted)
+    local hasLoot = table.getn(SimpleShareEPGPLooted)
     local dialog = StaticPopup_FindVisible("SHOOTY_EPGP_CLEAR_LOOT")
     if (not (dialog)) and (hasLoot > 0) then
       StaticPopup_Show("SHOOTY_EPGP_CLEAR_LOOT",hasLoot)
@@ -2040,10 +2040,10 @@ end
 -- Logging
 ------------
 function SimpleShareEPGP:addToLog(line,skipTime)
-  local over = table.getn(SimpleSharedEPGPLog) - SimpleShareEPGP.VARS.maxloglines + 1;
+  local over = table.getn(SimpleShareEPGPLog) - SimpleShareEPGP.VARS.maxloglines + 1;
   if (over > 0) then
     for i=1,over do
-      table.remove(SimpleSharedEPGPLog, 1);
+      table.remove(SimpleShareEPGPLog, 1);
     end
   end
 
@@ -2054,7 +2054,7 @@ function SimpleShareEPGP:addToLog(line,skipTime)
     timestamp = date("%b/%d %H:%M:%S");
   end
 
-  table.insert(SimpleSharedEPGPLog, {timestamp, line});
+  table.insert(SimpleShareEPGPLog, {timestamp, line});
 end
 
 ------------
@@ -2098,7 +2098,7 @@ function SimpleShareEPGP:processLoot(player, itemLink, source)
       return
     end
 
-    local price = SimpleShareEPGPPrices:GetPrice(itemString, SimpleSharedEPGPCharacterConfig.progress);
+    local price = SimpleShareEPGPPrices:GetPrice(itemString, SimpleShareEPGPCharacterConfig.progress);
     if (not (price)) or (price == 0) then
       return
     end
@@ -2113,7 +2113,7 @@ function SimpleShareEPGP:processLoot(player, itemLink, source)
 
     self._lastPlayerItem, self._lastPlayerItemTime, self._lastPlayerItemSource = player_item, now, source;
     local player_color = C:Colorize(BC:GetHexColor(verifyMember.class), player);
-    local off_price = math.floor(price * SimpleSharedEPGPCharacterConfig.discount);
+    local off_price = math.floor(price * SimpleShareEPGPCharacterConfig.discount);
     local quality = hexColorQuality[itemColor] or -1;
     local timestamp = date("%b/%d %H:%M:%S");
     local data = {
@@ -2221,7 +2221,7 @@ function SimpleShareEPGP:suggestedAwardEP()
   if not currentTier then 
     return SimpleShareEPGP.VARS.baseaward_ep;
   else
-    multiplier = zone_multipliers[SimpleSharedEPGPCharacterConfig.progress][currentTier];
+    multiplier = zone_multipliers[SimpleShareEPGPCharacterConfig.progress][currentTier];
   end
   if (multiplier) then
     return multiplier*SimpleShareEPGP.VARS.baseaward_ep;
@@ -2292,7 +2292,7 @@ StaticPopupDialogs["SHOOTY_EPGP_CLEAR_LOOT"] = {
   end,
   OnCancel = function(_,reason)
     if reason == "clicked" then
-      SimpleSharedEPGPLoot:Toggle(true)
+      SimpleShareEPGPLoot:Toggle(true)
       SimpleShareEPGP:defaultPrint(L["Loot info can be cleared at any time from the Tablet context menu or '/simpleshareepgp clearloot' command"])
     end
   end,
@@ -2345,7 +2345,7 @@ local sepgp_auto_gp_menu = {
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
-      SimpleSharedEPGPLoot:Refresh()
+      SimpleShareEPGPLoot:Refresh()
     end
   end},
   {text = L["Add OffSpec GP"], func = function()
@@ -2359,7 +2359,7 @@ local sepgp_auto_gp_menu = {
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
-      SimpleSharedEPGPLoot:Refresh()
+      SimpleShareEPGPLoot:Refresh()
     end
   end},
   {text = L["Bank or D/E"], func = function()
@@ -2370,7 +2370,7 @@ local sepgp_auto_gp_menu = {
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
       StaticPopup_Hide("SHOOTY_EPGP_AUTO_GEARPOINTS")
-      SimpleSharedEPGPLoot:Refresh()
+      SimpleShareEPGPLoot:Refresh()
     end
   end}
 }
@@ -2387,7 +2387,7 @@ StaticPopupDialogs["SHOOTY_EPGP_AUTO_GEARPOINTS"] = {
       data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.reminder
       local update = data[SimpleShareEPGP.loot_index.update] ~= nil
       SimpleShareEPGP:addOrUpdateLoot(data,update)
-      SimpleSharedEPGPLoot:Refresh()
+      SimpleShareEPGPLoot:Refresh()
       return
     elseif reason == "timeout" then
       return

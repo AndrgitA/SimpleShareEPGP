@@ -120,9 +120,9 @@ function SimpleShareEPGPBids:bidCountdown()
 end
 
 local pr_sorter_bids = function(a,b)
-  if (SimpleSharedEPGPCharacterConfig.minep > 0) then
-    local a_over = a[3] - SimpleSharedEPGPCharacterConfig.minep >= 0
-    local b_over = b[3] - SimpleSharedEPGPCharacterConfig.minep >= 0
+  if (SimpleShareEPGPCharacterConfig.minep > 0) then
+    local a_over = a[3] - SimpleShareEPGPCharacterConfig.minep >= 0
+    local b_over = b[3] - SimpleShareEPGPCharacterConfig.minep >= 0
     if a_over and b_over or (not a_over and not b_over) then
       if a[5] ~= b[5] then
         return tonumber(a[5]) > tonumber(b[5])
@@ -154,13 +154,13 @@ function SimpleShareEPGPBids:OnTooltipUpdate()
   if not (SimpleShareEPGP.bid_item and SimpleShareEPGP.bid_item.link) then return end
   local link = SimpleShareEPGP.bid_item.link;
   local itemName = SimpleShareEPGP.bid_item.name;
-  local price = SimpleShareEPGPPrices:GetPrice(link, SimpleSharedEPGPCharacterConfig.progress);
+  local price = SimpleShareEPGPPrices:GetPrice(link, SimpleShareEPGPCharacterConfig.progress);
   local offspec;
   if not price then 
     price = "<n/a>";
     offspec = "<n/a>";
   else
-    offspec = math.floor(price * SimpleSharedEPGPCharacterConfig.discount);
+    offspec = math.floor(price * SimpleShareEPGPCharacterConfig.discount);
   end
   local bidcat = T:AddCategory(
       "columns", 3,    
@@ -208,7 +208,7 @@ function SimpleShareEPGPBids:OnTooltipUpdate()
       namedesc = C:Colorize(BC:GetHexColor(class), name)
     end
     local text2, text4
-    if SimpleSharedEPGPCharacterConfig.minep > 0 and ep < SimpleSharedEPGPCharacterConfig.minep then
+    if SimpleShareEPGPCharacterConfig.minep > 0 and ep < SimpleShareEPGPCharacterConfig.minep then
       text2 = C:Red(string.format("%.4g", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else
@@ -247,7 +247,7 @@ function SimpleShareEPGPBids:OnTooltipUpdate()
       namedesc = C:Colorize(BC:GetHexColor(class), name)
     end
     local text2, text4
-    if SimpleSharedEPGPCharacterConfig.minep > 0 and ep < SimpleSharedEPGPCharacterConfig.minep then
+    if SimpleShareEPGPCharacterConfig.minep > 0 and ep < SimpleShareEPGPCharacterConfig.minep then
       text2 = C:Red(string.format("%.4g", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else

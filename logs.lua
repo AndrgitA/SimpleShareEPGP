@@ -4,12 +4,12 @@ local C = AceLibrary("Crayon-2.0")
 local CP = AceLibrary("Compost-2.0")
 local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
-SimpleSharedEPGPLogs = SimpleShareEPGP:NewModule("SimpleSharedEPGPLogs", "AceDB-2.0")
-SimpleSharedEPGPLogs.tmp = CP:Acquire()
+SimpleShareEPGPLogs = SimpleShareEPGP:NewModule("SimpleShareEPGPLogs", "AceDB-2.0")
+SimpleShareEPGPLogs.tmp = CP:Acquire()
 
-function SimpleSharedEPGPLogs:OnEnable()
-  if not T:IsRegistered("SimpleSharedEPGPLogs") then
-    T:Register("SimpleSharedEPGPLogs",
+function SimpleShareEPGPLogs:OnEnable()
+  if not T:IsRegistered("SimpleShareEPGPLogs") then
+    T:Register("SimpleShareEPGPLogs",
       "children", function()
         T:SetTitle(L["logs"])
         self:OnTooltipUpdate()
@@ -21,7 +21,7 @@ function SimpleSharedEPGPLogs:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() SimpleSharedEPGPLogs:Refresh() end
+          "func", function() SimpleShareEPGPLogs:Refresh() end
         )
         D:AddLine(
           "text", L["Clear"],
@@ -33,29 +33,29 @@ function SimpleSharedEPGPLogs:OnEnable()
       end      
     )
   end
-  if not T:IsAttached("SimpleSharedEPGPLogs") then
-    T:Open("SimpleSharedEPGPLogs")
+  if not T:IsAttached("SimpleShareEPGPLogs") then
+    T:Open("SimpleShareEPGPLogs")
   end
 end
 
-function SimpleSharedEPGPLogs:OnDisable()
-  T:Close("SimpleSharedEPGPLogs")
+function SimpleShareEPGPLogs:OnDisable()
+  T:Close("SimpleShareEPGPLogs")
 end
 
-function SimpleSharedEPGPLogs:Refresh()
-  T:Refresh("SimpleSharedEPGPLogs")
+function SimpleShareEPGPLogs:Refresh()
+  T:Refresh("SimpleShareEPGPLogs")
 end
 
-function SimpleSharedEPGPLogs:setHideScript()
+function SimpleShareEPGPLogs:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "SimpleSharedEPGPLogs" then
+    if tablet.owner ~= nil and tablet.owner == "SimpleShareEPGPLogs" then
       SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("SimpleSharedEPGPLogs") then
-            T:Attach("SimpleSharedEPGPLogs")
+          if not T:IsAttached("SimpleShareEPGPLogs") then
+            T:Attach("SimpleShareEPGPLogs")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -66,55 +66,55 @@ function SimpleSharedEPGPLogs:setHideScript()
   end  
 end
 
-function SimpleSharedEPGPLogs:Top()
-  if T:IsRegistered("SimpleSharedEPGPLogs") and (T.registry.SimpleSharedEPGPLogs.tooltip) then
-    T.registry.SimpleSharedEPGPLogs.tooltip.scroll=0
+function SimpleShareEPGPLogs:Top()
+  if T:IsRegistered("SimpleShareEPGPLogs") and (T.registry.SimpleShareEPGPLogs.tooltip) then
+    T.registry.SimpleShareEPGPLogs.tooltip.scroll=0
   end  
 end
 
-function SimpleSharedEPGPLogs:Toggle(forceShow)
+function SimpleShareEPGPLogs:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("SimpleSharedEPGPLogs") then
-    T:Detach("SimpleSharedEPGPLogs") -- show
-    if (T:IsLocked("SimpleSharedEPGPLogs")) then
-      T:ToggleLocked("SimpleSharedEPGPLogs")
+  if T:IsAttached("SimpleShareEPGPLogs") then
+    T:Detach("SimpleShareEPGPLogs") -- show
+    if (T:IsLocked("SimpleShareEPGPLogs")) then
+      T:ToggleLocked("SimpleShareEPGPLogs")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      SimpleSharedEPGPLogs:Refresh()
+      SimpleShareEPGPLogs:Refresh()
     else
-      T:Attach("SimpleSharedEPGPLogs") -- hide
+      T:Attach("SimpleShareEPGPLogs") -- hide
     end
   end  
 end
 
-function SimpleSharedEPGPLogs:reverse(arr)
-  CP:Recycle(SimpleSharedEPGPLogs.tmp)
+function SimpleShareEPGPLogs:reverse(arr)
+  CP:Recycle(SimpleShareEPGPLogs.tmp)
   for _,val in ipairs(arr) do
-    table.insert(SimpleSharedEPGPLogs.tmp,val)
+    table.insert(SimpleShareEPGPLogs.tmp,val)
   end
-  local i, j = 1, table.getn(SimpleSharedEPGPLogs.tmp)
+  local i, j = 1, table.getn(SimpleShareEPGPLogs.tmp)
   while i < j do
-    SimpleSharedEPGPLogs.tmp[i], SimpleSharedEPGPLogs.tmp[j] = SimpleSharedEPGPLogs.tmp[j], SimpleSharedEPGPLogs.tmp[i]
+    SimpleShareEPGPLogs.tmp[i], SimpleShareEPGPLogs.tmp[j] = SimpleShareEPGPLogs.tmp[j], SimpleShareEPGPLogs.tmp[i]
     i = i + 1
     j = j - 1
   end
-  return SimpleSharedEPGPLogs.tmp
+  return SimpleShareEPGPLogs.tmp
 end
 
-function SimpleSharedEPGPLogs:BuildLogsTable()
+function SimpleShareEPGPLogs:BuildLogsTable()
   -- {timestamp,line}
-  return self:reverse(SimpleSharedEPGPLog)
+  return self:reverse(SimpleShareEPGPLog)
 end
 
-function SimpleSharedEPGPLogs:OnTooltipUpdate()
+function SimpleShareEPGPLogs:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 2,
       "text",  C:Orange(L["Time"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",
       "text2", C:Orange(L["Action"]),     "child_text2R",   1, "child_text2G",   1, "child_text2B",   1, "child_justify2", "RIGHT"
     )
-  local t = SimpleSharedEPGPLogs:BuildLogsTable()
+  local t = SimpleShareEPGPLogs:BuildLogsTable()
   for i = 1, table.getn(t) do
     local timestamp, line = unpack(t[i])
     cat:AddLine(

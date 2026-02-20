@@ -5,11 +5,11 @@ local C = AceLibrary("Crayon-2.0")
 local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
-SimpleSharedEPGPLoot = SimpleShareEPGP:NewModule("SimpleSharedEPGPLoot", "AceDB-2.0")
+SimpleShareEPGPLoot = SimpleShareEPGP:NewModule("SimpleShareEPGPLoot", "AceDB-2.0")
 
-function SimpleSharedEPGPLoot:OnEnable()
-  if not T:IsRegistered("SimpleSharedEPGPLoot") then
-    T:Register("SimpleSharedEPGPLoot",
+function SimpleShareEPGPLoot:OnEnable()
+  if not T:IsRegistered("SimpleShareEPGPLoot") then
+    T:Register("SimpleShareEPGPLoot",
       "children", function()
         T:SetTitle(L["loot info"])
         self:OnTooltipUpdate()
@@ -21,7 +21,7 @@ function SimpleSharedEPGPLoot:OnEnable()
         D:AddLine(
           "text", L["Refresh"],
           "tooltipText", L["Refresh window"],
-          "func", function() SimpleSharedEPGPLoot:Refresh() end
+          "func", function() SimpleShareEPGPLoot:Refresh() end
         )
         D:AddLine(
           "text", L["Clear"],
@@ -31,29 +31,29 @@ function SimpleSharedEPGPLoot:OnEnable()
       end      
     )
   end
-  if not T:IsAttached("SimpleSharedEPGPLoot") then
-    T:Open("SimpleSharedEPGPLoot")
+  if not T:IsAttached("SimpleShareEPGPLoot") then
+    T:Open("SimpleShareEPGPLoot")
   end
 end
 
-function SimpleSharedEPGPLoot:OnDisable()
-  T:Close("SimpleSharedEPGPLoot")
+function SimpleShareEPGPLoot:OnDisable()
+  T:Close("SimpleShareEPGPLoot")
 end
 
-function SimpleSharedEPGPLoot:Refresh()
-  T:Refresh("SimpleSharedEPGPLoot")
+function SimpleShareEPGPLoot:Refresh()
+  T:Refresh("SimpleShareEPGPLoot")
 end
 
-function SimpleSharedEPGPLoot:setHideScript()
+function SimpleShareEPGPLoot:setHideScript()
   local i = 1
   local tablet = getglobal(string.format("Tablet20DetachedFrame%d",i))
   while (tablet) and i<100 do
-    if tablet.owner ~= nil and tablet.owner == "SimpleSharedEPGPLoot" then
+    if tablet.owner ~= nil and tablet.owner == "SimpleShareEPGPLoot" then
       SimpleShareEPGP:make_escable(string.format("Tablet20DetachedFrame%d",i),"add")
       tablet:SetScript("OnHide",nil)
       tablet:SetScript("OnHide",function()
-          if not T:IsAttached("SimpleSharedEPGPLoot") then
-            T:Attach("SimpleSharedEPGPLoot")
+          if not T:IsAttached("SimpleShareEPGPLoot") then
+            T:Attach("SimpleShareEPGPLoot")
             this:SetScript("OnHide",nil)
           end
         end)
@@ -64,42 +64,42 @@ function SimpleSharedEPGPLoot:setHideScript()
   end  
 end
 
-function SimpleSharedEPGPLoot:Top()
-  if T:IsRegistered("SimpleSharedEPGPLoot") and (T.registry.SimpleSharedEPGPLoot.tooltip) then
-    T.registry.SimpleSharedEPGPLoot.tooltip.scroll=0
+function SimpleShareEPGPLoot:Top()
+  if T:IsRegistered("SimpleShareEPGPLoot") and (T.registry.SimpleShareEPGPLoot.tooltip) then
+    T.registry.SimpleShareEPGPLoot.tooltip.scroll=0
   end  
 end
 
-function SimpleSharedEPGPLoot:Toggle(forceShow)
+function SimpleShareEPGPLoot:Toggle(forceShow)
   self:Top()
-  if T:IsAttached("SimpleSharedEPGPLoot") then
-    T:Detach("SimpleSharedEPGPLoot") -- show
-    if (T:IsLocked("SimpleSharedEPGPLoot")) then
-      T:ToggleLocked("SimpleSharedEPGPLoot")
+  if T:IsAttached("SimpleShareEPGPLoot") then
+    T:Detach("SimpleShareEPGPLoot") -- show
+    if (T:IsLocked("SimpleShareEPGPLoot")) then
+      T:ToggleLocked("SimpleShareEPGPLoot")
     end
     self:setHideScript()
   else
     if (forceShow) then
-      SimpleSharedEPGPLoot:Refresh()
+      SimpleShareEPGPLoot:Refresh()
     else
-      T:Attach("SimpleSharedEPGPLoot") -- hide
+      T:Attach("SimpleShareEPGPLoot") -- hide
     end
   end  
 end
 
-function SimpleSharedEPGPLoot:BuildLootTable()
-  table.sort(SimpleSharedEPGPLooted, function(a,b)
+function SimpleShareEPGPLoot:BuildLootTable()
+  table.sort(SimpleShareEPGPLooted, function(a,b)
     if (a[1] ~= b[1]) then return a[1] > b[1]
     else return a[2] > b[2] end
   end)
-  return SimpleSharedEPGPLooted;
+  return SimpleShareEPGPLooted;
 end
 
-function SimpleSharedEPGPLoot:OnClickItem(data)
+function SimpleShareEPGPLoot:OnClickItem(data)
 
 end
 
-function SimpleSharedEPGPLoot:OnTooltipUpdate()
+function SimpleShareEPGPLoot:OnTooltipUpdate()
   local cat = T:AddCategory(
       "columns", 5,
       "text",  C:Orange(L["Time"]),   "child_textR",    1, "child_textG",    1, "child_textB",    1, "child_justify",  "LEFT",

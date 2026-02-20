@@ -383,9 +383,9 @@ function SimpleShareEPGPStandings:ToggleRaidOnly()
 end
 
 local pr_sorter_standings = function(a,b)
-  if SimpleSharedEPGPCharacterConfig.minep > 0 then
-    local a_over = a[4] - SimpleSharedEPGPCharacterConfig.minep >= 0
-    local b_over = b[4] - SimpleSharedEPGPCharacterConfig.minep >= 0
+  if SimpleShareEPGPCharacterConfig.minep > 0 then
+    local a_over = a[4] - SimpleShareEPGPCharacterConfig.minep >= 0
+    local b_over = b[4] - SimpleShareEPGPCharacterConfig.minep >= 0
     if a_over and b_over or (not a_over and not b_over) then
       if a[6] ~= b[6] then
         return tonumber(a[6]) > tonumber(b[6])
@@ -510,7 +510,7 @@ function SimpleShareEPGPStandings:OnTooltipUpdate()
     end
     local text = C:Colorize(BC:GetHexColor(class), name)
     local text2, text4
-    if SimpleSharedEPGPCharacterConfig.minep > 0 and ep < SimpleSharedEPGPCharacterConfig.minep then
+    if SimpleShareEPGPCharacterConfig.minep > 0 and ep < SimpleShareEPGPCharacterConfig.minep then
       text2 = C:Red(string.format("%.4g", ep))
       text4 = C:Red(string.format("%.4g", pr))
     else
