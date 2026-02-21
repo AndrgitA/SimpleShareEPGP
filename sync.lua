@@ -5,7 +5,7 @@ local string_gfind = string.gfind or string.gmatch;
 
 local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale");
 
-local consumerData = {
+local sourceData = {
   token = "",
   source = "",
 
@@ -33,17 +33,17 @@ SimpleShareEPGPSync.isSyncing = false;
 SimpleShareEPGPSync.isStartingSync = false;
 SimpleShareEPGPSync.isEndSync = false;
 
-function SimpleShareEPGPSync:initConsumerData(token, source, countAtStart)
+function SimpleShareEPGPSync:initSourceData(token, source, countAtStart)
   if (not token or not source or not countAtStart) then
     return;
   end
 
-  consumerData.token = token;
-  consumerData.source = source;
-  consumerData.controlSumm = 0;
-  consumerData.countAtStart = countAtStart;
-  consumerData.count = 0;
-  consumerData.buffer = {};
+  sourceData.token = token;
+  sourceData.source = source;
+  sourceData.controlSumm = 0;
+  sourceData.countAtStart = countAtStart;
+  sourceData.count = 0;
+  sourceData.buffer = {};
 end
 
 function SimpleShareEPGPSync:isCanShareStart(silence)
@@ -181,13 +181,13 @@ function SimpleShareEPGPSync:parseStartSync(data, token, sender)
   isMasterLooter = tonumber(isMasterLooter);
   countAtStart = tonumber(countAtStart);
   if (isMasterLooter == 1 and countAtStart > 0) then
-    SimpleShareEPGPSync:initConsumerData(token, sender, countAtStart);
+    SimpleShareEPGPSync:initSourceData(token, sender, countAtStart);
     SimpleShareEPGPSync.isSyncing = true;
   end
 end
 
 function SimpleShareEPGPSync:parseSyncMessage(data, token, sender)
-  if (consumerData.token ~= token or consumerData.source ~= sender) then
+  if (sourceData.token ~= token or sourceData.source ~= sender) then
     return;
   end
 
@@ -196,6 +196,9 @@ function SimpleShareEPGPSync:parseSyncMessage(data, token, sender)
     ep = tonumber(ep);
     gp = tonumber(gp);
     if (not (index and ep and gp and name)) then
+      -- break all sync process, if u have bad data
+      sourceData.token = "";
+      SimpleShareEPGPSync.isSyncing = false;
       return;
     end
 
@@ -203,21 +206,21 @@ function SimpleShareEPGPSync:parseSyncMessage(data, token, sender)
       class = SimpleShareEPGP.VARS.undefinedClass;
     end
 
-    consumerData.buffer[name] = {
+    sourceData.buffer[name] = {
       ep = ep,
       gp = gp,
       class = class,
     };
 
-    consumerData.count = consumerData.count + 1;
-    consumerData.controlSumm = consumerData.controlSumm + index + ep + gp;
+    sourceData.count = sourceData.count + 1;
+    sourceData.controlSumm = sourceData.controlSumm + index + ep + gp;
   end
 
   SimpleShareEPGPSync:ValidationApplySync();
 end
 
 function SimpleShareEPGPSync:parseEndSync(data, token, sender)
-  if (consumerData.token ~= token or consumerData.source ~= sender) then
+  if (sourceData.token ~= token or sourceData.source ~= sender) then
     return;
   end
 
@@ -225,7 +228,7 @@ function SimpleShareEPGPSync:parseEndSync(data, token, sender)
   controllSumm = tonumber(controllSumm);
 
   if (controllSumm > 0) then
-    consumerData.controlSummAtEnd = controllSumm;
+    sourceData.controlSummAtEnd = controllSumm;
   end
 
   SimpleShareEPGPSync.isSyncing = false;
@@ -250,20 +253,20 @@ function SimpleShareEPGPSync:ValidationApplySync()
   end
 
   local realCount = 0;
-  for _ in pairs(consumerData.buffer) do
+  for _ in pairs(sourceData.buffer) do
     realCount = realCount + 1;
   end
 
-  if (realCount ~= consumerData.count) then
+  if (realCount ~= sourceData.count) then
     return false;
   end
 
-  if (consumerData.controlSummAtEnd ~= consumerData.controlSumm) then
+  if (sourceData.controlSummAtEnd ~= sourceData.controlSumm) then
     return false;
   end
 
   if (triggerDone) then
-    triggerDone(consumerData.buffer, consumerData.source);
+    triggerDone(sourceData.buffer, sourceData.source);
   end
 
   return true;
