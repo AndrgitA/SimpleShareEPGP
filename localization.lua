@@ -218,4 +218,14 @@ Results will print here when done.]],
   ["Group remove member"] = true,
   ["№"] = true,
   ["Items price updated"] = true,
+
+  -- sync
+  ["Start Sync"] = true,
+  ["Emit share all DB for another sync listeners"] = true,
+  ["You are not admin"] = true,
+  ["You are not MasterLooter"] = true,
+  ["You are not enable sync option"] = true,
+  ["Enable Sync"] = true,
+  ["Enable database synchronization for startup or update."] = true,
+  ["A person named {%s} updated your data via a synchronized channel."] = true,
 } end)

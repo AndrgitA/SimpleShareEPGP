@@ -17,7 +17,7 @@ SimpleShareEPGP.VARS = {
   baseaward_ep = 100,
   decay = 0.9,
   max = 1000,
-  maxloglines = 500,
+  maxloglines = 2000,
   prefix = "SIMPLE_SHARE_EPGP",
   bop = C:Red("BoP"),
   boe = C:Yellow("BoE"),
@@ -69,6 +69,7 @@ SimpleShareEPGPCharacterConfigDefault = {
   minep = SimpleShareEPGP.VARS.minep,
   progress = "T1",
   discount = 0.25,
+  syncEnabled = false,
 };
 
 SimpleShareEPGP_DB = {};
@@ -218,140 +219,113 @@ function SimpleShareEPGP.isAdminUnit()
   -- return false;
 end
 
-local admincmd, membercmd = {
-  type = "group",
-  handler = SimpleShareEPGP,
-  args = {
-    bids = {
-      type = "execute",
-      name = L["Bids"],
-      desc = L["Show Bids Table."],
-      func = function()
-        SimpleShareEPGPBids:Toggle();
-      end,
-      order = 1,
-    },
-    show = {
-      type = "execute",
-      name = L["Standings"],
-      desc = L["Show Standings Table."],
-      func = function()
-        SimpleShareEPGPStandings:Toggle();
-      end,
-      order = 2,
-    },    
-    clearloot = {
-      type = "execute",
-      name = L["ClearLoot"],
-      desc = L["Clear Loot Table."],
-      func = function()
-        SimpleShareEPGP:ClearLoot();
-      end,
-      order = 3,
-    },
-    clearlogs = {
-      type = "execute",
-      name = L["ClearLogs"],
-      desc = L["Clear Logs Table."],
-      func = function()
-        SimpleShareEPGP:ClearLogs();
-      end,
-      order = 4,
-    },
-    progress = {
-      type = "execute",
-      name = L["Progress"],
-      desc = L["Print Progress Multiplier."],
-      func = function()
-        SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
-      end,
-      order = 5,
-    },
-    offspec = {
-      type = "execute",
-      name = L["Offspec"],
-      desc = L["Print Offspec Price."],
-      func = function()
-        SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
-      end,
-      order = 6,
-    },    
-    restart = {
-      type = "execute",
-      name = L["Restart"],
-      desc = L["Restart addon if having startup problems."],
-      func = function() 
-        SimpleShareEPGP:OnEnable()
-        SimpleShareEPGP:defaultPrint(L["Restarted"])
-      end,
-      order = 7,
-    },
-    export_super_wow = {
-      type = "execute",
-      name = L["ExportFile (SuperWoW)"],
-      desc = L["Export standings with SuperWoW function to csv"],
-      func = function()
-        SimpleShareEPGPExportSuperWoW();  
-      end,
-      order = 8,
-    },
-  }
-},{
-  type = "group",
-  handler = SimpleShareEPGP,
-  args = {
-    -- show = {
-    --   type = "execute",
-    --   name = L["Standings"],
-    --   desc = L["Show Standings Table."],
-    --   func = function()
-    --     SimpleShareEPGPStandings:Toggle();
-    --   end,
-    --   order = 1,
-    -- },
-    -- progress = {
-    --   type = "execute",
-    --   name = L["Progress"],
-    --   desc = L["Print Progress Multiplier."],
-    --   func = function()
-    --     SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
-    --   end,
-    --   order = 2,
-    -- },
-    -- offspec = {
-    --   type = "execute",
-    --   name = L["Offspec"],
-    --   desc = L["Print Offspec Price."],
-    --   func = function()
-    --     SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
-    --   end,
-    --   order = 3,
-    -- },
-    restart = {
-      type = "execute",
-      name = L["Restart"],
-      desc = L["Restart addon if having startup problems."],
-      func = function() 
-        SimpleShareEPGP:OnEnable()
-        SimpleShareEPGP:defaultPrint(L["Restarted"])
-      end,
-      order = 4,
-    },    
-  }}
-  --[[{
-    type = "execute",
-    name = "Standings",
-    desc = "Show Standings Table.",
-    func = function()
-      SimpleShareEPGPStandings:Toggle();
-    end,
-  }]]  
-  SimpleShareEPGP.cmdtable = function() 
-  if (SimpleShareEPGP.isAdminUnit()) then
-    return admincmd
-  else
-    return membercmd
-  end
+SimpleShareEPGP.cmdtable = function() 
+  return {
+    type = "group",
+    handler = SimpleShareEPGP,
+    args = {
+      bids = {
+        type = "execute",
+        name = L["Bids"],
+        desc = L["Show Bids Table."],
+        func = function()
+          SimpleShareEPGPBids:Toggle();
+        end,
+        order = 1,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+      show = {
+        type = "execute",
+        name = L["Standings"],
+        desc = L["Show Standings Table."],
+        func = function()
+          SimpleShareEPGPStandings:Toggle();
+        end,
+        order = 2,
+      },    
+      clearloot = {
+        type = "execute",
+        name = L["ClearLoot"],
+        desc = L["Clear Loot Table."],
+        func = function()
+          SimpleShareEPGP:ClearLoot();
+        end,
+        order = 3,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+      clearlogs = {
+        type = "execute",
+        name = L["ClearLogs"],
+        desc = L["Clear Logs Table."],
+        func = function()
+          SimpleShareEPGP:ClearLogs();
+        end,
+        order = 4,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+      progress = {
+        type = "execute",
+        name = L["Progress"],
+        desc = L["Print Progress Multiplier."],
+        func = function()
+          SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
+        end,
+        order = 5,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit()
+        end
+      },
+      offspec = {
+        type = "execute",
+        name = L["Offspec"],
+        desc = L["Print Offspec Price."],
+        func = function()
+          SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
+        end,
+        order = 6,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },    
+      restart = {
+        type = "execute",
+        name = L["Restart"],
+        desc = L["Restart addon if having startup problems."],
+        func = function() 
+          SimpleShareEPGP:OnEnable()
+          SimpleShareEPGP:defaultPrint(L["Restarted"])
+        end,
+        order = 7,
+      },
+      export_super_wow = {
+        type = "execute",
+        name = L["ExportFile (SuperWoW)"],
+        desc = L["Export standings with SuperWoW function to csv"],
+        func = function()
+          SimpleShareEPGPExportSuperWoW();  
+        end,
+        order = 8,
+      },
+      start_sync = {
+        type = "execute",
+        name = L["Start Sync"],
+        desc = L["Emit share all DB for another sync listeners"],
+        func = function()
+          SimpleShareEPGPSync:StartSync();
+        end,
+        order = 9,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+    }
+  };
 end
 SimpleShareEPGP.bids_main, SimpleShareEPGP.bids_off, SimpleShareEPGP.bid_item = {}, {}, {};
 SimpleShareEPGP.timer = CreateFrame("Frame")
@@ -421,7 +395,8 @@ function SimpleShareEPGP:buildMenu()
       end,
       validate = function(v)
         local n = tonumber(v)
-        return n and n >= 0 and n < SimpleShareEPGP.VARS.max
+        -- return n and n >= 0 and n < SimpleShareEPGP.VARS.max
+        return n and n < SimpleShareEPGP.VARS.max
       end
     }
     options.args["gp"] = {
@@ -470,9 +445,9 @@ function SimpleShareEPGP:buildMenu()
         SimpleShareEPGPConfig.raidonly = not SimpleShareEPGPConfig.raidonly
         SimpleShareEPGP:SetRefresh(true)
       end,
-      hidden = function()
-        return not SimpleShareEPGP.isAdminUnit();
-      end
+      -- hidden = function()
+      --   return not SimpleShareEPGP.isAdminUnit();
+      -- end
     }
     options.args["simple_mode"] = {
       type = "toggle",
@@ -624,6 +599,17 @@ function SimpleShareEPGP:buildMenu()
       end,
       func = function() StaticPopup_Show("SIMPLE_SHARE_EPGP_CONFIRM_RESET") end
     }
+    options.args["sync"] = {
+      type = "toggle",
+      name = L["Enable Sync"],
+      desc = L["Enable database synchronization for startup or update."],
+      order = 130,
+      get = function() return SimpleShareEPGPCharacterConfig.syncEnabled end,
+      set = function(v) 
+        SimpleShareEPGPCharacterConfig.syncEnabled = not SimpleShareEPGPCharacterConfig.syncEnabled;
+        SimpleShareEPGP:SetRefresh(true);
+      end,
+    }
   end
   if (needInit) or (needRefresh) then
     local members = SimpleShareEPGP:buildRosterTable()
@@ -644,6 +630,8 @@ function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
 
   self:RegisterDB("simple_share_epgp_fubar")
   self:RegisterDefaults("char",{})
+
+  SimpleShareEPGPSync:RegisterDoneSync(SimpleShareEPGP.DoneSync);
   --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
 end
 
@@ -824,8 +812,8 @@ function SimpleShareEPGP:delayedInit()
 
   -- init options and comms
   self._options = self:buildMenu()
-  self:RegisterChatCommand({"/simpleshareepgp","/ssepgp"},self.cmdtable())
-  self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
+  self:RegisterChatCommand({"/simpleshareepgp", "/ssepgp"}, self.cmdtable())
+  self:RegisterEvent("CHAT_MSG_ADDON", "addonComms");
   -- broadcast our version
   local addonMsg = string.format("VERSION;%s;%d",SimpleShareEPGP._versionString,major_ver)
   self:anounceAddonMessage(addonMsg)
@@ -1207,6 +1195,14 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
       --     self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep);
       --   end
       -- end
+    elseif (
+      who == SimpleShareEPGPSync.prefixSyncStart or
+      who == SimpleShareEPGPSync.prefixSyncMessage or
+      who == SimpleShareEPGPSync.prefixSyncEnd
+    ) then
+      if (SimpleShareEPGPCharacterConfig.syncEnabled) then
+        SimpleShareEPGPSync:parserMessage(who, what, amount, sender);
+      end
     end
     if msg and msg~="" then
       self:defaultPrint(msg)
@@ -1473,9 +1469,9 @@ SimpleShareEPGP.tooltipHiddenWhenEmpty = false
 SimpleShareEPGP.independentProfile = true
 
 function SimpleShareEPGP:OnTooltipUpdate()
-  local hint = L["|cffffff00Right-Click|r for Options."]
+  local hint = string.format("%s \n%s", L["|cffffff00Right-Click|r for Options."], L["|cffffff00Click|r to toggle Standings."])
   if (SimpleShareEPGP.isAdminUnit()) then
-    hint = string.format("%s \n%s%s", L["|cffffff00Click|r to toggle Standings."], hint, L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."]);
+    hint = string.format("%s%s",hint, L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."]);
   else
     hint = string.format(hint,"");
   end
@@ -1484,11 +1480,6 @@ end
 
 function SimpleShareEPGP:OnClick()
   local is_admin = SimpleShareEPGP.isAdminUnit();
-
-  -- now any leftclick for not admin ignored
-  if (not is_admin) then
-    return;
-  end
 
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
     SimpleShareEPGPLogs:Toggle();
@@ -1523,6 +1514,35 @@ end
 function SimpleShareEPGP:clean_table_db()
   SimpleShareEPGP_DB = {};
   return SimpleShareEPGP_DB;
+end
+
+function SimpleShareEPGP:RecurCopy(data)
+  if (type(data) ~= "table") then
+    return data;
+  end
+
+  
+  local tmp = {};
+  for i, v in pairs(data) do
+    -- for less function call
+    if (type(v) ~= "table") then
+      tmp[i] = v;
+    else
+      tmp[i] = SimpleShareEPGP:RecurCopy(v);
+    end
+  end
+
+  return tmp;
+end
+
+function SimpleShareEPGP:GetCopyDB()
+  local db = SimpleShareEPGP:init_table_db();
+
+  return SimpleShareEPGP:RecurCopy(db);
+end
+
+function SimpleShareEPGP:replace_table_db(data)
+  SimpleShareEPGP_DB = data;
 end
 
 function SimpleShareEPGP:init_table_db()
@@ -2299,6 +2319,36 @@ function SimpleShareEPGP:camelCase(word)
     end)
 end
 
+-------------
+-- Sync
+-------------
+function SimpleShareEPGP.DoneSync(data, source)
+  if (SimpleShareEPGP:lootMaster()) then
+    return;
+  end
+
+  if (not data) then
+    return;
+  end
+
+  for i, v in pairs(data) do
+    if (type(i) ~= "string" or string.len(i) < 2) then
+      return;
+    end
+
+    if (not v.ep or not v.gp or not v.class) then
+      return;
+    end
+  end
+  
+  SimpleShareEPGP:replace_table_db(data);
+
+  local tmp = string.format(L["A person named {%s} updated your data via a synchronized channel."], source);
+  SimpleShareEPGP:debugPrint(tmp)
+
+  SimpleShareEPGP:ClearLogs();
+  SimpleShareEPGP:refreshPRTablets();
+end
 -------------
 -- Dialogs
 -------------
