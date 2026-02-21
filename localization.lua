@@ -228,4 +228,5 @@ Results will print here when done.]],
   ["Enable Sync"] = true,
   ["Enable database synchronization for startup or update."] = true,
   ["A person named {%s} updated your data via a synchronized channel."] = true,
+  ["Data transfer completed."] = true,
 } end)

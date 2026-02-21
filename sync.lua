@@ -2,6 +2,9 @@ local GetTime = GetTime;
 local string_find, string_format = string.find, string.format;
 local tonumber = tonumber;
 local string_gfind = string.gfind or string.gmatch;
+
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale");
+
 local consumerData = {
   token = "",
   source = "",
@@ -161,6 +164,8 @@ function SimpleShareEPGPSync:StartSync()
   -- controlValue
   tmpMessage = string_format("%d", controlValue);
   SimpleShareEPGPSync:anounceSyncMessage(getEndSyncMessage(tmpMessage, token));
+
+  SimpleShareEPGP:defaultPrint(L["Data transfer completed."]);
 end
 
 function SimpleShareEPGPSync:RegisterDoneSync(func)
