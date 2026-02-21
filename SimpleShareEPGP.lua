@@ -69,6 +69,7 @@ SimpleShareEPGPCharacterConfigDefault = {
   minep = SimpleShareEPGP.VARS.minep,
   progress = "T1",
   discount = 0.25,
+  syncEnabled = false,
 };
 
 SimpleShareEPGP_DB = {};
@@ -295,20 +296,29 @@ local admincmd, membercmd = {
       end,
       order = 8,
     },
+    start_sync = {
+      type = "execute",
+      name = L["Start Sync"],
+      desc = L["Emit share all DB for another sync listeners"],
+      func = function()
+        SimpleShareEPGPSync:StartSync();
+      end,
+      order = 9,
+    },
   }
 },{
   type = "group",
   handler = SimpleShareEPGP,
   args = {
-    -- show = {
-    --   type = "execute",
-    --   name = L["Standings"],
-    --   desc = L["Show Standings Table."],
-    --   func = function()
-    --     SimpleShareEPGPStandings:Toggle();
-    --   end,
-    --   order = 1,
-    -- },
+    show = {
+      type = "execute",
+      name = L["Standings"],
+      desc = L["Show Standings Table."],
+      func = function()
+        SimpleShareEPGPStandings:Toggle();
+      end,
+      order = 1,
+    },
     -- progress = {
     --   type = "execute",
     --   name = L["Progress"],
@@ -421,7 +431,8 @@ function SimpleShareEPGP:buildMenu()
       end,
       validate = function(v)
         local n = tonumber(v)
-        return n and n >= 0 and n < SimpleShareEPGP.VARS.max
+        -- return n and n >= 0 and n < SimpleShareEPGP.VARS.max
+        return n and n < SimpleShareEPGP.VARS.max
       end
     }
     options.args["gp"] = {
@@ -470,9 +481,9 @@ function SimpleShareEPGP:buildMenu()
         SimpleShareEPGPConfig.raidonly = not SimpleShareEPGPConfig.raidonly
         SimpleShareEPGP:SetRefresh(true)
       end,
-      hidden = function()
-        return not SimpleShareEPGP.isAdminUnit();
-      end
+      -- hidden = function()
+      --   return not SimpleShareEPGP.isAdminUnit();
+      -- end
     }
     options.args["simple_mode"] = {
       type = "toggle",
@@ -624,6 +635,17 @@ function SimpleShareEPGP:buildMenu()
       end,
       func = function() StaticPopup_Show("SIMPLE_SHARE_EPGP_CONFIRM_RESET") end
     }
+    options.args["sync"] = {
+      type = "toggle",
+      name = L["Enable Sync"],
+      desc = L["Enable database synchronization for startup or update."],
+      order = 130,
+      get = function() return SimpleShareEPGPCharacterConfig.syncEnabled end,
+      set = function(v) 
+        SimpleShareEPGPCharacterConfig.syncEnabled = not SimpleShareEPGPCharacterConfig.syncEnabled;
+        SimpleShareEPGP:SetRefresh(true);
+      end,
+    }
   end
   if (needInit) or (needRefresh) then
     local members = SimpleShareEPGP:buildRosterTable()
@@ -644,6 +666,8 @@ function SimpleShareEPGP:OnInitialize() -- ADDON_LOADED (1) unless LoD
 
   self:RegisterDB("simple_share_epgp_fubar")
   self:RegisterDefaults("char",{})
+
+  SimpleShareEPGPSync:RegisterDoneSync(SimpleShareEPGP.DoneSync);
   --table.insert(SimpleShareEPGPConfig.debug,{[date("%b/%d %H:%M:%S")]="OnInitialize"})
 end
 
@@ -1207,6 +1231,14 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
       --     self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep);
       --   end
       -- end
+    elseif (
+      who == SimpleShareEPGPSync.prefixSyncStart or
+      who == SimpleShareEPGPSync.prefixSyncMessage or
+      who == SimpleShareEPGPSync.prefixSyncEnd
+    ) then
+      if (SimpleShareEPGPCharacterConfig.syncEnabled) then
+        SimpleShareEPGPSync:parserMessage(who, what, amount, sender);
+      end
     end
     if msg and msg~="" then
       self:defaultPrint(msg)
@@ -1473,9 +1505,9 @@ SimpleShareEPGP.tooltipHiddenWhenEmpty = false
 SimpleShareEPGP.independentProfile = true
 
 function SimpleShareEPGP:OnTooltipUpdate()
-  local hint = L["|cffffff00Right-Click|r for Options."]
+  local hint = string.format("%s \n%s", L["|cffffff00Right-Click|r for Options."], L["|cffffff00Click|r to toggle Standings."])
   if (SimpleShareEPGP.isAdminUnit()) then
-    hint = string.format("%s \n%s%s", L["|cffffff00Click|r to toggle Standings."], hint, L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."]);
+    hint = string.format("%s%s",hint, L[" \n|cffffff00Alt+Click|r to toggle Bids. \n|cffffff00Shift+Click|r to toggle Loot. \n|cffffff00Ctrl+Shift+Click|r to toggle Logs."]);
   else
     hint = string.format(hint,"");
   end
@@ -1484,11 +1516,6 @@ end
 
 function SimpleShareEPGP:OnClick()
   local is_admin = SimpleShareEPGP.isAdminUnit();
-
-  -- now any leftclick for not admin ignored
-  if (not is_admin) then
-    return;
-  end
 
   if (IsControlKeyDown() and IsShiftKeyDown() and is_admin) then
     SimpleShareEPGPLogs:Toggle();
@@ -1523,6 +1550,35 @@ end
 function SimpleShareEPGP:clean_table_db()
   SimpleShareEPGP_DB = {};
   return SimpleShareEPGP_DB;
+end
+
+function SimpleShareEPGP:RecurCopy(data)
+  if (type(data) ~= "table") then
+    return data;
+  end
+
+  
+  local tmp = {};
+  for i, v in pairs(data) do
+    -- for less function call
+    if (type(v) ~= "table") then
+      tmp[i] = v;
+    else
+      tmp[i] = SimpleShareEPGP:RecurCopy(v);
+    end
+  end
+
+  return tmp;
+end
+
+function SimpleShareEPGP:GetCopyDB()
+  local db = SimpleShareEPGP:init_table_db();
+
+  return SimpleShareEPGP:RecurCopy(db);
+end
+
+function SimpleShareEPGP:replace_table_db(data)
+  SimpleShareEPGP_DB = data;
 end
 
 function SimpleShareEPGP:init_table_db()
@@ -2299,6 +2355,36 @@ function SimpleShareEPGP:camelCase(word)
     end)
 end
 
+-------------
+-- Sync
+-------------
+function SimpleShareEPGP.DoneSync(data, source)
+  if (SimpleShareEPGP:lootMaster()) then
+    return;
+  end
+
+  if (not data) then
+    return;
+  end
+
+  for i, v in pairs(data) do
+    if (type(i) ~= "string" or string.len(i) < 2) then
+      return;
+    end
+
+    if (not v.ep or not v.gp or not v.class) then
+      return;
+    end
+  end
+  
+  SimpleShareEPGP:replace_table_db(data);
+
+  local tmp = string.format(L["A person named {%s} updated your data via a synchronized channel."], source);
+  SimpleShareEPGP:debugPrint(tmp)
+
+  SimpleShareEPGP:ClearLogs();
+  SimpleShareEPGP:refreshPRTablets();
+end
 -------------
 -- Dialogs
 -------------

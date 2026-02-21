@@ -14,7 +14,7 @@ Different interface depending on the switch
 - 👑 - **📊 Offspec Price:** Set % value for offspec items.
 - 👑 - **📦 Members:** Add, Remove, Set Class for member
 - 👑 - **📥 Data Exchange (Import/Export):** A full GUI for moving your EPGP database via CSV strings (`Name;EP;GP;PR;Class`). Perfect for Google Sheets or Excel backups.
-- 👑 - **✂️ Toggle filters:** `Raid Only`.
+- 👥 - **✂️ Toggle filters:** `Raid Only`.
 - 👥 - **🎲 Smart Bidding:** Players can bid using `+` (MainSpec) or `-` (OffSpec) in raid chat. The addon parses these in real-time, building a priority-sorted table.
 - 👥 - **⚡ Interface mode:** Can switch interface mode for ML/Simple using.
 
@@ -25,14 +25,15 @@ Different interface depending on the switch
 
 | Command | Arguments | Description | Access |
 | :--- | :--- | :--- | :---: |
-| `/sepgp show` | `none` | Toggle the interactive Standings table | 👑 |
+| `/sepgp show` | `none` | Toggle the interactive Standings table | 👥 |
 | `/sepgp bids` | `none` | Monitor active raid bids | 👑 |
 | `/sepgp clearloot` | `none` | Clear loot data | 👑 |
 | `/sepgp clearlogs` | `none` | Clear logs data | 👑 |
 | `/sepgp offspec` | `none` | Change offspec % for price | 👑 |
 | `/sepgp decay` | `none` | Apply the global decay percentage | 👑 |
 | `/sepgp export_super_wow` | `none` | Export data to folder `Imports` | 👑 |
-| `/sepgp restart` | `none` | Restart addon if having startup problems | 👥 / 👑 |
+| `/sepgp restart` | `none` | Restart addon if having startup problems | 👥 |
+| `/sepgp start_sync` | `none` | Emit share all DB for another sync listeners | 👥 |
 
 ---
 ## 💾 SuperWoW Integration
