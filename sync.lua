@@ -47,13 +47,13 @@ function SimpleShareEPGPSync:initConsumerData(token, source, countAtStart)
 end
 
 function SimpleShareEPGPSync:isCanShareStart(silence)
-  if (not SimpleShareEPGPCharacterConfig.syncEnabled) then
-    if (not silence) then
-      SimpleShareEPGP:defaultPrint(L["You are not enable sync option"]);
-      UIErrorsFrame:AddMessage(L["You are not enable sync option"], 1, 0, 0);
-    end
-    return false;
-  end
+  -- if (not SimpleShareEPGPCharacterConfig.syncEnabled) then
+  --   if (not silence) then
+  --     SimpleShareEPGP:defaultPrint(L["You are not enable sync option"]);
+  --     UIErrorsFrame:AddMessage(L["You are not enable sync option"], 1, 0, 0);
+  --   end
+  --   return false;
+  -- end
 
   if (not SimpleShareEPGP:isAdminUnit()) then
     if (not silence) then
