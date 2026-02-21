@@ -143,7 +143,7 @@ function SimpleShareEPGPSync:StartSync()
   
   for i,v in ipairs(flatDB) do
     countInMessage = countInMessage + 1;
-    controlValue = controlValue + i;
+    controlValue = controlValue + i + v[2] + v[3];
     -- index:name:ep:gp:class$
     tmpMessage = string_format("%s%d:%s:%d:%d:%s*", tmpMessage, i, v[1], v[2], v[3], v[4]);
     
@@ -205,7 +205,7 @@ function SimpleShareEPGPSync:parseSyncMessage(data, token, sender)
     };
 
     consumerData.count = consumerData.count + 1;
-    consumerData.controlSumm = consumerData.controlSumm + index;
+    consumerData.controlSumm = consumerData.controlSumm + index + ep + gp;
   end
 
   SimpleShareEPGPSync:ValidationApplySync();

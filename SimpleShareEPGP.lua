@@ -219,149 +219,113 @@ function SimpleShareEPGP.isAdminUnit()
   -- return false;
 end
 
-local admincmd, membercmd = {
-  type = "group",
-  handler = SimpleShareEPGP,
-  args = {
-    bids = {
-      type = "execute",
-      name = L["Bids"],
-      desc = L["Show Bids Table."],
-      func = function()
-        SimpleShareEPGPBids:Toggle();
-      end,
-      order = 1,
-    },
-    show = {
-      type = "execute",
-      name = L["Standings"],
-      desc = L["Show Standings Table."],
-      func = function()
-        SimpleShareEPGPStandings:Toggle();
-      end,
-      order = 2,
-    },    
-    clearloot = {
-      type = "execute",
-      name = L["ClearLoot"],
-      desc = L["Clear Loot Table."],
-      func = function()
-        SimpleShareEPGP:ClearLoot();
-      end,
-      order = 3,
-    },
-    clearlogs = {
-      type = "execute",
-      name = L["ClearLogs"],
-      desc = L["Clear Logs Table."],
-      func = function()
-        SimpleShareEPGP:ClearLogs();
-      end,
-      order = 4,
-    },
-    progress = {
-      type = "execute",
-      name = L["Progress"],
-      desc = L["Print Progress Multiplier."],
-      func = function()
-        SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
-      end,
-      order = 5,
-    },
-    offspec = {
-      type = "execute",
-      name = L["Offspec"],
-      desc = L["Print Offspec Price."],
-      func = function()
-        SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
-      end,
-      order = 6,
-    },    
-    restart = {
-      type = "execute",
-      name = L["Restart"],
-      desc = L["Restart addon if having startup problems."],
-      func = function() 
-        SimpleShareEPGP:OnEnable()
-        SimpleShareEPGP:defaultPrint(L["Restarted"])
-      end,
-      order = 7,
-    },
-    export_super_wow = {
-      type = "execute",
-      name = L["ExportFile (SuperWoW)"],
-      desc = L["Export standings with SuperWoW function to csv"],
-      func = function()
-        SimpleShareEPGPExportSuperWoW();  
-      end,
-      order = 8,
-    },
-    start_sync = {
-      type = "execute",
-      name = L["Start Sync"],
-      desc = L["Emit share all DB for another sync listeners"],
-      func = function()
-        SimpleShareEPGPSync:StartSync();
-      end,
-      order = 9,
-    },
-  }
-},{
-  type = "group",
-  handler = SimpleShareEPGP,
-  args = {
-    show = {
-      type = "execute",
-      name = L["Standings"],
-      desc = L["Show Standings Table."],
-      func = function()
-        SimpleShareEPGPStandings:Toggle();
-      end,
-      order = 1,
-    },
-    -- progress = {
-    --   type = "execute",
-    --   name = L["Progress"],
-    --   desc = L["Print Progress Multiplier."],
-    --   func = function()
-    --     SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
-    --   end,
-    --   order = 2,
-    -- },
-    -- offspec = {
-    --   type = "execute",
-    --   name = L["Offspec"],
-    --   desc = L["Print Offspec Price."],
-    --   func = function()
-    --     SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
-    --   end,
-    --   order = 3,
-    -- },
-    restart = {
-      type = "execute",
-      name = L["Restart"],
-      desc = L["Restart addon if having startup problems."],
-      func = function() 
-        SimpleShareEPGP:OnEnable()
-        SimpleShareEPGP:defaultPrint(L["Restarted"])
-      end,
-      order = 4,
-    },    
-  }}
-  --[[{
-    type = "execute",
-    name = "Standings",
-    desc = "Show Standings Table.",
-    func = function()
-      SimpleShareEPGPStandings:Toggle();
-    end,
-  }]]  
-  SimpleShareEPGP.cmdtable = function() 
-  if (SimpleShareEPGP.isAdminUnit()) then
-    return admincmd
-  else
-    return membercmd
-  end
+SimpleShareEPGP.cmdtable = function() 
+  return {
+    type = "group",
+    handler = SimpleShareEPGP,
+    args = {
+      bids = {
+        type = "execute",
+        name = L["Bids"],
+        desc = L["Show Bids Table."],
+        func = function()
+          SimpleShareEPGPBids:Toggle();
+        end,
+        order = 1,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+      show = {
+        type = "execute",
+        name = L["Standings"],
+        desc = L["Show Standings Table."],
+        func = function()
+          SimpleShareEPGPStandings:Toggle();
+        end,
+        order = 2,
+      },    
+      clearloot = {
+        type = "execute",
+        name = L["ClearLoot"],
+        desc = L["Clear Loot Table."],
+        func = function()
+          SimpleShareEPGP:ClearLoot();
+        end,
+        order = 3,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+      clearlogs = {
+        type = "execute",
+        name = L["ClearLogs"],
+        desc = L["Clear Logs Table."],
+        func = function()
+          SimpleShareEPGP:ClearLogs();
+        end,
+        order = 4,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+      progress = {
+        type = "execute",
+        name = L["Progress"],
+        desc = L["Print Progress Multiplier."],
+        func = function()
+          SimpleShareEPGP:defaultPrint(SimpleShareEPGPCharacterConfig.progress);
+        end,
+        order = 5,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit()
+        end
+      },
+      offspec = {
+        type = "execute",
+        name = L["Offspec"],
+        desc = L["Print Offspec Price."],
+        func = function()
+          SimpleShareEPGP:defaultPrint(string.format("%s%%", SimpleShareEPGPCharacterConfig.discount * 100));
+        end,
+        order = 6,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },    
+      restart = {
+        type = "execute",
+        name = L["Restart"],
+        desc = L["Restart addon if having startup problems."],
+        func = function() 
+          SimpleShareEPGP:OnEnable()
+          SimpleShareEPGP:defaultPrint(L["Restarted"])
+        end,
+        order = 7,
+      },
+      export_super_wow = {
+        type = "execute",
+        name = L["ExportFile (SuperWoW)"],
+        desc = L["Export standings with SuperWoW function to csv"],
+        func = function()
+          SimpleShareEPGPExportSuperWoW();  
+        end,
+        order = 8,
+      },
+      start_sync = {
+        type = "execute",
+        name = L["Start Sync"],
+        desc = L["Emit share all DB for another sync listeners"],
+        func = function()
+          SimpleShareEPGPSync:StartSync();
+        end,
+        order = 9,
+        hidden = function()
+          return not SimpleShareEPGP.isAdminUnit();
+        end,
+      },
+    }
+  };
 end
 SimpleShareEPGP.bids_main, SimpleShareEPGP.bids_off, SimpleShareEPGP.bid_item = {}, {}, {};
 SimpleShareEPGP.timer = CreateFrame("Frame")
@@ -848,8 +812,8 @@ function SimpleShareEPGP:delayedInit()
 
   -- init options and comms
   self._options = self:buildMenu()
-  self:RegisterChatCommand({"/simpleshareepgp","/ssepgp"},self.cmdtable())
-  self:RegisterEvent("CHAT_MSG_ADDON","addonComms")  
+  self:RegisterChatCommand({"/simpleshareepgp", "/ssepgp"}, self.cmdtable())
+  self:RegisterEvent("CHAT_MSG_ADDON", "addonComms");
   -- broadcast our version
   local addonMsg = string.format("VERSION;%s;%d",SimpleShareEPGP._versionString,major_ver)
   self:anounceAddonMessage(addonMsg)
