@@ -80,7 +80,7 @@ SimpleShareEPGPCharacterConfigDefault = {
   decay = SimpleShareEPGP.VARS.decay,
   minep = SimpleShareEPGP.VARS.minep,
   progress = "T1",
-  discount = 0.25,
+  discount = 0.50,
   syncEnabled = false,
 };
 
