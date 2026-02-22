@@ -384,10 +384,10 @@ function SimpleShareEPGP:buildMenu()
     }
     options.args["simple_mode"] = {
       type = "toggle",
-      name = L["Simple mode"],
+      name = L["ML mode"],
       desc = L["Show all or simple mode interface."],
       order = 81,
-      get = function() return SimpleShareEPGPConfig.isSimpleModeInterface; end,
+      get = function() return not SimpleShareEPGPConfig.isSimpleModeInterface; end,
       set = function(v) 
         SimpleShareEPGPConfig.isSimpleModeInterface = not SimpleShareEPGPConfig.isSimpleModeInterface;
       end,
@@ -863,8 +863,8 @@ function SimpleShareEPGP:LootFrameItem_OnClick(button,data)
   if not UnitInRaid("player") then return end
 
   if (not SimpleShareEPGP.isAdminUnit()) then
-    self:defaultPrint(L["Need off Simple mode!"]);
-    UIErrorsFrame:AddMessage(L["Need off Simple mode!"], 1, 0, 0);
+    self:defaultPrint(L["Need on ML mode!"]);
+    UIErrorsFrame:AddMessage(L["Need on ML mode!"], 1, 0, 0);
     return 
   end
 

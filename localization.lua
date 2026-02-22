@@ -11,7 +11,7 @@ L:RegisterTranslations("enUS", function() return {
   ["Name"] = true,
   ["Raid Only"] = true,
   ["Only show members in raid."] = true,
-  ["Simple mode"] = true,
+  ["ML mode"] = true,
   ["Show all or simple mode interface."] = true,
   ["Restarted"] = true,
   ["Progress"] = true,
@@ -218,7 +218,7 @@ Results will print here when done.]],
   ["№"] = true,
   ["Items price updated"] = true,
   ["You are not in Raid"] = true,
-  ["Need off Simple mode!"] = true,
+  ["Need on ML mode!"] = true,
   
   -- sync
   ["Start Sync"] = true,
