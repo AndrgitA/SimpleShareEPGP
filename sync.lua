@@ -2,6 +2,7 @@ local GetTime = GetTime;
 local string_find, string_format = string.find, string.format;
 local tonumber = tonumber;
 local string_gfind = string.gfind or string.gmatch;
+local UnitInRaid = UnitInRaid;
 
 local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale");
 
@@ -17,18 +18,11 @@ local sourceData = {
   controlSummAtEnd = 0,
 };
 
-local prefixSyncStart = "SYNCS";
-local prefixSyncMessage = "SYNCM";
-local prefixSyncEnd = "SYNCE";
-
 local syncChannel = "RAID";
 local limitChunkSize = 5;
 local triggerDone = nil;
 
 SimpleShareEPGPSync = SimpleShareEPGP:NewModule("SimpleShareEPGPSync", "AceDB-2.0");
-SimpleShareEPGPSync.prefixSyncStart = prefixSyncStart;
-SimpleShareEPGPSync.prefixSyncMessage = prefixSyncMessage;
-SimpleShareEPGPSync.prefixSyncEnd = prefixSyncEnd;
 SimpleShareEPGPSync.isSyncing = false;
 SimpleShareEPGPSync.isStartingSync = false;
 SimpleShareEPGPSync.isEndSync = false;
@@ -62,6 +56,14 @@ function SimpleShareEPGPSync:isCanShareStart(silence)
     end
     return false;
   end
+
+  if (not UnitInRaid("player")) then
+    if (not silence) then
+      SimpleShareEPGP:defaultPrint(L["You are not in Raid"]);
+      UIErrorsFrame:AddMessage(L["You are not in Raid"], 1, 0, 0);
+      return false;
+    end
+  end
   
   if (not SimpleShareEPGP:lootMaster()) then 
     if (not silence) then
@@ -81,23 +83,18 @@ function SimpleShareEPGPSync:CreateToken()
 end
 
 function SimpleShareEPGPSync:anounceSyncMessage(msg)
-  if (not ChatThrottleLib) then
+  if (not ChatThrottleLib or not msg or msg == "") then
     return;
   end
 
   ChatThrottleLib:SendAddonMessage("BULK", SimpleShareEPGP.VARS.prefix, msg, syncChannel);
 end
 
-local function getStartSyncMessage(text, token)
-  return string_format("%s;%s;%s", prefixSyncStart, text, token);
-end
-
-local function getSyncMessage(text, token)
-  return string_format("%s;%s;%s", prefixSyncMessage, text, token);
-end
-
-local function getEndSyncMessage(text, token)
-  return string_format("%s;%s;%s", prefixSyncEnd, text, token);
+local function getSyncMessage(cmd, text, token)
+  if (not (cmd and text and token)) then
+    return "";
+  end
+  return string_format("%s;%s;%s", cmd, text, token);
 end
 
 function SimpleShareEPGPSync:StartSync()
@@ -137,7 +134,7 @@ function SimpleShareEPGPSync:StartSync()
   
   -- isLootMasterFlag:CountChunks
   local tmpMessage = string_format("%d:%d", 1, countFlatDBLines);
-  SimpleShareEPGPSync:anounceSyncMessage(getStartSyncMessage(tmpMessage, token));
+  SimpleShareEPGPSync:anounceSyncMessage(getSyncMessage(SimpleShareEPGP.CMD_ADDON_MSG.SYNCS, tmpMessage, token));
 
 
   tmpMessage = "";
@@ -152,18 +149,18 @@ function SimpleShareEPGPSync:StartSync()
     
     if (countInMessage == limitChunkSize) then
       countInMessage = 0;
-      SimpleShareEPGPSync:anounceSyncMessage(getSyncMessage(tmpMessage, token));
+      SimpleShareEPGPSync:anounceSyncMessage(getSyncMessage(SimpleShareEPGP.CMD_ADDON_MSG.SYNCM, tmpMessage, token));
       tmpMessage = "";
     end
   end
 
   if (countInMessage > 0) then
-    SimpleShareEPGPSync:anounceSyncMessage(getSyncMessage(tmpMessage, token));
+    SimpleShareEPGPSync:anounceSyncMessage(getSyncMessage(SimpleShareEPGP.CMD_ADDON_MSG.SYNCM, tmpMessage, token));
   end
 
   -- controlValue
   tmpMessage = string_format("%d", controlValue);
-  SimpleShareEPGPSync:anounceSyncMessage(getEndSyncMessage(tmpMessage, token));
+  SimpleShareEPGPSync:anounceSyncMessage(getSyncMessage(SimpleShareEPGP.CMD_ADDON_MSG.SYNCE, tmpMessage, token));
 
   SimpleShareEPGP:defaultPrint(L["Data transfer completed."]);
 end
@@ -237,12 +234,12 @@ function SimpleShareEPGPSync:parseEndSync(data, token, sender)
 end
 
 function SimpleShareEPGPSync:parserMessage(command, data, token, sender)
-  if (command == prefixSyncStart) then
+  if (command == SimpleShareEPGP.CMD_ADDON_MSG.SYNCS) then
     SimpleShareEPGPSync:parseStartSync(data, token, sender);
     
-  elseif (command == prefixSyncMessage) then
+  elseif (command == SimpleShareEPGP.CMD_ADDON_MSG.SYNCM) then
     SimpleShareEPGPSync:parseSyncMessage(data, token, sender);
-  elseif (command == prefixSyncEnd) then
+  elseif (command == SimpleShareEPGP.CMD_ADDON_MSG.SYNCE) then
     SimpleShareEPGPSync:parseEndSync(data, token, sender);
   end
 end

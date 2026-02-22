@@ -32,6 +32,18 @@ SimpleShareEPGP.VARS = {
   minimalItemLootQualiti = 3,
 }
 
+SimpleShareEPGP.CMD_ADDON_MSG = {
+  VERSION = "VERSION",
+  SETTINGS = "SETTINGS",
+  SET_VALUE = "SET_EP",
+  AWARD = "AWARD",
+  DECAY = "DECAY",
+
+  SYNCS = "SYNCS", -- start sync
+  SYNCM = "SYNCM", -- sync message
+  SYNCE = "SYNCE", -- end sync
+}
+
 SimpleShareEPGP._playerName = (UnitName("player"))
 SimpleShareEPGP.isAdmin = false;
 SimpleShareEPGP.isRoot = false;
@@ -108,45 +120,9 @@ end
 ]]
 function SimpleShareEPGP.isRootUnit()
   --  temporary solution
-  -- if (SimpleShareEPGP:lootMaster()) then
-  --   return true;
-  -- else 
-  --   return false;
-  -- end
-
-  -- if (SimpleShareEPGP.isRoot) then
-  --   return true;
-  -- end
-
-  -- if (not simple_share_epgp_config) then
-  --   return false;
-  -- end
-
-  -- local canChangeAll = simple_share_epgp_config.canChangeAll;
-  -- if (not canChangeAll) then
-  --   return false;
-  -- end
-
-  -- local playerName = SimpleShareEPGP._playerName;
-  -- local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
-  
-  -- if (not playerGuildName) then
-  --   playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
-  -- end
-
-  -- for gName, gData in pairs(canChangeAll) do
-  --   if (gName == playerGuildName and type(gData) == "table") then
-  --     for i = 1, table.getn(gData) do
-  --       if (
-  --         gData[i].rank == playerGuildName or
-  --         gData[i].name == playerName
-  --       ) then
-  --         SimpleShareEPGP.isRoot = true;
-  --         return true;
-  --       end
-  --     end
-  --   end
-  -- end
+  if (SimpleShareEPGP:isAdminUnit() and SimpleShareEPGP:lootMaster()) then
+    return true;
+  end
 
   return false;
 end
@@ -174,49 +150,6 @@ end
 function SimpleShareEPGP.isAdminUnit()
   --  temporary solution
   return not SimpleShareEPGPConfig.isSimpleModeInterface;
-  -- if (SimpleShareEPGP:lootMaster()) then
-  --   return true;
-  -- else 
-  --   return false;
-  -- end
-
-
-
-  -- if (SimpleShareEPGP.isAdmin) then
-  --   return true;
-  -- end
-
-  -- if (not simple_share_epgp_config) then
-  --   return false;
-  -- end
-
-  -- local canEditDB = simple_share_epgp_config.canEditDB;
-  -- if (not canEditDB) then
-  --   return false;
-  -- end
-
-  -- local playerName = SimpleShareEPGP._playerName;
-  -- local playerGuildName, playerGuildRankName, playerGuildRankIndex = GetGuildInfo("player");
-
-  -- if (not playerGuildName) then
-  --   playerGuildName = SimpleShareEPGP.VARS.unknownGuildName;
-  -- end
-
-  -- for gName, gData in pairs(canEditDB) do
-  --   if (gName == playerGuildName and type(gData) == "table") then
-  --     for i = 1, table.getn(gData) do
-  --       if (
-  --         gData[i].rank == playerGuildName or
-  --         gData[i].name == playerName
-  --       ) then
-  --         SimpleShareEPGP.isAdmin = true;
-  --         return true;
-  --       end
-  --     end
-  --   end
-  -- end
-
-  -- return false;
 end
 
 SimpleShareEPGP.cmdtable = function() 
@@ -317,7 +250,7 @@ SimpleShareEPGP.cmdtable = function()
         name = L["Start Sync"],
         desc = L["Emit share all DB for another sync listeners"],
         func = function()
-          SimpleShareEPGPSync:StartSync();
+          SimpleShareEPGP:SyncEmit();
         end,
         order = 9,
         hidden = function()
@@ -815,7 +748,7 @@ function SimpleShareEPGP:delayedInit()
   self:RegisterChatCommand({"/simpleshareepgp", "/ssepgp"}, self.cmdtable())
   self:RegisterEvent("CHAT_MSG_ADDON", "addonComms");
   -- broadcast our version
-  local addonMsg = string.format("VERSION;%s;%d",SimpleShareEPGP._versionString,major_ver)
+  local addonMsg = string.format("%s;%s;%d",SimpleShareEPGP.CMD_ADDON_MSG.VERSION, SimpleShareEPGP._versionString, major_ver);
   self:anounceAddonMessage(addonMsg)
   if (SimpleShareEPGP.isRootUnit()) then
     self:shareSettings()
@@ -1097,7 +1030,7 @@ function SimpleShareEPGP:widestAudience(msg)
 end
 
 function SimpleShareEPGP:addonMessage(message,channel,sender)
-  SendAddonMessage(self.VARS.prefix,message,channel,sender)
+  ChatThrottleLib:SendAddonMessage("NORMAL", self.VARS.prefix, message, channel, sender);
 end
 
 function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
@@ -1111,103 +1044,146 @@ function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
     return
   end
 
-  local senderData = self:verifyMember(sender, true) or self:verifyRaidMember(sender);
+  -- local senderData = self:verifyMember(sender, true) or self:verifyRaidMember(sender);
+  local senderData = self:verifyRaidMember(sender);
 
   -- only accept DB or raider members
   if (not senderData) then
     return;
   end
   
-  local who,what,amount
-  for name,epgp,change in string.gfind(message,"([^;]+);([^;]+);([^;]+)") do
-    who=name
-    what=epgp
-    amount=tonumber(change)
+  local _, _, cmd, p2, p3 = string.find(message, "([^;]+);([^;]+);([^;]+)");
+  if (not (cmd and SimpleShareEPGP.CMD_ADDON_MSG[cmd] and p2 and p3)) then
+    return;
   end
 
-  if (who) and (what) and (amount) then
-    local msg
-    if (who == self._playerName) then
-      if what == "EP" then
-        if amount < 0 then
-          msg = string.format(L["You have received a %d EP penalty."], amount)
-        else
-          msg = string.format(L["You have been awarded %d EP."], amount)
-        end
-      elseif what == "GP" then
-        msg = string.format(L["You have gained %d GP."], amount)
-      end
-    elseif who == "ALL" and what == "DECAY" then
-      msg = string.format(L["%s%% decay to EP and GP."], amount)
-    elseif who == "RAID" and what == "AWARD" then
-      msg = string.format(L["%d EP awarded to Raid."], amount)
-    elseif who == "VERSION" then
-      local out_of_date, version_type = self:parseVersion(self._versionString, what)
-      if (out_of_date) and self._newVersionNotification == nil then
-        self._newVersionNotification = true -- only inform once per session
-        self:defaultPrint(string.format(L["New %s version available: |cff00ff00%s|r"], version_type, what));
-        self:defaultPrint(string.format(L["Visit %s to update."], self._websiteString));
-      end
-      if (SimpleShareEPGP.isRootUnit()) then
-        self:shareSettings()
-      end
-    elseif who == "SETTINGS" then
-      -- TODL: need smart sync data. may be later ???)
+  local msg
+  if (cmd == SimpleShareEPGP.CMD_ADDON_MSG.SET_VALUE) then
+    local _, _, member, param = string.find(p2, "(.+):(.+)");
+    if (not member or not param or member ~= self._playerName) then 
+      return;
+    end
 
-      -- for progress,discount,decay,minep in string.gfind(what, "([^:]+):([^:]+):([^:]+):([^:]+)") do
-      --   discount = tonumber(discount)
-      --   decay = tonumber(decay)
-      --   minep = tonumber(minep)
-      --   local settings_notice
-      --   if (progress and progress ~= SimpleShareEPGPCharacterConfig.progress) then
-      --     SimpleShareEPGPCharacterConfig.progress = progress;
-      --     settings_notice = L["New raid progress"];
-      --   end
-      --   if (discount and discount ~= SimpleShareEPGPCharacterConfig.discount) then
-      --     SimpleShareEPGPCharacterConfig.discount = discount
-      --     if (settings_notice) then
-      --       settings_notice = settings_notice..L[", offspec price %"]
-      --     else
-      --       settings_notice = L["New offspec price %"]
-      --     end
-      --   end
-      --   if (minep and minep ~= SimpleShareEPGPCharacterConfig.minep) then
-      --     SimpleShareEPGPCharacterConfig.minep = minep;
-      --     settings_notice = L["New Minimum EP"];
-      --     SimpleShareEPGP:refreshPRTablets();
-      --   end
-      --   if decay and decay ~= SimpleShareEPGPCharacterConfig.decay then
-      --     SimpleShareEPGPCharacterConfig.decay = decay;
-      --     if (SimpleShareEPGP.isAdminUnit()) then
-      --       if (settings_notice) then
-      --         settings_notice = settings_notice..L[", decay %"]
-      --       else
-      --         settings_notice = L["New decay %"]
-      --       end
-      --     end
-      --   end
-      --   if (settings_notice) and settings_notice ~= "" then
-      --     local sender_rank = string.format("%s",C:Colorize(BC:GetHexColor(class), sender));
-      --     settings_notice = settings_notice..string.format(L[" settings accepted from %s"], sender_rank);
-      --     self:defaultPrint(settings_notice);
-      --     self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], SimpleShareEPGPCharacterConfig.progress);
-      --     self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], SimpleShareEPGPCharacterConfig.discount * 100);
-      --     self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep);
-      --   end
-      -- end
-    elseif (
-      who == SimpleShareEPGPSync.prefixSyncStart or
-      who == SimpleShareEPGPSync.prefixSyncMessage or
-      who == SimpleShareEPGPSync.prefixSyncEnd
-    ) then
-      if (SimpleShareEPGPCharacterConfig.syncEnabled) then
-        SimpleShareEPGPSync:parserMessage(who, what, amount, sender);
+    if (param == "EP") then
+      local amount = tonumber(p3);
+      if (not amount) then
+        return;
+      end
+      
+      if (amount < 0) then
+        msg = string.format(L["You have received a %d EP penalty."], amount);
+      else
+        msg = string.format(L["You have been awarded %d EP."], amount);
+      end
+    elseif (param == "GP") then
+      local amount = tonumber(p3);
+      if (not amount) then
+        return;
+      end
+      msg = string.format(L["You have gained %d GP."], amount);
+    end
+  elseif (cmd == SimpleShareEPGP.CMD_ADDON_MSG.DECAY and p2 == "ALL") then
+    local amount = tonumber(p3);
+    if (not amount) then
+      return;
+    end
+    msg = string.format(L["%s%% decay to EP and GP."], amount);
+  elseif (cmd == SimpleShareEPGP.CMD_ADDON_MSG.AWARD and p2 == "RAID") then
+    local amount = tonumber(p3);
+    if (not amount) then
+      return;
+    end
+    msg = string.format(L["%d EP awarded to Raid."], amount);
+  elseif (cmd == SimpleShareEPGP.CMD_ADDON_MSG.VERSION) then
+    local out_of_date, version_type = self:parseVersion(self._versionString, p2)
+    if (out_of_date and self._newVersionNotification == nil) then
+      self._newVersionNotification = true -- only inform once per session
+      self:defaultPrint(string.format(L["New %s version available: |cff00ff00%s|r"], version_type, p2));
+      self:defaultPrint(string.format(L["Visit %s to update."], self._websiteString));
+    end
+    if (SimpleShareEPGP.isRootUnit()) then
+      self:shareSettings()
+    end
+  elseif (cmd == SimpleShareEPGP.CMD_ADDON_MSG.SETTINGS) then
+    local needUpdate = false;
+    for progress, discount, decay, minep in string.gfind(p2, "([^:]+):([^:]+):([^:]+):([^:]+)") do
+      discount = tonumber(discount)
+      decay = tonumber(decay)
+      minep = tonumber(minep)
+      
+      local settings_notice = {};
+      local tmp;
+      if (progress and progress ~= SimpleShareEPGPCharacterConfig.progress) then
+        SimpleShareEPGPCharacterConfig.progress = progress;
+        needUpdate = true;
+        tmp = string.format("%s %s", L["New raid progress"], progress);
+        table.insert(settings_notice, tmp);
+      end
+
+      if (discount and discount ~= SimpleShareEPGPCharacterConfig.discount) then
+        SimpleShareEPGPCharacterConfig.discount = discount;
+        if (needUpdate) then
+          tmp = L["offspec price %"];
+        else
+          needUpdate = true;
+          tmp = L["New offspec price %"];
+        end
+        tmp = string.format("%s (%s)", tmp, discount * 100);
+        table.insert(settings_notice, tmp);
+      end
+
+      if (minep and minep ~= SimpleShareEPGPCharacterConfig.minep) then
+        SimpleShareEPGPCharacterConfig.minep = minep;
+        if (needUpdate) then
+          tmp = L["minimum EP"];
+        else
+          tmp = L["New Minimum EP"];
+          needUpdate = true;
+        end
+        tmp = string.format("%s (%d)", tmp, minep);
+        table.insert(settings_notice, tmp);
+        SimpleShareEPGP:refreshPRTablets();
+      end
+
+      if decay and decay ~= SimpleShareEPGPCharacterConfig.decay then
+        SimpleShareEPGPCharacterConfig.decay = decay;
+        -- if (SimpleShareEPGP.isAdminUnit()) then
+        if (needUpdate) then
+          tmp = L["decay %"];
+        else
+          tmp = L["New decay %"];
+          needUpdate = true;
+        end
+        tmp = string.format("%s (%s)", tmp, (1 - decay) * 100);
+        table.insert(settings_notice, tmp);
+        -- end
+      end
+
+      if (needUpdate) then
+        local senderInfo = string.format("%s", C:Colorize(BC:GetHexColor(senderData.class), sender));
+        table.insert(settings_notice, string.format(L["settings accepted from %s"], senderInfo));
+
+        local noticeString = table.concat(settings_notice, ", ");
+        self:defaultPrint(noticeString);
+
+        self._options.args["progress_tier_header"].name = string.format(L["Progress Setting: %s"], SimpleShareEPGPCharacterConfig.progress);
+        self._options.args["set_discount_header"].name = string.format(L["Offspec Price: %s%%"], SimpleShareEPGPCharacterConfig.discount * 100);
+        self._options.args["set_min_ep_header"].name = string.format(L["Minimum EP: %s"], SimpleShareEPGPCharacterConfig.minep);
       end
     end
-    if msg and msg~="" then
-      self:defaultPrint(msg)
-      -- self:my_epgp()
+  elseif (
+    cmd == SimpleShareEPGP.CMD_ADDON_MSG.SYNCS or
+    cmd == SimpleShareEPGP.CMD_ADDON_MSG.SYNCM or
+    cmd == SimpleShareEPGP.CMD_ADDON_MSG.SYNCE
+  ) then
+    if (SimpleShareEPGPCharacterConfig.syncEnabled) then
+      SimpleShareEPGPSync:parserMessage(cmd, p2, p3, sender);
     end
+  end
+
+  if msg and msg~="" then
+    self:defaultPrint(msg)
+    -- self:my_epgp()
   end
 end
 
@@ -1217,15 +1193,18 @@ function SimpleShareEPGP:anounceAddonMessage(msg)
 end
 
 function SimpleShareEPGP:shareSettings(force)
-  --TODO: need to think through a synchronization system
-  return;
+  if (not SimpleShareEPGP:isRootUnit()) then
+    return;
+  end
 
-  -- local now = GetTime()
-  -- if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
-  --   self._lastSettingsShare = now
-  --   local addonMsg = string.format("SETTINGS;%s:%s:%s:%s;1", SimpleShareEPGPCharacterConfig.progress,SimpleShareEPGPCharacterConfig.discount,SimpleShareEPGPCharacterConfig.decay,SimpleShareEPGPCharacterConfig.minep)
-  --   self:anounceAddonMessage(addonMsg);
-  -- end
+  local now = GetTime();
+  local charCFG = SimpleShareEPGPCharacterConfig;
+
+  if self._lastSettingsShare == nil or (now - self._lastSettingsShare > 30) or (force) then
+    self._lastSettingsShare = now
+    local addonMsg = string.format("%s;%s:%s:%s:%s;1", SimpleShareEPGP.CMD_ADDON_MSG.SETTINGS, charCFG.progress, charCFG.discount, charCFG.decay, charCFG.minep);
+    self:ScheduleEvent("SimpleShareEPGPShareSettings", self.anounceAddonMessage, 3, self, addonMsg);
+  end
 end
 
 function SimpleShareEPGP:refreshPRTablets()
@@ -1335,7 +1314,7 @@ function SimpleShareEPGP:award_raid_ep(ep) -- awards ep to raid members in zone
     end
     self:simpleSay(string.format(L["Giving %d ep to all raidmembers"], ep))
     self:addToLog(string.format(L["Giving %d ep to all raidmembers"], ep))    
-    local addonMsg = string.format("RAID;AWARD;%s",ep)
+    local addonMsg = string.format("%s;RAID;%s", SimpleShareEPGP.CMD_ADDON_MSG.AWARD, ep);
     self:addonMessage(addonMsg, "RAID");
     self:refreshPRTablets()
   else UIErrorsFrame:AddMessage(L["You aren't in a raid dummy"], 1, 0, 0) end
@@ -1355,7 +1334,7 @@ function SimpleShareEPGP:give_ep_value(name, ep)
     local msg = string.format(L["%s EP Penalty to %s."],ep,name);
     self:adminSay(msg);
     self:addToLog(msg);
-    local addonMsg = string.format("%s;%s;%s",name,"EP",ep)
+    local addonMsg = string.format("%s;%s:%s;%s", SimpleShareEPGP.CMD_ADDON_MSG.SET_VALUE, name, "EP", ep);
     self:anounceAddonMessage(addonMsg);
   end
 end
@@ -1372,7 +1351,7 @@ function SimpleShareEPGP:give_gp_value(name, gp)
   local msg = string.format(L["Awarding %d GP to %s. (Previous: %d, New: %d)"], gp, name, oldgp, math.max(SimpleShareEPGP.VARS.basegp, newgp));
   self:adminSay(msg);
   self:addToLog(msg);
-  local addonMsg = string.format("%s;%s;%s", name, "GP", gp);
+  local addonMsg = string.format("%s;%s:%s;%s", SimpleShareEPGP.CMD_ADDON_MSG.SET_VALUE, name, "GP", gp);
   self:anounceAddonMessage(addonMsg);
 end
 
@@ -1396,7 +1375,7 @@ function SimpleShareEPGP:decay_epgp_value()
   local msg = string.format(L["All EP and GP decayed by %s%%"],(1 - SimpleShareEPGPCharacterConfig.decay) * 100)
   self:simpleSay(msg)
   self:adminSay(msg)
-  local addonMsg = string.format("ALL;DECAY;%s", (1 - (SimpleShareEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay)) *100)
+  local addonMsg = string.format("%s;ALL;%s", SimpleShareEPGP.CMD_ADDON_MSG.DECAY, (1 - (SimpleShareEPGPCharacterConfig.decay or SimpleShareEPGP.VARS.decay)) *100)
   self:anounceAddonMessage(addonMsg)
   self:addToLog(msg)
   self:refreshPRTablets() 
@@ -1499,10 +1478,12 @@ function SimpleShareEPGP:SetRefresh(flag)
   end
 end
 
-function SimpleShareEPGP:ClearLogs()
+function SimpleShareEPGP:ClearLogs(silence)
   SimpleShareEPGPLog = {};
   SimpleShareEPGPLogs:Refresh();
-  SimpleShareEPGP:defaultPrint(L["Logs cleared"]);
+  if (not silence) then
+    SimpleShareEPGP:defaultPrint(L["Logs cleared"]);
+  end
 end
 
 function SimpleShareEPGP:ClearLoot()
@@ -2322,6 +2303,13 @@ end
 -------------
 -- Sync
 -------------
+function SimpleShareEPGP:SyncEmit()
+  SimpleShareEPGPSync:StartSync();
+  if (self:isRootUnit()) then
+    self:shareSettings(true);
+  end
+end
+
 function SimpleShareEPGP.DoneSync(data, source)
   if (SimpleShareEPGP:lootMaster()) then
     return;
@@ -2342,13 +2330,19 @@ function SimpleShareEPGP.DoneSync(data, source)
   end
   
   SimpleShareEPGP:replace_table_db(data);
+  local sourceText = source;
+  local sourceData = SimpleShareEPGP:verifyRaidMember(source);
+  if (sourceData) then
+    sourceText = string.format("%s", C:Colorize(BC:GetHexColor(sourceData.class), source));
+  end
 
-  local tmp = string.format(L["A person named {%s} updated your data via a synchronized channel."], source);
+  local tmp = string.format(L["A person named { %s } updated your data via a synchronized channel."], sourceText);
   SimpleShareEPGP:debugPrint(tmp)
 
-  SimpleShareEPGP:ClearLogs();
+  SimpleShareEPGP:ClearLogs(true);
   SimpleShareEPGP:refreshPRTablets();
 end
+
 -------------
 -- Dialogs
 -------------
