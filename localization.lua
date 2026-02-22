@@ -218,7 +218,8 @@ Results will print here when done.]],
   ["№"] = true,
   ["Items price updated"] = true,
   ["You are not in Raid"] = true,
-
+  ["Need off Simple mode!"] = true,
+  
   -- sync
   ["Start Sync"] = true,
   ["Emit share all DB for another sync listeners"] = true,

@@ -677,8 +677,8 @@ function SimpleShareEPGP:TipHook()
   self:SecureHook(GameTooltip, "SetBagItem", function(this, bag, slot)
     local itemLink = GetContainerItemLink(bag, slot)
     local ml_tip
+    local is_master = (SimpleShareEPGP.isAdminUnit() and SimpleShareEPGP:lootMaster()) and true or nil
     if (itemLink) then
-      local is_master = (SimpleShareEPGP:lootMaster()) and true or nil
       local link_found, _, itemColor, itemString, itemName = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])")
       if (link_found) then
         local bind = self:itemBinding(itemString) or ""
@@ -698,7 +698,7 @@ function SimpleShareEPGP:TipHook()
   end
   )
   self:SecureHook(GameTooltip, "SetLootItem", function(this, slot)
-    local is_master = (SimpleShareEPGP:lootMaster()) and true or nil
+    local is_master = (SimpleShareEPGP.isAdminUnit() and SimpleShareEPGP:lootMaster()) and true or nil
     if (is_master) then
       local frame = GetMouseFocus()
       if (frame) and (frame.IsFrameType ~= nil) and (frame:IsFrameType("Button"))  then
@@ -861,11 +861,19 @@ end
 function SimpleShareEPGP:LootFrameItem_OnClick(button,data)
   if not IsAltKeyDown() then return end
   if not UnitInRaid("player") then return end
+
+  if (not SimpleShareEPGP.isAdminUnit()) then
+    self:defaultPrint(L["Need off Simple mode!"]);
+    UIErrorsFrame:AddMessage(L["Need off Simple mode!"], 1, 0, 0);
+    return 
+  end
+
   if not (self:lootMaster()) then 
     self:defaultPrint(L["Need MasterLooter to perform Bid Calls!"])
     UIErrorsFrame:AddMessage(L["Need MasterLooter to perform Bid Calls!"],1,0,0)
     return 
   end
+  
   local slot, quality
   if data ~= nil then
     slot,quality = data:GetID(), data.quality
@@ -2397,45 +2405,54 @@ StaticPopupDialogs["SIMPLE_SHARE_EPGP_CONFIRM_DECAY"] = {
 
 local SimpleShareEPGPAutoGPMenu = {
   --{text = "Choose an Action", isTitle = true},
-  {text = L["Add MainSpec GP"], func = function()
-    local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
-    if (dialog) then
-      local data = dialog.data
-      local player, price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.price]
-      SimpleShareEPGP:give_gp_value((player==YOU and SimpleShareEPGP._playerName or player),price)
-      SimpleShareEPGP:refreshPRTablets()
-      data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.msgp
-      local update = data[SimpleShareEPGP.loot_index.update] ~= nil
-      SimpleShareEPGP:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
-      SimpleShareEPGPLoot:Refresh()
+  {
+    text = L["Add MainSpec GP"],
+    func = function()
+      local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
+      if (dialog) then
+        local data = dialog.data
+        local player, price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.price]
+        SimpleShareEPGP:give_gp_value((player==YOU and SimpleShareEPGP._playerName or player),price)
+        SimpleShareEPGP:refreshPRTablets()
+        data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.msgp
+        local update = data[SimpleShareEPGP.loot_index.update] ~= nil
+        SimpleShareEPGP:addOrUpdateLoot(data,update)
+        StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
+        SimpleShareEPGPLoot:Refresh()
+      end
+    end,
+  },
+  {
+    text = L["Add OffSpec GP"],
+    func = function()
+      local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
+      if (dialog) then
+        local data = dialog.data
+        local player, off_price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.off_price]
+        SimpleShareEPGP:give_gp_value((player==YOU and SimpleShareEPGP._playerName or player),off_price)
+        SimpleShareEPGP:refreshPRTablets()
+        data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.osgp
+        local update = data[SimpleShareEPGP.loot_index.update] ~= nil
+        SimpleShareEPGP:addOrUpdateLoot(data,update)
+        StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
+        SimpleShareEPGPLoot:Refresh()
+      end
+    end,
+  },
+  {
+    text = L["Bank or D/E"],
+    func = function()
+      local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
+      if (dialog) then
+        local data = dialog.data
+        data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.bankde
+        local update = data[SimpleShareEPGP.loot_index.update] ~= nil
+        SimpleShareEPGP:addOrUpdateLoot(data,update)
+        StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
+        SimpleShareEPGPLoot:Refresh()
+      end
     end
-  end},
-  {text = L["Add OffSpec GP"], func = function()
-    local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
-    if (dialog) then
-      local data = dialog.data
-      local player, off_price = data[SimpleShareEPGP.loot_index.player], data[SimpleShareEPGP.loot_index.off_price]
-      SimpleShareEPGP:give_gp_value((player==YOU and SimpleShareEPGP._playerName or player),off_price)
-      SimpleShareEPGP:refreshPRTablets()
-      data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.osgp
-      local update = data[SimpleShareEPGP.loot_index.update] ~= nil
-      SimpleShareEPGP:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
-      SimpleShareEPGPLoot:Refresh()
-    end
-  end},
-  {text = L["Bank or D/E"], func = function()
-    local dialog = StaticPopup_FindVisible("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
-    if (dialog) then
-      local data = dialog.data
-      data[SimpleShareEPGP.loot_index.action] = SimpleShareEPGP.VARS.bankde
-      local update = data[SimpleShareEPGP.loot_index.update] ~= nil
-      SimpleShareEPGP:addOrUpdateLoot(data,update)
-      StaticPopup_Hide("SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS")
-      SimpleShareEPGPLoot:Refresh()
-    end
-  end}
+  }
 }
 StaticPopupDialogs["SIMPLE_SHARE_EPGP_AUTO_GEARPOINTS"] = {
   text = L["%s looted %s. What do you want to do?"],
