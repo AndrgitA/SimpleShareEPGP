@@ -973,9 +973,9 @@ function SimpleShareEPGP:debugPrint(msg)
 end
 
 function SimpleShareEPGP:defaultPrint(msg)
-  if not DEFAULT_CHAT_FRAME:IsVisible() then
-    FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
-  end
+  -- if not DEFAULT_CHAT_FRAME:IsVisible() then
+  --   FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
+  -- end
   DEFAULT_CHAT_FRAME:AddMessage(string.format(out,msg))
 end
 
@@ -1002,9 +1002,9 @@ function SimpleShareEPGP:bidPrint(link, masterlooter, need, greed, bid)
   if (SELECTED_CHAT_FRAME) then
     chatframe = SELECTED_CHAT_FRAME
   else
-    if not DEFAULT_CHAT_FRAME:IsVisible() then
-      FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
-    end
+    -- if not DEFAULT_CHAT_FRAME:IsVisible() then
+    --   FCF_SelectDockFrame(DEFAULT_CHAT_FRAME)
+    -- end
     chatframe = DEFAULT_CHAT_FRAME
   end
   if (chatframe) then
@@ -1043,7 +1043,7 @@ end
 
 function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
   -- we don't care for messages from other addons
-  if (not prefix == self.VARS.prefix) then
+  if (not (prefix == self.VARS.prefix)) then
     return
   end
 
