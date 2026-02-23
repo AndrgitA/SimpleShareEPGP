@@ -1,3 +1,5 @@
+local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale");
+
 local prices = {
     -----------------
     --- Naxxramas ---
