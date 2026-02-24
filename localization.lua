@@ -219,7 +219,8 @@ Results will print here when done.]],
   ["Items price updated"] = true,
   ["You are not in Raid"] = true,
   ["Need on ML mode!"] = true,
-  
+  ["dropped items"] = true,
+
   -- sync
   ["Start Sync"] = true,
   ["Emit share all DB for another sync listeners"] = true,

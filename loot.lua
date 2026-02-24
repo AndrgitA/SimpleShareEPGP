@@ -5,9 +5,19 @@ local C = AceLibrary("Crayon-2.0")
 local BC = AceLibrary("Babble-Class-2.2")
 local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
-SimpleShareEPGPLoot = SimpleShareEPGP:NewModule("SimpleShareEPGPLoot", "AceDB-2.0")
+local GetLootSlotLink, GetNumLootItems = GetLootSlotLink, GetNumLootItems;
+
+SimpleShareEPGPLoot = SimpleShareEPGP:NewModule("SimpleShareEPGPLoot", "AceDB-2.0", "AceEvent-2.0")
+SimpleShareEPGPLoot.sourceDroppedItems = {};
+SimpleShareEPGPLoot.lootThreshold = SimpleShareEPGP.ItemQuality.Rare;
 
 function SimpleShareEPGPLoot:OnEnable()
+  -- "LOOT_BIND_CONFIRM"
+  -- "LOOT_CLOSED"
+  -- "LOOT_OPENED"
+  -- "LOOT_SLOT_CLEARED"
+  self:RegisterEvent("LOOT_OPENED", self.LootOpened);
+
   if not T:IsRegistered("SimpleShareEPGPLoot") then
     T:Register("SimpleShareEPGPLoot",
       "children", function()
@@ -120,4 +130,49 @@ function SimpleShareEPGPLoot:OnTooltipUpdate()
 --      "func", "OnClickItem", "arg1", self, "arg2", t[i]
     )
   end
+end
+
+function SimpleShareEPGPLoot.LootOpened()
+  if (not SimpleShareEPGP:lootMaster()) then
+    return;
+  end
+
+  local num = GetNumLootItems();
+  if (num == 0) then
+    return;
+  end
+  
+  local source = SimpleShareEPGP:GetUnitGUID("target");
+  local sourceName = UnitName("target");
+  if (not (source and sourceName) or SimpleShareEPGPLoot.sourceDroppedItems[source]) then
+    return;
+  end
+
+  local loot = {};
+  for i = 1, num do
+    local itemLink = GetLootSlotLink(i);
+    
+    if (itemLink) and (itemLink ~= "") then
+      local _, _, _, quality = GetLootSlotInfo(i);
+      quality = quality or 0;
+
+      local _, _, _, itemString = string.find(itemLink, "^(|c%x+)|H(.+)|h(%[.+%])");
+      local bind = SimpleShareEPGP:itemBinding(itemString)
+
+      if (
+        (bind == SimpleShareEPGP.item_bind_patterns.BOP and quality >= SimpleShareEPGP.ItemQuality.Uncommon) or
+        (quality >= SimpleShareEPGPLoot.lootThreshold)
+      ) then
+        table.insert(loot, itemLink);
+      end
+    end
+  end
+  
+  if (table.getn(loot) > 0) then
+    SimpleShareEPGP:widestAudience(string.format("%s %s:", sourceName, L["dropped items"]));
+    for i = 1,table.getn(loot) do
+      SimpleShareEPGP:widestAudience(string.format("%d. %s", i, loot[i]));
+    end
+  end
+  SimpleShareEPGPLoot.sourceDroppedItems[source] = true;
 end

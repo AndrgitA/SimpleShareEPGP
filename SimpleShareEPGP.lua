@@ -9,7 +9,16 @@ local G = AceLibrary("Gratuity-2.0")
 local T = AceLibrary("Tablet-2.0")
 local L = AceLibrary("AceLocale-2.2"):new("SimpleShareEPGPLocale")
 
-local UnitName, GetRaidRosterInfo = UnitName, GetRaidRosterInfo;
+local UnitName, GetRaidRosterInfo, UnitExists = UnitName, GetRaidRosterInfo, UnitExists;
+
+SimpleShareEPGP.ItemQuality = {
+  Poor = 0,
+  Common = 1,
+  Uncommon = 2,
+  Rare = 3,
+  Epic = 4,
+  Legendary = 5
+};
 
 SimpleShareEPGP.VARS = {
   basegp = 100,
@@ -29,7 +38,7 @@ SimpleShareEPGP.VARS = {
   undefinedClass = "UNDEFINED_CLASS",
   defaultSayChannel = "RAID",
   unknownGuildName = SIMPLE_SHARE_EPGP_UKNOWN_GUILD_NAME or "SIMPLE_SHARE_EPGP_UKNOWN_GUILD_NAME",
-  minimalItemLootQualiti = 3,
+  minimalItemLootQualiti = SimpleShareEPGP.ItemQuality.Rare,
 }
 
 SimpleShareEPGP.CMD_ADDON_MSG = {
@@ -112,6 +121,7 @@ do
     hexColorQuality[ITEM_QUALITY_COLORS[i].hex] = i
   end
 end
+SimpleShareEPGP.hexColorQuality = hexColorQuality;
 
 --[[
   OPTIONS FOR ROOT
@@ -2025,6 +2035,7 @@ SimpleShareEPGP.item_bind_patterns = {
   BOU = "("..ITEM_BIND_ON_EQUIP..")",
   BOE = "("..ITEM_BIND_ON_USE..")"
 }
+
 function SimpleShareEPGP:itemBinding(item)
   G:SetHyperlink(item)
   if G:Find(self.item_bind_patterns.CRAFT,2,4,nil,true) then
@@ -2306,6 +2317,15 @@ function SimpleShareEPGP:camelCase(word)
   return string.gsub(word,"(%a)([%w_']*)",function(head,tail) 
     return string.format("%s%s",string.upper(head),string.lower(tail)) 
     end)
+end
+
+function SimpleShareEPGP:GetUnitGUID(unit)
+  local _, source = UnitExists(unit);
+
+  if (not source) then
+    source = UnitName(unit) or "Unknown";
+  end
+  return source;
 end
 
 -------------
