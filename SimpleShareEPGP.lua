@@ -1053,7 +1053,7 @@ end
 
 function SimpleShareEPGP:addonComms(prefix, message, channel, sender)
   -- we don't care for messages from other addons
-  if (not (prefix == self.VARS.prefix)) then
+  if (prefix ~= self.VARS.prefix) then
     return
   end
 
