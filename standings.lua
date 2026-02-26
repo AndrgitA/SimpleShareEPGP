@@ -123,7 +123,10 @@ function SimpleShareEPGPStandings:GetExportData()
   end
 
   table.sort(t, function(a,b)
-    return tonumber(a[4]) > tonumber(b[4]);
+    if (a[4] ~= b[4]) then
+      return tonumber(a[4]) > tonumber(b[4]);
+    end
+    return tostring(a[1]) < tostring(b[1]);
   end);
 
   local txt = "Name;EP;GP;PR;Class\n"
@@ -388,10 +391,11 @@ local pr_sorter_standings = function(a,b)
     local b_over = b[4] - SimpleShareEPGPCharacterConfig.minep >= 0
     if a_over and b_over or (not a_over and not b_over) then
       if a[6] ~= b[6] then
-        return tonumber(a[6]) > tonumber(b[6])
-      else
-        return tonumber(a[4]) > tonumber(b[4])
+        return tonumber(a[6]) > tonumber(b[6]);
+      -- elseif a[4] ~= b[4] then
+      --   return tonumber(a[4]) > tonumber(b[4]);
       end
+      return tostring(a[1]) < tostring(b[1]);
     elseif a_over and (not b_over) then
       return true
     elseif b_over and (not a_over) then
@@ -399,10 +403,11 @@ local pr_sorter_standings = function(a,b)
     end
   else
     if a[6] ~= b[6] then
-      return tonumber(a[6]) > tonumber(b[6])
-    else
-      return tonumber(a[4]) > tonumber(b[4])
+      return tonumber(a[6]) > tonumber(b[6]);
+    -- elseif a[4] ~= b[4] then
+    --   return tonumber(a[4]) > tonumber(b[4]);
     end
+    return tostring(a[1]) < tostring(b[1]);
   end
 end
 -- Builds a standings table with record:
